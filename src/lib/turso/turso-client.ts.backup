@@ -1,0 +1,200 @@
+/**
+ * Turso HTTP API Client
+ * 
+ * This client provides a type-safe interface to interact with Turso database
+ * using the REST API as documented at https://docs.turso.tech/sdk/http/quickstart
+ */
+
+interface TursoConfig {
+  databaseUrl: string
+  authToken: string
+}
+
+interface TursoStatement {
+  q: string // SQL query
+  params?: (string | number | boolean | null)[] // Parameters for prepared statements
+}
+
+interface TursoRequest {
+  statements: TursoStatement[]
+}
+
+interface TursoResultRow {
+  [key: string]: string | number | boolean | null
+}
+
+interface TursoStatementResult {
+  columns: string[]
+  rows: (string | number | boolean | null)[][]
+  affected_row_count?: number
+  last_insert_rowid?: string | number
+}
+
+interface TursoResponse {
+  results: TursoStatementResult[]
+}
+
+interface TursoError {
+  message: string
+  code?: string
+}
+
+export class TursoClient {
+  private config: TursoConfig
+
+  constructor(config: TursoConfig) {
+    this.config = config
+  }
+
+  /**
+   * Execute a single SQL statement
+   */
+  async execute(sql: string, params?: (string | number | boolean | null)[]): Promise<TursoStatementResult> {
+    const response = await this.batch([{ q: sql, params }])
+    return response.results[0]
+  }
+
+  /**
+   * Execute multiple SQL statements in a transaction
+   */
+  async batch(statements: TursoStatement[]): Promise<TursoResponse> {
+    const url = `${this.config.databaseUrl.replace('libsql:', 'https:')}/v2/pipeline`
+    
+    const request: TursoRequest = {
+      statements
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.config.authToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request)
+    })
+
+    if (!response.ok) {
+      const error: TursoError = await response.json()
+      throw new Error(`Turso API error: ${error.message}`)
+    }
+
+    return await response.json()
+  }
+
+  /**
+   * Helper method to convert rows to objects
+   */
+  rowsToObjects<T = TursoResultRow>(result: TursoStatementResult): T[] {
+    return result.rows.map(row => {
+      const obj: TursoResultRow = {}
+      result.columns.forEach((column, index) => {
+        obj[column] = row[index]
+      })
+      return obj as T
+    })
+  }
+
+  /**
+   * Helper method for SELECT queries that return objects
+   */
+  async query<T = TursoResultRow>(
+    sql: string, 
+    params?: (string | number | boolean | null)[]
+  ): Promise<T[]> {
+    const result = await this.execute(sql, params)
+    return this.rowsToObjects<T>(result)
+  }
+
+  /**
+   * Helper method for INSERT/UPDATE/DELETE queries
+   */
+  async run(
+    sql: string, 
+    params?: (string | number | boolean | null)[]
+  ): Promise<{ changes: number; lastInsertRowid?: string | number }> {
+    const result = await this.execute(sql, params)
+    return {
+      changes: result.affected_row_count || 0,
+      lastInsertRowid: result.last_insert_rowid
+    }
+  }
+}
+
+// Validate configuration
+const databaseUrl = import.meta.env.VITE_TURSO_DATABASE_URL
+const authToken = import.meta.env.VITE_TURSO_AUTH_TOKEN
+
+if (!databaseUrl || !authToken) {
+  throw new Error(
+    'Turso configuration missing! Please set VITE_TURSO_DATABASE_URL and VITE_TURSO_AUTH_TOKEN in your environment variables. ' +
+    'Copy .env.example to .env.local and configure your Turso database credentials.'
+  )
+}
+
+// Create and export configured client instance
+export const tursoClient = new TursoClient({
+  databaseUrl,
+  authToken,
+})
+
+// Type-safe database row interfaces based on our schema
+export interface UserRow {
+  id: string
+  email: string
+  name: string
+  password_hash: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ProjectRow {
+  id: string
+  user_id: string
+  name: string
+  description: string | null
+  color: string
+  created_at: string
+  updated_at: string
+}
+
+export interface TimeEntryRow {
+  id: string
+  user_id: string
+  project_id: string
+  description: string | null
+  start_time: string
+  end_time: string
+  duration: number
+  created_at: string
+  updated_at: string
+}
+
+export interface NoteRow {
+  id: string
+  user_id: string
+  project_id: string | null
+  title: string
+  content: string
+  created_at: string
+  updated_at: string
+}
+
+export interface TagRow {
+  id: string
+  user_id: string
+  name: string
+  color: string
+  created_at: string
+}
+
+export interface TimeEntryTagRow {
+  time_entry_id: string
+  tag_name: string
+  user_id: string
+}
+
+export interface NoteTagRow {
+  note_id: string
+  tag_name: string
+  user_id: string
+}

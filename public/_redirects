@@ -1,0 +1,9 @@
+# SPA fallback for client-side routing
+# This ensures all routes are handled by the React app
+/*    /index.html   200
+
+# API routes if you have any in the future
+# /api/*  https://api.timenote.com/:splat  200
+
+# Health check endpoint for monitoring
+/health    /index.html    200
