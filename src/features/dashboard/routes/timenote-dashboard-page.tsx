@@ -1,6 +1,18 @@
 import { useNavigate } from 'react-router-dom'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
-import { FileText, LayoutList, Calendar as CalendarIcon, Clock, Plus, X, Play, Pause, Volume2, VolumeX, RotateCcw } from 'lucide-react'
+import {
+  FileText,
+  LayoutList,
+  Calendar as CalendarIcon,
+  Clock,
+  Plus,
+  X,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  RotateCcw,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -25,7 +37,17 @@ export function TimeNoteDashboardPage() {
   const { data: stats, isLoading, error } = useTimeNoteDashboard()
   const { data: timeEntries = [] } = useTimeEntries()
   const { data: notes = [] } = useNotes()
-  const { activeTimer, pauseTimer, resumeTimer, updateSettings, timerSettings, stopTimer, updateTimer, switchMode, resetTimer } = useActiveTimer()
+  const {
+    activeTimer,
+    pauseTimer,
+    resumeTimer,
+    updateSettings,
+    timerSettings,
+    stopTimer,
+    updateTimer,
+    switchMode,
+    resetTimer,
+  } = useActiveTimer()
   const { elapsedSeconds, remainingSeconds, totalWorkSeconds } = useTimerTicker()
   const { data: projects = [] } = useProjects()
   const [view, setView] = useState<'overview' | 'calendar'>('overview')
@@ -87,7 +109,9 @@ export function TimeNoteDashboardPage() {
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-black tracking-[0.2em] uppercase">
                 {activeTimer ? 'Configure Session' : 'Prepare Focus Session'}
               </div>
-              <h2 className="text-4xl font-black tracking-tight">{activeTimer ? 'Update durations?' : 'Ready to focus?'}</h2>
+              <h2 className="text-4xl font-black tracking-tight">
+                {activeTimer ? 'Update durations?' : 'Ready to focus?'}
+              </h2>
             </div>
 
             <div className="space-y-6 text-left">
@@ -144,11 +168,16 @@ export function TimeNoteDashboardPage() {
                       Pomodoro
                     </label>
                   </div>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     className="w-full h-10 px-3 rounded-xl bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background transition-all outline-none text-sm font-black"
                     value={focusDetails.workDurationMinutes}
-                    onChange={(e) => setFocusDetails(prev => ({ ...prev, workDurationMinutes: parseFloat(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setFocusDetails((prev) => ({
+                        ...prev,
+                        workDurationMinutes: parseFloat(e.target.value) || 0,
+                      }))
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -157,11 +186,16 @@ export function TimeNoteDashboardPage() {
                       Short Break
                     </label>
                   </div>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     className="w-full h-10 px-3 rounded-xl bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background transition-all outline-none text-sm font-black"
                     value={focusDetails.shortBreakDurationMinutes}
-                    onChange={(e) => setFocusDetails(prev => ({ ...prev, shortBreakDurationMinutes: parseFloat(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setFocusDetails((prev) => ({
+                        ...prev,
+                        shortBreakDurationMinutes: parseFloat(e.target.value) || 0,
+                      }))
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -170,11 +204,16 @@ export function TimeNoteDashboardPage() {
                       Long Break
                     </label>
                   </div>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     className="w-full h-10 px-3 rounded-xl bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background transition-all outline-none text-sm font-black"
                     value={focusDetails.longBreakDurationMinutes}
-                    onChange={(e) => setFocusDetails(prev => ({ ...prev, longBreakDurationMinutes: parseFloat(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setFocusDetails((prev) => ({
+                        ...prev,
+                        longBreakDurationMinutes: parseFloat(e.target.value) || 0,
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -184,17 +223,23 @@ export function TimeNoteDashboardPage() {
                   Alert Volume
                 </label>
                 <div className="flex items-center gap-4 px-4 h-12 rounded-2xl bg-muted/20 border border-muted-foreground/10">
-                  {timerSettings.volume === 0 ? <VolumeX className="h-4 w-4 text-muted-foreground" /> : <Volume2 className="h-4 w-4 text-muted-foreground" />}
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="1" 
-                    step="0.1" 
+                  {timerSettings.volume === 0 ? (
+                    <VolumeX className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Volume2 className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
                     value={timerSettings.volume}
                     onChange={(e) => updateSettings({ volume: parseFloat(e.target.value) })}
                     className="flex-1 accent-primary"
                   />
-                  <span className="text-[10px] font-black w-8">{Math.round(timerSettings.volume * 100)}%</span>
+                  <span className="text-[10px] font-black w-8">
+                    {Math.round(timerSettings.volume * 100)}%
+                  </span>
                 </div>
               </div>
 
@@ -241,7 +286,8 @@ export function TimeNoteDashboardPage() {
       }
     }
 
-    const countdownTime = remainingSeconds !== null ? formatTime(remainingSeconds) : formatTime(elapsedSeconds)
+    const countdownTime =
+      remainingSeconds !== null ? formatTime(remainingSeconds) : formatTime(elapsedSeconds)
     const sessionTime = formatTime(totalWorkSeconds)
 
     const modeColors = {
@@ -260,8 +306,12 @@ export function TimeNoteDashboardPage() {
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-140px)] animate-in fade-in zoom-in-95 duration-500">
         <div className="text-center space-y-8 max-w-xl w-full p-8 sm:p-12 rounded-[40px] bg-card border shadow-2xl shadow-primary/5 relative overflow-hidden transition-all duration-500">
           {/* Dynamic background glow based on mode */}
-          <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-20 transition-colors duration-700 ${activeTimer.mode === 'work' ? 'bg-primary' : activeTimer.mode === 'shortBreak' ? 'bg-teal-500' : 'bg-blue-500'}`} />
-          <div className={`absolute -bottom-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-10 transition-colors duration-700 ${activeTimer.mode === 'work' ? 'bg-primary' : activeTimer.mode === 'shortBreak' ? 'bg-teal-500' : 'bg-blue-500'}`} />
+          <div
+            className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-20 transition-colors duration-700 ${activeTimer.mode === 'work' ? 'bg-primary' : activeTimer.mode === 'shortBreak' ? 'bg-teal-500' : 'bg-blue-500'}`}
+          />
+          <div
+            className={`absolute -bottom-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-10 transition-colors duration-700 ${activeTimer.mode === 'work' ? 'bg-primary' : activeTimer.mode === 'shortBreak' ? 'bg-teal-500' : 'bg-blue-500'}`}
+          />
 
           <div className="space-y-6 relative z-10">
             {/* Mode Tabs */}
@@ -278,7 +328,9 @@ export function TimeNoteDashboardPage() {
             </div>
 
             <div className="space-y-2">
-              <div className={`text-[100px] sm:text-[120px] font-mono font-bold tracking-tighter tabular-nums leading-none select-none transition-all duration-500 ${activeTimer.isPaused ? 'opacity-30 scale-95' : 'opacity-100 scale-100 text-foreground'}`}>
+              <div
+                className={`text-[100px] sm:text-[120px] font-mono font-bold tracking-tighter tabular-nums leading-none select-none transition-all duration-500 ${activeTimer.isPaused ? 'opacity-30 scale-95' : 'opacity-100 scale-100 text-foreground'}`}
+              >
                 {countdownTime.minutes}:{countdownTime.seconds}
               </div>
             </div>
@@ -287,7 +339,7 @@ export function TimeNoteDashboardPage() {
               <Button
                 size="lg"
                 className="w-48 h-16 bg-primary text-primary-foreground hover:bg-primary/90 text-2xl font-black rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 active:shadow-none border-b-4 border-primary-foreground/20"
-                onClick={() => activeTimer.isPaused ? resumeTimer() : pauseTimer()}
+                onClick={() => (activeTimer.isPaused ? resumeTimer() : pauseTimer())}
               >
                 {activeTimer.isPaused ? 'START' : 'PAUSE'}
               </Button>
@@ -373,8 +425,6 @@ export function TimeNoteDashboardPage() {
     )
   }
 
-
-
   return (
     <div className="space-y-6 sm:space-y-8 pb-24 sm:pb-8">
       <div className="flex items-center justify-between gap-2 px-0.5">
@@ -438,7 +488,6 @@ export function TimeNoteDashboardPage() {
 
       {view === 'overview' ? (
         <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500">
-
           {/* Stats Cards */}
           <StatsCards stats={stats} />
 

@@ -203,7 +203,7 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     setActiveTimer((prev) => {
       if (!prev || prev.mode === mode) return prev
       const now = new Date()
-      
+
       // Calculate how much time was spent in the PREVIOUS mode
       const extraSeconds = prev.isPaused
         ? 0
@@ -220,13 +220,13 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
       updated.mode = mode
       updated.startTime = now
       updated.isPaused = false // Auto-start on switch
-      
+
       // If we are switching TO a break, we want a fresh start for that break
       if (mode !== 'work') {
-        updated.restAccumulatedSeconds = 0 
+        updated.restAccumulatedSeconds = 0
       }
       // If we are switching TO work, we preserve workAccumulatedSeconds (the user requested this earlier: "do not reset main time")
-      
+
       return updated
     })
   }
@@ -259,8 +259,10 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     ? (activeTimer.mode === 'work'
         ? activeTimer.settings?.workDurationMinutes || timerSettings.workDurationMinutes
         : activeTimer.mode === 'shortBreak'
-        ? activeTimer.settings?.shortBreakDurationMinutes || timerSettings.shortBreakDurationMinutes
-        : activeTimer.settings?.longBreakDurationMinutes || timerSettings.longBreakDurationMinutes) * 60
+          ? activeTimer.settings?.shortBreakDurationMinutes ||
+            timerSettings.shortBreakDurationMinutes
+          : activeTimer.settings?.longBreakDurationMinutes ||
+            timerSettings.longBreakDurationMinutes) * 60
     : null
 
   const remainingSeconds =
@@ -348,4 +350,3 @@ export function useTimerTicker() {
   }
   return context
 }
-
