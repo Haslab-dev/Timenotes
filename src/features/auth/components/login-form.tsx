@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useLogin } from '../hooks/use-auth'
 
-
 interface LoginFormProps {
   onSuccess?: () => void
   onSwitchToSignup?: () => void
@@ -41,9 +40,7 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
     <div className="w-full max-w-md mx-auto space-y-6">
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-bold">Welcome back</h1>
-        <p className="text-muted-foreground">
-          Sign in to your TimeNote account
-        </p>
+        <p className="text-muted-foreground">Sign in to your TimeNotes account</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -77,9 +74,9 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
           />
         </div>
 
-        <Button 
-          type="submit" 
-          className="w-full" 
+        <Button
+          type="submit"
+          className="w-full"
           disabled={loginMutation.isPending || !email.trim() || !password.trim()}
         >
           {loginMutation.isPending ? 'Signing in...' : 'Sign in'}
@@ -89,10 +86,7 @@ export function LoginForm({ onSuccess, onSwitchToSignup }: LoginFormProps) {
       {onSwitchToSignup && (
         <div className="text-center text-sm">
           <span className="text-muted-foreground">Don't have an account? </span>
-          <button
-            onClick={onSwitchToSignup}
-            className="text-primary hover:underline font-medium"
-          >
+          <button onClick={onSwitchToSignup} className="text-primary hover:underline font-medium">
             Sign up
           </button>
         </div>

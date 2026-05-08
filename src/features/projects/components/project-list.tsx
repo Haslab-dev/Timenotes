@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { Plus, Edit2, Trash2 } from 'lucide-react'
+import { Plus, Edit2, Trash2, Clock, FileText, Download } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -9,7 +11,16 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { ProjectForm } from './project-form'
-import { useProjects, useCreateProject, useUpdateProject, useDeleteProject } from '../hooks/use-projects'
+import {
+  useProjects,
+  useCreateProject,
+  useUpdateProject,
+  useDeleteProject,
+} from '../hooks/use-projects'
+import { useTimeEntries } from '@/features/timesheet/hooks/use-timesheet'
+import { useNotes } from '@/features/notes/hooks/use-notes'
+import { exportProjectsToCsv } from '@/lib/utils/csv-export'
+import { formatDuration } from '@/lib/utils'
 import type { Project, CreateProjectRequest, UpdateProjectRequest } from '@/lib/types'
 
 export function ProjectList() {
@@ -17,9 +28,27 @@ export function ProjectList() {
   const [editingProject, setEditingProject] = useState<Project | null>(null)
 
   const { data: projects = [], isLoading } = useProjects()
+  const { data: timeEntries = [] } = useTimeEntries()
+  const { data: notes = [] } = useNotes()
   const createMutation = useCreateProject()
   const updateMutation = useUpdateProject()
   const deleteMutation = useDeleteProject()
+
+  // Helper function to get project stats
+  const getProjectStats = (projectId: string) => {
+    const projectTimeEntries = timeEntries.filter((entry) => entry.projectId === projectId)
+    const projectNotes = notes.filter((note) => note.projectId === projectId)
+    const totalMinutes = projectTimeEntries.reduce(
+      (sum, entry) => sum + (Number(entry.duration) || 0),
+      0
+    )
+
+    return {
+      timeEntries: projectTimeEntries.length,
+      notes: projectNotes.length,
+      totalMinutes,
+    }
+  }
 
   const handleCreateProject = async (data: CreateProjectRequest) => {
     try {
@@ -32,7 +61,7 @@ export function ProjectList() {
 
   const handleUpdateProject = async (data: UpdateProjectRequest) => {
     if (!editingProject) return
-    
+
     try {
       await updateMutation.mutateAsync({ id: editingProject.id, data })
       setEditingProject(null)
@@ -45,7 +74,7 @@ export function ProjectList() {
     if (!confirm('Are you sure? This will also delete all associated time entries and notes.')) {
       return
     }
-    
+
     try {
       await deleteMutation.mutateAsync(id)
     } catch (error) {
@@ -53,32 +82,48 @@ export function ProjectList() {
     }
   }
 
+  const handleExportCsv = () => {
+    exportProjectsToCsv(projects, timeEntries, notes)
+  }
+
   if (isLoading) {
     return <div className="text-center py-8 text-muted-foreground">Loading projects...</div>
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Projects</h2>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              New Project
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Project</DialogTitle>
-            </DialogHeader>
-            <ProjectForm
-              onSubmit={handleCreateProject}
-              onCancel={() => setIsCreateDialogOpen(false)}
-              isLoading={createMutation.isPending}
-            />
-          </DialogContent>
-        </Dialog>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-3 sm:space-y-4">
+        <h2 className="text-xl sm:text-2xl font-bold px-0.5 text-left">Projects</h2>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="w-full sm:w-auto">
+                <Plus className="h-4 w-4 mr-2" />
+                New Project
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Project</DialogTitle>
+              </DialogHeader>
+              <ProjectForm
+                onSubmit={handleCreateProject}
+                onCancel={() => setIsCreateDialogOpen(false)}
+                isLoading={createMutation.isPending}
+              />
+            </DialogContent>
+          </Dialog>
+          <Button
+            variant="outline"
+            size="default"
+            onClick={handleExportCsv}
+            disabled={projects.length === 0}
+            className="w-full sm:w-auto h-9 sm:h-10 text-xs sm:text-sm"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {projects.length === 0 ? (
@@ -91,48 +136,86 @@ export function ProjectList() {
           </Dialog>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              className="border rounded-lg p-4 space-y-3 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-4 h-4 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: project.color }}
-                  />
-                  <h3 className="font-semibold truncate">{project.name}</h3>
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => {
+            const stats = getProjectStats(project.id)
+            return (
+              <div
+                key={project.id}
+                className="group relative bg-card rounded-xl border p-4 sm:p-6 space-y-3 sm:space-y-4 hover:shadow-lg hover:shadow-primary/10 transition-all duration-200 hover:scale-[1.02] cursor-pointer text-left"
+              >
+                <Link to={`/projects/${project.id}`} className="absolute inset-0 z-10" />
+
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div
+                      className="w-8 h-8 rounded-xl flex-shrink-0 shadow-sm flex items-center justify-center text-white font-bold text-xs"
+                      style={{ backgroundColor: project.color }}
+                    >
+                      {project.name.substring(0, 2).toUpperCase()}
+                    </div>
+                    <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">
+                      {project.name}
+                    </h3>
+                  </div>
+                  <div className="flex gap-1 relative z-20">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setEditingProject(project)
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleDeleteProject(project.id)
+                      }}
+                      disabled={deleteMutation.isPending}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setEditingProject(project)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteProject(project.id)}
-                    disabled={deleteMutation.isPending}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+
+                {project.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {project.description}
+                  </p>
+                )}
+
+                {/* Project Stats */}
+                <div className="flex items-center gap-4 pt-2 border-t">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span className="font-medium">{formatDuration(stats.totalMinutes)}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <FileText className="h-3.5 w-3.5" />
+                    <span className="font-medium">{stats.notes}</span>
+                  </div>
+                  <div className="ml-auto">
+                    <Badge variant="secondary" className="text-xs">
+                      {stats.timeEntries} entries
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="text-xs text-muted-foreground">
+                  Created {new Date(project.createdAt).toLocaleDateString()}
                 </div>
               </div>
-              {project.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {project.description}
-                </p>
-              )}
-              <div className="text-xs text-muted-foreground">
-                Created {new Date(project.createdAt).toLocaleDateString()}
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 

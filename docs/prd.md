@@ -1,8 +1,8 @@
-Product Requirement Document (PRD) — TimeNote (Revised with Repository + IndexedDB)
+Product Requirement Document (PRD) — TimeNotes (Revised with Repository + IndexedDB)
 
 1. Product Overview
 
-TimeNote adalah aplikasi web stunning & modern untuk pencatatan timesheet by project, notes ide, tagging aktivitas, serta basic analytics, dengan arsitektur frontend-first.
+TimeNotes adalah aplikasi web stunning & modern untuk pencatatan timesheet by project, notes ide, tagging aktivitas, serta basic analytics, dengan arsitektur frontend-first.
 Arsitektur data menggunakan Repository pattern dengan IndexedDB, agar fleksibel mengganti BaaS/API tanpa memodifikasi implementasi UI.
 
 ⸻

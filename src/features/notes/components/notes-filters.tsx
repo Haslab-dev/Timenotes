@@ -2,7 +2,13 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Search, Filter, X, Tags } from 'lucide-react'
 import { useProjects } from '@/features/projects/hooks/use-projects'
@@ -28,7 +34,7 @@ export function NotesFiltersComponent({
 
   const handleTagToggle = (tag: string) => {
     const newTags = filters.tags.includes(tag)
-      ? filters.tags.filter(t => t !== tag)
+      ? filters.tags.filter((t) => t !== tag)
       : [...filters.tags, tag]
     onFiltersChange({ tags: newTags })
   }
@@ -46,7 +52,7 @@ export function NotesFiltersComponent({
             className="pl-9"
           />
         </div>
-        
+
         <Button
           variant="outline"
           onClick={() => setShowFilters(!showFilters)}
@@ -56,10 +62,10 @@ export function NotesFiltersComponent({
           Filters
           {hasActiveFilters && (
             <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
-              {[
-                filters.tags.length > 0 && 'Tags',
-                filters.projectId && 'Project',
-              ].filter(Boolean).length}
+              {
+                [filters.tags.length > 0 && 'Tags', filters.projectId && 'Project'].filter(Boolean)
+                  .length
+              }
             </Badge>
           )}
         </Button>
@@ -80,9 +86,11 @@ export function NotesFiltersComponent({
             {/* Project Filter */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">Project</Label>
-              <Select 
-                value={filters.projectId || '__none__'} 
-                onValueChange={(value) => onFiltersChange({ projectId: value === '__none__' ? undefined : value })}
+              <Select
+                value={filters.projectId || '__none__'}
+                onValueChange={(value) =>
+                  onFiltersChange({ projectId: value === '__none__' ? undefined : value })
+                }
               >
                 <SelectTrigger className="h-9">
                   <SelectValue placeholder="All projects" />
@@ -92,8 +100,8 @@ export function NotesFiltersComponent({
                   {projects?.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
                       <div className="flex items-center gap-2">
-                        <div 
-                          className="w-2 h-2 rounded-full" 
+                        <div
+                          className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: project.color }}
                         />
                         <span className="truncate">{project.name}</span>
@@ -136,9 +144,9 @@ export function NotesFiltersComponent({
         <div className="flex flex-wrap gap-2">
           {filters.projectId && (
             <Badge variant="secondary" className="gap-1">
-              Project: {projects?.find(p => p.id === filters.projectId)?.name}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
+              Project: {projects?.find((p) => p.id === filters.projectId)?.name}
+              <X
+                className="h-3 w-3 cursor-pointer"
                 onClick={() => onFiltersChange({ projectId: undefined })}
               />
             </Badge>
@@ -146,10 +154,7 @@ export function NotesFiltersComponent({
           {filters.tags.map((tag) => (
             <Badge key={tag} variant="secondary" className="gap-1">
               Tag: {tag}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => handleTagToggle(tag)}
-              />
+              <X className="h-3 w-3 cursor-pointer" onClick={() => handleTagToggle(tag)} />
             </Badge>
           ))}
         </div>

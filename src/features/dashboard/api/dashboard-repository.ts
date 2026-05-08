@@ -8,7 +8,7 @@ class DashboardRepository {
     const startOfWeek = new Date(now)
     startOfWeek.setDate(now.getDate() - now.getDay())
     startOfWeek.setHours(0, 0, 0, 0)
-    
+
     const endOfWeek = new Date(startOfWeek)
     endOfWeek.setDate(startOfWeek.getDate() + 6)
     endOfWeek.setHours(23, 59, 59, 999)
@@ -20,41 +20,52 @@ class DashboardRepository {
     const [
       weekHoursResult,
       monthHoursResult,
+      todayHoursResult,
       projectCountResult,
       notesCountResult,
       recentTimeEntriesResult,
       recentNotesResult,
       topProjectsResult,
-      tagHoursResult
+      tagHoursResult,
     ] = await Promise.all([
       // Total hours this week
       tursoClient.query<{ total_hours: number }>(
         `SELECT COALESCE(SUM(duration), 0) / 60.0 as total_hours 
          FROM time_entries 
-         WHERE user_id = ? AND start_time >= ? AND end_time <= ?`,
-        [userId, startOfWeek.toISOString(), endOfWeek.toISOString()]
+         WHERE user_id = ? AND start_time >= ?`,
+        [userId, startOfWeek.toISOString()]
       ),
-      
+
       // Total hours this month
       tursoClient.query<{ total_hours: number }>(
         `SELECT COALESCE(SUM(duration), 0) / 60.0 as total_hours 
          FROM time_entries 
-         WHERE user_id = ? AND start_time >= ? AND end_time <= ?`,
-        [userId, startOfMonth.toISOString(), endOfMonth.toISOString()]
+         WHERE user_id = ? AND start_time >= ?`,
+        [userId, startOfMonth.toISOString()]
       ),
-      
+
+      // Total hours today
+      tursoClient.query<{ total_hours: number; project_count: number }>(
+        `SELECT 
+          COALESCE(SUM(duration), 0) / 60.0 as total_hours,
+          COUNT(DISTINCT project_id) as project_count
+         FROM time_entries 
+         WHERE user_id = ? AND date(start_time, 'localtime') = date('now', 'localtime')`,
+        [userId]
+      ),
+
       // Active projects count
       tursoClient.query<{ count: number }>(
         'SELECT COUNT(*) as count FROM projects WHERE user_id = ?',
         [userId]
       ),
-      
+
       // Total notes count
       tursoClient.query<{ count: number }>(
         'SELECT COUNT(*) as count FROM notes WHERE user_id = ?',
         [userId]
       ),
-      
+
       // Recent time entries
       tursoClient.query<{
         id: string
@@ -71,7 +82,7 @@ class DashboardRepository {
          LIMIT 5`,
         [userId]
       ),
-      
+
       // Recent notes
       tursoClient.query<{
         id: string
@@ -87,7 +98,7 @@ class DashboardRepository {
          LIMIT 5`,
         [userId]
       ),
-      
+
       // Top projects this month
       tursoClient.query<{
         project_id: string
@@ -108,7 +119,7 @@ class DashboardRepository {
          LIMIT 3`,
         [userId, startOfMonth.toISOString(), endOfMonth.toISOString()]
       ),
-      
+
       // Hours per tag this month
       tursoClient.query<{
         tag_name: string
@@ -124,17 +135,19 @@ class DashboardRepository {
          ORDER BY total_hours DESC
          LIMIT 5`,
         [userId, startOfMonth.toISOString(), endOfMonth.toISOString()]
-      )
+      ),
     ])
 
     // Transform data
+    const totalHoursToday = todayHoursResult[0]?.total_hours || 0
+    const activeProjectsToday = todayHoursResult[0]?.project_count || 0
     const totalHoursThisWeek = weekHoursResult[0]?.total_hours || 0
     const totalHoursThisMonth = monthHoursResult[0]?.total_hours || 0
     const activeProjects = projectCountResult[0]?.count || 0
     const totalNotes = notesCountResult[0]?.count || 0
 
     // Transform recent time entries
-    const recentTimeEntries = recentTimeEntriesResult.map(entry => ({
+    const recentTimeEntries = recentTimeEntriesResult.map((entry) => ({
       id: entry.id,
       userId,
       projectId: entry.project_id,
@@ -148,7 +161,7 @@ class DashboardRepository {
     }))
 
     // Transform recent notes
-    const recentNotes = recentNotesResult.map(note => ({
+    const recentNotes = recentNotesResult.map((note) => ({
       id: note.id,
       userId,
       title: note.title,
@@ -160,8 +173,9 @@ class DashboardRepository {
     }))
 
     // Transform top projects
-    const topProjects = topProjectsResult.map(project => {
-      const percentage = totalHoursThisMonth > 0 ? (project.total_hours / totalHoursThisMonth) * 100 : 0
+    const topProjects = topProjectsResult.map((project) => {
+      const percentage =
+        totalHoursThisMonth > 0 ? (project.total_hours / totalHoursThisMonth) * 100 : 0
       return {
         project: {
           id: project.project_id,
@@ -178,14 +192,16 @@ class DashboardRepository {
     })
 
     // Transform tag hours
-    const hoursPerTag = tagHoursResult.map(tag => ({
+    const hoursPerTag = tagHoursResult.map((tag) => ({
       tag: tag.tag_name,
       hours: tag.total_hours,
     }))
 
     return {
+      totalHoursToday,
       totalHoursThisWeek,
       totalHoursThisMonth,
+      activeProjectsToday,
       activeProjects,
       totalNotes,
       recentTimeEntries,

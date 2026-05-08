@@ -1,11 +1,11 @@
 import { TursoRepository } from '@/lib/api/turso-repository'
 import { tursoClient } from '@/lib/turso/turso-client'
 import type { TimeEntryRow } from '@/lib/turso/turso-client'
-import type { 
-  TimeEntry, 
-  CreateTimeEntryRequest, 
+import type {
+  TimeEntry,
+  CreateTimeEntryRequest,
   UpdateTimeEntryRequest,
-  TimeRange 
+  TimeRange,
 } from '@/lib/types'
 
 class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> {
@@ -26,7 +26,9 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
     }
   }
 
-  protected entityToRow(entity: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>): Omit<TimeEntryRow, 'id' | 'created_at' | 'updated_at'> {
+  protected entityToRow(
+    entity: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt'>
+  ): Omit<TimeEntryRow, 'id' | 'created_at' | 'updated_at'> {
     return {
       user_id: entity.userId,
       project_id: entity.projectId,
@@ -39,13 +41,11 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
 
   async createTimeEntry(data: CreateTimeEntryRequest, userId: string): Promise<TimeEntry> {
     // Calculate duration in minutes
-    const duration = Math.round(
-      (data.endTime.getTime() - data.startTime.getTime()) / (1000 * 60)
-    )
+    const duration = Math.round((data.endTime.getTime() - data.startTime.getTime()) / (1000 * 60))
 
     // Start transaction to create time entry and tags
     const statements = []
-    const entryId = crypto.randomUUID()
+    const entryId = data.id || crypto.randomUUID()
     const now = new Date().toISOString()
 
     // Create time entry
@@ -61,8 +61,8 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
         data.endTime.toISOString(),
         duration,
         now,
-        now
-      ]
+        now,
+      ],
     })
 
     // Add tags
@@ -70,7 +70,7 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
       for (const tag of data.tags) {
         statements.push({
           q: 'INSERT OR IGNORE INTO time_entry_tags (time_entry_id, tag_name, user_id) VALUES (?, ?, ?)',
-          params: [entryId, tag, userId]
+          params: [entryId, tag, userId],
         })
       }
     }
@@ -78,36 +78,40 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
     await tursoClient.batch(statements)
 
     // Return the created entry with tags
-    return await this.getTimeEntryWithTags(entryId, userId) as TimeEntry
+    return (await this.getTimeEntryWithTags(entryId, userId)) as TimeEntry
   }
 
-  async updateTimeEntry(id: string, userId: string, data: UpdateTimeEntryRequest): Promise<TimeEntry | null> {
+  async updateTimeEntry(
+    id: string,
+    userId: string,
+    data: UpdateTimeEntryRequest
+  ): Promise<TimeEntry | null> {
     const existing = await this.getById(id, userId)
     if (!existing) {
       return null
     }
 
     const statements = []
-    
+
     // Prepare update data
     const updates: string[] = []
     const values: any[] = []
-    
+
     if (data.projectId !== undefined) {
       updates.push('project_id = ?')
       values.push(data.projectId)
     }
-    
+
     if (data.description !== undefined) {
       updates.push('description = ?')
       values.push(data.description || null)
     }
-    
+
     if (data.startTime !== undefined) {
       updates.push('start_time = ?')
       values.push(data.startTime.toISOString())
     }
-    
+
     if (data.endTime !== undefined) {
       updates.push('end_time = ?')
       values.push(data.endTime.toISOString())
@@ -117,10 +121,10 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
     const newStartTime = data.startTime || existing.startTime
     const newEndTime = data.endTime || existing.endTime
     const newDuration = Math.round((newEndTime.getTime() - newStartTime.getTime()) / (1000 * 60))
-    
+
     updates.push('duration = ?')
     values.push(newDuration)
-    
+
     updates.push('updated_at = ?')
     values.push(new Date().toISOString())
     values.push(id, userId)
@@ -128,7 +132,7 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
     // Update time entry
     statements.push({
       q: `UPDATE time_entries SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`,
-      params: values
+      params: values,
     })
 
     // Handle tags update
@@ -136,14 +140,14 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
       // Delete existing tags
       statements.push({
         q: 'DELETE FROM time_entry_tags WHERE time_entry_id = ? AND user_id = ?',
-        params: [id, userId]
+        params: [id, userId],
       })
 
       // Add new tags
       for (const tag of data.tags) {
         statements.push({
           q: 'INSERT INTO time_entry_tags (time_entry_id, tag_name, user_id) VALUES (?, ?, ?)',
-          params: [id, tag, userId]
+          params: [id, tag, userId],
         })
       }
     }
@@ -158,27 +162,27 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
       // Delete tags first
       {
         q: 'DELETE FROM time_entry_tags WHERE time_entry_id = ? AND user_id = ?',
-        params: [id, userId]
+        params: [id, userId],
       },
       // Delete time entry
       {
         q: 'DELETE FROM time_entries WHERE id = ? AND user_id = ?',
-        params: [id, userId]
-      }
+        params: [id, userId],
+      },
     ]
 
     const response = await tursoClient.batch(statements)
     const lastResult = response.results[response.results.length - 1]
-    
+
     return (lastResult.changes || 0) > 0
   }
 
   async getTimeEntries(userId: string): Promise<TimeEntry[]> {
     const entries = await this.getAll(userId)
-    
+
     // Populate tags for all entries
     const entriesWithTags = await Promise.all(
-      entries.map(async entry => {
+      entries.map(async (entry) => {
         const tags = await this.getTagsForTimeEntry(entry.id, userId)
         return { ...entry, tags }
       })
@@ -197,11 +201,11 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
       [projectId, userId]
     )
 
-    const entries = rows.map(row => this.rowToEntity(row))
-    
+    const entries = rows.map((row) => this.rowToEntity(row))
+
     // Populate tags
     const entriesWithTags = await Promise.all(
-      entries.map(async entry => {
+      entries.map(async (entry) => {
         const tags = await this.getTagsForTimeEntry(entry.id, userId)
         return { ...entry, tags }
       })
@@ -218,11 +222,11 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
       [userId, range.start.toISOString(), range.end.toISOString()]
     )
 
-    const entries = rows.map(row => this.rowToEntity(row))
-    
+    const entries = rows.map((row) => this.rowToEntity(row))
+
     // Populate tags
     const entriesWithTags = await Promise.all(
-      entries.map(async entry => {
+      entries.map(async (entry) => {
         const tags = await this.getTagsForTimeEntry(entry.id, userId)
         return { ...entry, tags }
       })
@@ -240,11 +244,11 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
       [tag, userId]
     )
 
-    const entries = rows.map(row => this.rowToEntity(row))
-    
+    const entries = rows.map((row) => this.rowToEntity(row))
+
     // Populate tags
     const entriesWithTags = await Promise.all(
-      entries.map(async entry => {
+      entries.map(async (entry) => {
         const tags = await this.getTagsForTimeEntry(entry.id, userId)
         return { ...entry, tags }
       })
@@ -288,7 +292,7 @@ class TursoTimesheetRepository extends TursoRepository<TimeEntry, TimeEntryRow> 
       [timeEntryId, userId]
     )
 
-    return rows.map(row => row.tag_name)
+    return rows.map((row) => row.tag_name)
   }
 }
 

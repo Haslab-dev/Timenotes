@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { NoteEditor } from '@/features/notes/components/note-editor'
 import {
   Select,
   SelectContent,
@@ -18,34 +18,58 @@ interface TimeEntryFormProps {
   onSubmit: (data: CreateTimeEntryRequest) => void
   onCancel: () => void
   isLoading?: boolean
+  defaultProjectId?: string
 }
 
-export function TimeEntryForm({ timeEntry, onSubmit, onCancel, isLoading }: TimeEntryFormProps) {
+export function TimeEntryForm({
+  timeEntry,
+  onSubmit,
+  onCancel,
+  isLoading,
+  defaultProjectId,
+}: TimeEntryFormProps) {
   const { data: projects = [] } = useProjects()
-  
-  const [projectId, setProjectId] = useState(timeEntry?.projectId || '')
+
+  const [projectId, setProjectId] = useState(timeEntry?.projectId || defaultProjectId || '')
   const [description, setDescription] = useState(timeEntry?.description || '')
   const [startTime, setStartTime] = useState(
-    timeEntry?.startTime 
+    timeEntry?.startTime
       ? formatDateTimeLocal(timeEntry.startTime)
       : formatDateTimeLocal(new Date())
   )
   const [endTime, setEndTime] = useState(
-    timeEntry?.endTime 
+    timeEntry?.endTime
       ? formatDateTimeLocal(timeEntry.endTime)
       : formatDateTimeLocal(new Date(Date.now() + 60 * 60 * 1000)) // 1 hour later
   )
   const [tags, setTags] = useState(timeEntry?.tags.join(', ') || '')
+  const [error, setError] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!projectId || !startTime || !endTime) return
+    setError('')
+
+    // Validation
+    if (!projectId) {
+      setError('Please select a project')
+      return
+    }
+
+    if (!startTime) {
+      setError('Please enter a start time')
+      return
+    }
+
+    if (!endTime) {
+      setError('Please enter an end time')
+      return
+    }
 
     const startDate = new Date(startTime)
     const endDate = new Date(endTime)
 
     if (endDate <= startDate) {
-      alert('End time must be after start time')
+      setError('End time must be after start time')
       return
     }
 
@@ -54,7 +78,10 @@ export function TimeEntryForm({ timeEntry, onSubmit, onCancel, isLoading }: Time
       description: description.trim() || undefined,
       startTime: startDate,
       endTime: endDate,
-      tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      tags: tags
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean),
     })
   }
 
@@ -95,16 +122,14 @@ export function TimeEntryForm({ timeEntry, onSubmit, onCancel, isLoading }: Time
 
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+        <NoteEditor
+          content={description}
+          onChange={setDescription}
           placeholder="What did you work on?"
-          rows={2}
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="startTime">Start Time</Label>
           <Input
@@ -128,9 +153,7 @@ export function TimeEntryForm({ timeEntry, onSubmit, onCancel, isLoading }: Time
       </div>
 
       {getDuration() && (
-        <div className="text-sm text-muted-foreground">
-          Duration: {getDuration()}
-        </div>
+        <div className="text-sm text-muted-foreground">Duration: {getDuration()}</div>
       )}
 
       <div className="space-y-2">
@@ -142,6 +165,12 @@ export function TimeEntryForm({ timeEntry, onSubmit, onCancel, isLoading }: Time
           placeholder="meeting, development, design (comma separated)"
         />
       </div>
+
+      {error && (
+        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+          {error}
+        </div>
+      )}
 
       <div className="flex justify-end gap-2 pt-4">
         <Button type="button" variant="outline" onClick={onCancel}>

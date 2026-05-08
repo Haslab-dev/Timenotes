@@ -30,7 +30,7 @@ export function usePagination<T>(
 
   const paginatedData = useMemo(() => {
     if (!data) return []
-    
+
     const startIndex = (page - 1) * pageSize
     const endIndex = startIndex + pageSize
     return data.slice(startIndex, endIndex)

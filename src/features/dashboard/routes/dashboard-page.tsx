@@ -18,7 +18,9 @@ export function DashboardPage() {
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isRefetching}>
-          <RefreshCw className={`mr-2 h-4 w-4 ${(isRefetching || isLoading) ? 'animate-spin' : ''}`} />
+          <RefreshCw
+            className={`mr-2 h-4 w-4 ${isRefetching || isLoading ? 'animate-spin' : ''}`}
+          />
           {isRefetching || isLoading ? 'Refreshing' : 'Refresh data'}
         </Button>
       </div>
@@ -30,9 +32,18 @@ export function DashboardPage() {
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard title="Active projects" value={isLoading ? '—' : data?.activeProjects ?? '—'} />
-        <SummaryCard title="Hours this week" value={isLoading ? '—' : Math.round(data?.totalHoursThisWeek ?? 0) + 'h'} />
-        <SummaryCard title="Hours this month" value={isLoading ? '—' : Math.round(data?.totalHoursThisMonth ?? 0) + 'h'} />
+        <SummaryCard
+          title="Active projects"
+          value={isLoading ? '—' : (data?.activeProjects ?? '—')}
+        />
+        <SummaryCard
+          title="Hours this week"
+          value={isLoading ? '—' : Math.round(data?.totalHoursThisWeek ?? 0) + 'h'}
+        />
+        <SummaryCard
+          title="Hours this month"
+          value={isLoading ? '—' : Math.round(data?.totalHoursThisMonth ?? 0) + 'h'}
+        />
         <SummaryCard
           title="Today’s focus"
           value={<span className="text-base font-medium leading-6">{data?.totalNotes ?? '—'}</span>}

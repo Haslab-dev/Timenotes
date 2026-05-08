@@ -1,5 +1,5 @@
--- TimeNote Database Schema for SQLite/Turso
--- This schema defines all tables and relationships for the TimeNote application
+-- TimeNotes Database Schema for SQLite/Turso
+-- This schema defines all tables and relationships for the TimeNotes application
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (

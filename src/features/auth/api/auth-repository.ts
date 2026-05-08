@@ -2,13 +2,7 @@ import bcrypt from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 import { tursoClient } from '@/lib/turso/turso-client'
 import type { UserRow } from '@/lib/turso/turso-client'
-import type { 
-  User, 
-  SignupRequest, 
-  LoginRequest, 
-  AuthResponse, 
-  AuthSession 
-} from '@/lib/types'
+import type { User, SignupRequest, LoginRequest, AuthResponse, AuthSession } from '@/lib/types'
 
 class TursoAuthRepository {
   private readonly SALT_ROUNDS = 10
@@ -66,10 +60,9 @@ class TursoAuthRepository {
 
   async login(data: LoginRequest): Promise<AuthResponse> {
     // Find user by email
-    const rows = await tursoClient.query<UserRow>(
-      'SELECT * FROM users WHERE email = ?',
-      [data.email.toLowerCase()]
-    )
+    const rows = await tursoClient.query<UserRow>('SELECT * FROM users WHERE email = ?', [
+      data.email.toLowerCase(),
+    ])
 
     if (rows.length === 0) {
       throw new Error('Invalid email or password')
@@ -82,14 +75,14 @@ class TursoAuthRepository {
     if (!passwordHash || typeof passwordHash !== 'string') {
       throw new Error('Invalid user data')
     }
-    
+
     const isValidPassword = await bcrypt.compare(data.password, passwordHash)
     if (!isValidPassword) {
       throw new Error('Invalid email or password')
     }
 
     const user = this.rowToUser(userRow)
-    
+
     // Create session
     const session = this.createSession(user)
     this.saveSession(session)
@@ -123,19 +116,15 @@ class TursoAuthRepository {
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    const rows = await tursoClient.query<UserRow>(
-      'SELECT * FROM users WHERE email = ?',
-      [email.toLowerCase()]
-    )
+    const rows = await tursoClient.query<UserRow>('SELECT * FROM users WHERE email = ?', [
+      email.toLowerCase(),
+    ])
 
     return rows.length > 0 ? this.rowToUser(rows[0]) : null
   }
 
   async getUserById(id: string): Promise<User | null> {
-    const rows = await tursoClient.query<UserRow>(
-      'SELECT * FROM users WHERE id = ?',
-      [id]
-    )
+    const rows = await tursoClient.query<UserRow>('SELECT * FROM users WHERE id = ?', [id])
 
     return rows.length > 0 ? this.rowToUser(rows[0]) : null
   }
@@ -162,20 +151,14 @@ class TursoAuthRepository {
     values.push(new Date().toISOString())
     values.push(id)
 
-    await tursoClient.run(
-      `UPDATE users SET ${updates.join(', ')} WHERE id = ?`,
-      values
-    )
+    await tursoClient.run(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`, values)
 
     return await this.getUserById(id)
   }
 
   async deleteUser(id: string): Promise<boolean> {
     // This will cascade delete all user data due to foreign key constraints
-    const result = await tursoClient.run(
-      'DELETE FROM users WHERE id = ?',
-      [id]
-    )
+    const result = await tursoClient.run('DELETE FROM users WHERE id = ?', [id])
 
     if (result.changes > 0) {
       this.clearSession()
@@ -196,10 +179,13 @@ class TursoAuthRepository {
   }
 
   private saveSession(session: AuthSession): void {
-    localStorage.setItem(this.SESSION_KEY, JSON.stringify({
-      ...session,
-      expiresAt: session.expiresAt.toISOString(),
-    }))
+    localStorage.setItem(
+      this.SESSION_KEY,
+      JSON.stringify({
+        ...session,
+        expiresAt: session.expiresAt.toISOString(),
+      })
+    )
   }
 
   private getSession(): AuthSession | null {

@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useSignup } from '../hooks/use-auth'
 
-
 interface SignupFormProps {
   onSuccess?: () => void
   onSwitchToLogin?: () => void
@@ -23,26 +22,26 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
     if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
       return 'Please fill in all fields'
     }
-    
+
     if (password !== confirmPassword) {
       return 'Passwords do not match'
     }
-    
+
     if (password.length < 6) {
       return 'Password must be at least 6 characters long'
     }
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return 'Please enter a valid email address'
     }
-    
+
     return null
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const validationError = validateForm()
     if (validationError) {
       setError(validationError)
@@ -57,14 +56,14 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
         email: email.trim(),
         password,
       })
-      
+
       // Reset form and show success
       setName('')
       setEmail('')
       setPassword('')
       setConfirmPassword('')
       setError('')
-      
+
       onSuccess?.()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed')
@@ -77,9 +76,7 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
     <div className="w-full max-w-md mx-auto space-y-6">
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-bold">Create account</h1>
-        <p className="text-muted-foreground">
-          Get started with TimeNote today
-        </p>
+        <p className="text-muted-foreground">Get started with TimeNotes today</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -137,9 +134,9 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
           />
         </div>
 
-        <Button 
-          type="submit" 
-          className="w-full" 
+        <Button
+          type="submit"
+          className="w-full"
           disabled={signupMutation.isPending || !isFormValid}
         >
           {signupMutation.isPending ? 'Creating account...' : 'Create account'}
@@ -149,10 +146,7 @@ export function SignupForm({ onSuccess, onSwitchToLogin }: SignupFormProps) {
       {onSwitchToLogin && (
         <div className="text-center text-sm">
           <span className="text-muted-foreground">Already have an account? </span>
-          <button
-            onClick={onSwitchToLogin}
-            className="text-primary hover:underline font-medium"
-          >
+          <button onClick={onSwitchToLogin} className="text-primary hover:underline font-medium">
             Sign in
           </button>
         </div>

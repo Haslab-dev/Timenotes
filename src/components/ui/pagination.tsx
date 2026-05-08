@@ -1,5 +1,11 @@
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 
 interface PaginationProps {
@@ -40,7 +46,10 @@ export function Pagination({
         {/* Page Size Selector */}
         <div className="flex items-center gap-2">
           <span className="hidden sm:inline text-sm text-muted-foreground">Show</span>
-          <Select value={pageSize.toString()} onValueChange={(value) => onPageSizeChange(Number(value))}>
+          <Select
+            value={pageSize.toString()}
+            onValueChange={(value) => onPageSizeChange(Number(value))}
+          >
             <SelectTrigger className="w-16 sm:w-20">
               <SelectValue />
             </SelectTrigger>
@@ -66,7 +75,7 @@ export function Pagination({
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
-          
+
           <Button
             variant="outline"
             size="sm"

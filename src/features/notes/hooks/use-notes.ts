@@ -30,6 +30,15 @@ export function useNotesByProject(projectId: string) {
   })
 }
 
+export function useNotesByTimeEntry(timeEntryId: string) {
+  const { user } = useAuthContext()
+  return useQuery({
+    queryKey: ['notes', 'timeEntry', timeEntryId, user?.id],
+    queryFn: () => notesRepository.getNotesByTimeEntry(timeEntryId, user!.id),
+    enabled: !!timeEntryId && !!user,
+  })
+}
+
 export function useSearchNotes(query: string) {
   const { user } = useAuthContext()
   return useQuery({

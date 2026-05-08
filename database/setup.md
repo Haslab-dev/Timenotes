@@ -1,6 +1,6 @@
 # Turso Database Setup Guide
 
-TimeNote now uses **Turso** as its cloud database. Follow these steps to get started:
+TimeNotes now uses **Turso** as its cloud database. Follow these steps to get started:
 
 ## 🚀 Quick Setup
 

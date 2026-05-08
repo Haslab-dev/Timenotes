@@ -1,11 +1,7 @@
 import { TursoRepository } from '@/lib/api/turso-repository'
 import { tursoClient } from '@/lib/turso/turso-client'
 import type { ProjectRow } from '@/lib/turso/turso-client'
-import type { 
-  Project, 
-  CreateProjectRequest, 
-  UpdateProjectRequest 
-} from '@/lib/types'
+import type { Project, CreateProjectRequest, UpdateProjectRequest } from '@/lib/types'
 
 class TursoProjectRepository extends TursoRepository<Project, ProjectRow> {
   protected tableName = 'projects'
@@ -22,7 +18,9 @@ class TursoProjectRepository extends TursoRepository<Project, ProjectRow> {
     }
   }
 
-  protected entityToRow(entity: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>): Omit<ProjectRow, 'id' | 'created_at' | 'updated_at'> {
+  protected entityToRow(
+    entity: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>
+  ): Omit<ProjectRow, 'id' | 'created_at' | 'updated_at'> {
     return {
       user_id: entity.userId,
       name: entity.name,
@@ -41,7 +39,11 @@ class TursoProjectRepository extends TursoRepository<Project, ProjectRow> {
     )
   }
 
-  async updateProject(id: string, userId: string, data: UpdateProjectRequest): Promise<Project | null> {
+  async updateProject(
+    id: string,
+    userId: string,
+    data: UpdateProjectRequest
+  ): Promise<Project | null> {
     return await this.update(id, userId, data)
   }
 
@@ -51,33 +53,33 @@ class TursoProjectRepository extends TursoRepository<Project, ProjectRow> {
       // Delete time entry tags first (due to foreign key constraints)
       {
         q: 'DELETE FROM time_entry_tags WHERE time_entry_id IN (SELECT id FROM time_entries WHERE project_id = ? AND user_id = ?)',
-        params: [id, userId]
+        params: [id, userId],
       },
       // Delete time entries
       {
         q: 'DELETE FROM time_entries WHERE project_id = ? AND user_id = ?',
-        params: [id, userId]
+        params: [id, userId],
       },
       // Delete note tags
       {
         q: 'DELETE FROM note_tags WHERE note_id IN (SELECT id FROM notes WHERE project_id = ? AND user_id = ?)',
-        params: [id, userId]
+        params: [id, userId],
       },
       // Set project_id to NULL for notes (soft delete)
       {
         q: 'UPDATE notes SET project_id = NULL WHERE project_id = ? AND user_id = ?',
-        params: [id, userId]
+        params: [id, userId],
       },
       // Delete the project
       {
         q: 'DELETE FROM projects WHERE id = ? AND user_id = ?',
-        params: [id, userId]
-      }
+        params: [id, userId],
+      },
     ]
 
     const response = await tursoClient.batch(statements)
     const lastResult = response.results[response.results.length - 1]
-    
+
     return (lastResult.changes || 0) > 0
   }
 
@@ -98,7 +100,7 @@ class TursoProjectRepository extends TursoRepository<Project, ProjectRow> {
       [...ids, userId]
     )
 
-    return rows.map(row => this.rowToEntity(row))
+    return rows.map((row) => this.rowToEntity(row))
   }
 
   async searchProjects(query: string, userId: string): Promise<Project[]> {
@@ -113,7 +115,7 @@ class TursoProjectRepository extends TursoRepository<Project, ProjectRow> {
       [userId, searchTerm, searchTerm]
     )
 
-    return rows.map(row => this.rowToEntity(row))
+    return rows.map((row) => this.rowToEntity(row))
   }
 
   async getProjectStats(userId: string): Promise<{
@@ -137,7 +139,7 @@ class TursoProjectRepository extends TursoRepository<Project, ProjectRow> {
          FROM notes 
          WHERE user_id = ? AND project_id IS NOT NULL`,
         [userId]
-      )
+      ),
     ])
 
     return {

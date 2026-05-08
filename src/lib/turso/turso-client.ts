@@ -1,6 +1,6 @@
 /**
  * Turso HTTP API Client
- * 
+ *
  * This client provides a simplified interface to interact with Turso databases
  * using their HTTP API according to the official specification.
  * Based on: https://docs.turso.tech/sdk/http/quickstart
@@ -57,18 +57,21 @@ export class TursoClient {
   /**
    * Execute a SELECT query and return typed results
    */
-  async query<T = any>(sql: string, params: (string | number | boolean | null)[] = []): Promise<T[]> {
+  async query<T = any>(
+    sql: string,
+    params: (string | number | boolean | null)[] = []
+  ): Promise<T[]> {
     const response = await this.request<TursoPipelineResponse>('POST', '/v2/pipeline', {
       requests: [
         {
           type: 'execute',
           stmt: {
             sql,
-            args: params.map(param => this.formatParam(param))
-          }
+            args: params.map((param) => this.formatParam(param)),
+          },
         },
-        { type: 'close' }
-      ]
+        { type: 'close' },
+      ],
     })
 
     const firstResult = response.results[0]
@@ -82,13 +85,19 @@ export class TursoClient {
     }
 
     // Transform rows from array format to object format
-    const rows = result.rows.map(row => {
+    const rows = result.rows.map((row) => {
       const obj: any = {}
       result.cols.forEach((column, index) => {
         const cellValue = row[index]
         // Handle nested value objects from Turso API
-        if (cellValue && typeof cellValue === 'object' && 'value' in cellValue) {
-          obj[column.name] = cellValue.value
+        if (cellValue && typeof cellValue === 'object') {
+          if (cellValue.type === 'null') {
+            obj[column.name] = null
+          } else if ('value' in cellValue) {
+            obj[column.name] = cellValue.value
+          } else {
+            obj[column.name] = cellValue
+          }
         } else {
           obj[column.name] = cellValue
         }
@@ -102,65 +111,70 @@ export class TursoClient {
   /**
    * Execute an INSERT, UPDATE, or DELETE query
    */
-  async run(sql: string, params: (string | number | boolean | null)[] = []): Promise<TursoMutationResponse> {
+  async run(
+    sql: string,
+    params: (string | number | boolean | null)[] = []
+  ): Promise<TursoMutationResponse> {
     const response = await this.request<TursoPipelineResponse>('POST', '/v2/pipeline', {
       requests: [
         {
           type: 'execute',
           stmt: {
             sql,
-            args: params.map(param => this.formatParam(param))
-          }
+            args: params.map((param) => this.formatParam(param)),
+          },
         },
-        { type: 'close' }
-      ]
+        { type: 'close' },
+      ],
     })
 
     const firstResult = response.results[0]
     const result = firstResult?.response?.result
-    
+
     return {
       changes: result?.affected_row_count || 0,
       last_insert_rowid: result?.last_insert_rowid || undefined,
-      duration: result?.query_duration_ms || 0
+      duration: result?.query_duration_ms || 0,
     }
   }
 
   /**
    * Execute multiple queries in a transaction
    */
-  async batch(statements: Array<{ q: string; params?: (string | number | boolean | null)[] }>): Promise<{
+  async batch(
+    statements: Array<{ q: string; params?: (string | number | boolean | null)[] }>
+  ): Promise<{
     results: TursoMutationResponse[]
   }> {
     const requests = []
-    
+
     // Add each statement as an execute request
     for (const stmt of statements) {
       requests.push({
         type: 'execute',
         stmt: {
           sql: stmt.q,
-          args: stmt.params?.map(param => this.formatParam(param)) ?? []
-        }
+          args: stmt.params?.map((param) => this.formatParam(param)) ?? [],
+        },
       })
     }
-    
+
     // Close the connection
     requests.push({ type: 'close' })
 
     const response = await this.request<TursoPipelineResponse>('POST', '/v2/pipeline', {
-      requests
+      requests,
     })
 
     return {
-      results: response.results.slice(0, -1).map(pipelineResult => {
+      results: response.results.slice(0, -1).map((pipelineResult) => {
         const result = pipelineResult?.response?.result
         return {
           changes: result?.affected_row_count || 0,
           last_insert_rowid: result?.last_insert_rowid || undefined,
-          duration: result?.query_duration_ms || 0
+          duration: result?.query_duration_ms || 0,
         }
-      })
+      }),
     }
   }
 
@@ -171,11 +185,11 @@ export class TursoClient {
     if (param === null) {
       return { type: 'null' }
     }
-    
+
     if (typeof param === 'string') {
       return { type: 'text', value: param }
     }
-    
+
     if (typeof param === 'number') {
       if (Number.isInteger(param)) {
         return { type: 'integer', value: param.toString() }
@@ -183,21 +197,21 @@ export class TursoClient {
         return { type: 'float', value: param.toString() }
       }
     }
-    
+
     if (typeof param === 'boolean') {
       return { type: 'integer', value: param ? '1' : '0' }
     }
-    
+
     return { type: 'text', value: String(param) }
   }
 
   private async request<T>(method: string, endpoint: string, body?: any): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
-    
+
     const response = await fetch(url, {
       method,
       headers: {
-        'Authorization': `Bearer ${this.authToken}`,
+        Authorization: `Bearer ${this.authToken}`,
         'Content-Type': 'application/json',
       },
       body: body ? JSON.stringify(body) : undefined,
@@ -209,7 +223,7 @@ export class TursoClient {
     }
 
     const data = await response.json()
-    
+
     if (data.error) {
       throw new Error(`Turso database error: ${data.error}`)
     }
@@ -225,7 +239,7 @@ const authToken = import.meta.env.VITE_TURSO_AUTH_TOKEN
 if (!databaseUrl || !authToken) {
   throw new Error(
     'Turso configuration missing! Please set VITE_TURSO_DATABASE_URL and VITE_TURSO_AUTH_TOKEN in your environment variables. ' +
-    'Copy .env.example to .env.local and configure your Turso database credentials.'
+      'Copy .env.example to .env.local and configure your Turso database credentials.'
   )
 }
 
@@ -271,6 +285,7 @@ export interface NoteRow {
   id: string
   user_id: string
   project_id: string | null
+  time_entry_id: string | null
   title: string
   content: string
   created_at: string

@@ -36,7 +36,7 @@ export function AuthPage() {
             <Clock className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">TimeNote</h1>
+            <h1 className="text-2xl font-bold">TimeNotes</h1>
             <p className="text-sm text-muted-foreground">Track time, manage projects</p>
           </div>
         </div>
@@ -48,7 +48,7 @@ export function AuthPage() {
               Account created successfully! Please login with your credentials.
             </div>
           )}
-          
+
           {mode === 'login' ? (
             <LoginForm
               onSuccess={() => {}}

@@ -5,7 +5,7 @@ type RequestConfig = {
 
 export class ApiRepository {
   private readonly baseUrl: string
-  
+
   constructor(baseUrl: string = '') {
     this.baseUrl = baseUrl
   }
@@ -27,7 +27,7 @@ export class ApiRepository {
   protected async post<TPayload, TResponse>(
     path: string,
     payload: TPayload,
-    config: RequestConfig = {},
+    config: RequestConfig = {}
   ): Promise<TResponse> {
     const response = await fetch(this.composeUrl(path), {
       method: 'POST',

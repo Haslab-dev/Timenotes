@@ -1,11 +1,7 @@
 import { TursoRepository } from '@/lib/api/turso-repository'
 import { tursoClient } from '@/lib/turso/turso-client'
 import type { NoteRow } from '@/lib/turso/turso-client'
-import type { 
-  Note, 
-  CreateNoteRequest, 
-  UpdateNoteRequest 
-} from '@/lib/types'
+import type { Note, CreateNoteRequest, UpdateNoteRequest } from '@/lib/types'
 
 class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
   protected tableName = 'notes'
@@ -17,16 +13,20 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
       title: row.title,
       content: row.content,
       projectId: row.project_id || undefined,
+      timeEntryId: row.time_entry_id || undefined,
       tags: [], // Will be populated separately
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     }
   }
 
-  protected entityToRow(entity: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Omit<NoteRow, 'id' | 'created_at' | 'updated_at'> {
+  protected entityToRow(
+    entity: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>
+  ): Omit<NoteRow, 'id' | 'created_at' | 'updated_at'> {
     return {
       user_id: entity.userId,
       project_id: entity.projectId || null,
+      time_entry_id: entity.timeEntryId || null,
       title: entity.title,
       content: entity.content,
     }
@@ -40,17 +40,18 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
 
     // Create note
     statements.push({
-      q: `INSERT INTO notes (id, user_id, project_id, title, content, created_at, updated_at) 
-          VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      q: `INSERT INTO notes (id, user_id, project_id, time_entry_id, title, content, created_at, updated_at) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       params: [
         noteId,
         userId,
         data.projectId || null,
+        data.timeEntryId || null,
         data.title,
         data.content,
         now,
-        now
-      ]
+        now,
+      ],
     })
 
     // Add tags
@@ -58,15 +59,40 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
       for (const tag of data.tags) {
         statements.push({
           q: 'INSERT OR IGNORE INTO note_tags (note_id, tag_name, user_id) VALUES (?, ?, ?)',
-          params: [noteId, tag, userId]
+          params: [noteId, tag, userId],
         })
       }
     }
 
-    await tursoClient.batch(statements)
+    try {
+      await tursoClient.batch(statements)
+    } catch (error: any) {
+      console.error('Error creating note:', error)
+      // Fallback: try creating without time_entry_id if the column is missing
+      if (data.timeEntryId) {
+        const fallbackStatements = [
+          {
+            q: `INSERT INTO notes (id, user_id, project_id, title, content, created_at, updated_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            params: [noteId, userId, data.projectId || null, data.title, data.content, now, now],
+          },
+        ]
+        if (data.tags && data.tags.length > 0) {
+          for (const tag of data.tags) {
+            fallbackStatements.push({
+              q: 'INSERT OR IGNORE INTO note_tags (note_id, tag_name, user_id) VALUES (?, ?, ?)',
+              params: [noteId, tag, userId],
+            })
+          }
+        }
+        await tursoClient.batch(fallbackStatements)
+      } else {
+        throw error
+      }
+    }
 
     // Return the created note with tags
-    return await this.getNoteWithTags(noteId, userId) as Note
+    return (await this.getNoteWithTags(noteId, userId)) as Note
   }
 
   async updateNote(id: string, userId: string, data: UpdateNoteRequest): Promise<Note | null> {
@@ -76,26 +102,31 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
     }
 
     const statements = []
-    
+
     // Prepare update data
     const updates: string[] = []
     const values: any[] = []
-    
+
     if (data.title !== undefined) {
       updates.push('title = ?')
       values.push(data.title)
     }
-    
+
     if (data.content !== undefined) {
       updates.push('content = ?')
       values.push(data.content)
     }
-    
+
     if (data.projectId !== undefined) {
       updates.push('project_id = ?')
       values.push(data.projectId || null)
     }
-    
+
+    if (data.timeEntryId !== undefined) {
+      updates.push('time_entry_id = ?')
+      values.push(data.timeEntryId || null)
+    }
+
     if (updates.length > 0) {
       updates.push('updated_at = ?')
       values.push(new Date().toISOString())
@@ -104,7 +135,7 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
       // Update note
       statements.push({
         q: `UPDATE notes SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`,
-        params: values
+        params: values,
       })
     }
 
@@ -113,14 +144,14 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
       // Delete existing tags
       statements.push({
         q: 'DELETE FROM note_tags WHERE note_id = ? AND user_id = ?',
-        params: [id, userId]
+        params: [id, userId],
       })
 
       // Add new tags
       for (const tag of data.tags) {
         statements.push({
           q: 'INSERT INTO note_tags (note_id, tag_name, user_id) VALUES (?, ?, ?)',
-          params: [id, tag, userId]
+          params: [id, tag, userId],
         })
       }
     }
@@ -137,27 +168,27 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
       // Delete tags first
       {
         q: 'DELETE FROM note_tags WHERE note_id = ? AND user_id = ?',
-        params: [id, userId]
+        params: [id, userId],
       },
       // Delete note
       {
         q: 'DELETE FROM notes WHERE id = ? AND user_id = ?',
-        params: [id, userId]
-      }
+        params: [id, userId],
+      },
     ]
 
     const response = await tursoClient.batch(statements)
     const lastResult = response.results[response.results.length - 1]
-    
+
     return (lastResult.changes || 0) > 0
   }
 
   async getNotes(userId: string): Promise<Note[]> {
     const notes = await this.getAll(userId)
-    
+
     // Populate tags for all notes
     const notesWithTags = await Promise.all(
-      notes.map(async note => {
+      notes.map(async (note) => {
         const tags = await this.getTagsForNote(note.id, userId)
         return { ...note, tags }
       })
@@ -176,11 +207,11 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
       [projectId, userId]
     )
 
-    const notes = rows.map(row => this.rowToEntity(row))
-    
+    const notes = rows.map((row) => this.rowToEntity(row))
+
     // Populate tags
     const notesWithTags = await Promise.all(
-      notes.map(async note => {
+      notes.map(async (note) => {
         const tags = await this.getTagsForNote(note.id, userId)
         return { ...note, tags }
       })
@@ -198,11 +229,11 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
       [tag, userId]
     )
 
-    const notes = rows.map(row => this.rowToEntity(row))
-    
+    const notes = rows.map((row) => this.rowToEntity(row))
+
     // Populate tags
     const notesWithTags = await Promise.all(
-      notes.map(async note => {
+      notes.map(async (note) => {
         const tags = await this.getTagsForNote(note.id, userId)
         return { ...note, tags }
       })
@@ -223,11 +254,11 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
       [userId, searchTerm, searchTerm]
     )
 
-    const notes = rows.map(row => this.rowToEntity(row))
-    
+    const notes = rows.map((row) => this.rowToEntity(row))
+
     // Populate tags
     const notesWithTags = await Promise.all(
-      notes.map(async note => {
+      notes.map(async (note) => {
         const tags = await this.getTagsForNote(note.id, userId)
         return { ...note, tags }
       })
@@ -242,17 +273,39 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
       [userId, limit]
     )
 
-    const notes = rows.map(row => this.rowToEntity(row))
-    
+    const notes = rows.map((row) => this.rowToEntity(row))
+
     // Populate tags
     const notesWithTags = await Promise.all(
-      notes.map(async note => {
+      notes.map(async (note) => {
         const tags = await this.getTagsForNote(note.id, userId)
         return { ...note, tags }
       })
     )
 
     return notesWithTags
+  }
+
+  async getNotesByTimeEntry(timeEntryId: string, userId: string): Promise<Note[]> {
+    try {
+      const rows = await tursoClient.query<NoteRow>(
+        'SELECT * FROM notes WHERE time_entry_id = ? AND user_id = ? ORDER BY created_at DESC',
+        [timeEntryId, userId]
+      )
+
+      const notes = rows.map((row) => this.rowToEntity(row))
+      const notesWithTags = await Promise.all(
+        notes.map(async (note) => {
+          const tags = await this.getTagsForNote(note.id, userId)
+          return { ...note, tags }
+        })
+      )
+
+      return notesWithTags
+    } catch (error) {
+      console.error('Error fetching notes by time entry:', error)
+      return []
+    }
   }
 
   private async getNoteWithTags(id: string, userId: string): Promise<Note | null> {
@@ -271,7 +324,7 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
       [noteId, userId]
     )
 
-    return rows.map(row => row.tag_name)
+    return rows.map((row) => row.tag_name)
   }
 }
 

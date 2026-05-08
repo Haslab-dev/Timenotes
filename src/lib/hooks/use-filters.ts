@@ -30,12 +30,12 @@ export function useTimesheetFilters(timeEntries: TimeEntry[] | undefined) {
   const filteredData = useMemo(() => {
     if (!timeEntries) return []
 
-    return timeEntries.filter(entry => {
+    return timeEntries.filter((entry) => {
       // Search filter
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase()
         const matchesDescription = entry.description?.toLowerCase().includes(searchTerm)
-        const matchesTags = entry.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+        const matchesTags = entry.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
         if (!matchesDescription && !matchesTags) {
           return false
         }
@@ -51,9 +51,7 @@ export function useTimesheetFilters(timeEntries: TimeEntry[] | undefined) {
 
       // Tags filter
       if (filters.tags.length > 0) {
-        const hasMatchingTag = filters.tags.some(filterTag => 
-          entry.tags.includes(filterTag)
-        )
+        const hasMatchingTag = filters.tags.some((filterTag) => entry.tags.includes(filterTag))
         if (!hasMatchingTag) {
           return false
         }
@@ -69,7 +67,7 @@ export function useTimesheetFilters(timeEntries: TimeEntry[] | undefined) {
   }, [timeEntries, filters])
 
   const updateFilters = (newFilters: Partial<TimesheetFilters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }))
+    setFilters((prev) => ({ ...prev, ...newFilters }))
   }
 
   const clearFilters = () => {
@@ -110,13 +108,13 @@ export function useNotesFilters(notes: Note[] | undefined) {
   const filteredData = useMemo(() => {
     if (!notes) return []
 
-    return notes.filter(note => {
+    return notes.filter((note) => {
       // Search filter
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase()
         const matchesTitle = note.title.toLowerCase().includes(searchTerm)
         const matchesContent = note.content.toLowerCase().includes(searchTerm)
-        const matchesTags = note.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+        const matchesTags = note.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
         if (!matchesTitle && !matchesContent && !matchesTags) {
           return false
         }
@@ -124,9 +122,7 @@ export function useNotesFilters(notes: Note[] | undefined) {
 
       // Tags filter
       if (filters.tags.length > 0) {
-        const hasMatchingTag = filters.tags.some(filterTag => 
-          note.tags.includes(filterTag)
-        )
+        const hasMatchingTag = filters.tags.some((filterTag) => note.tags.includes(filterTag))
         if (!hasMatchingTag) {
           return false
         }
@@ -142,7 +138,7 @@ export function useNotesFilters(notes: Note[] | undefined) {
   }, [notes, filters])
 
   const updateFilters = (newFilters: Partial<NotesFilters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }))
+    setFilters((prev) => ({ ...prev, ...newFilters }))
   }
 
   const clearFilters = () => {
@@ -154,11 +150,7 @@ export function useNotesFilters(notes: Note[] | undefined) {
   }
 
   const hasActiveFilters = useMemo(() => {
-    return (
-      filters.search !== '' ||
-      filters.tags.length > 0 ||
-      filters.projectId !== undefined
-    )
+    return filters.search !== '' || filters.tags.length > 0 || filters.projectId !== undefined
   }, [filters])
 
   return {

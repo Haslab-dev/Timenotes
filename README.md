@@ -1,69 +1,80 @@
-# Vibe Code Clean Architecture Template
+# ⏱️ TimeNotes
 
-## Overview
-A minimal React starter template featuring a single dashboard to demonstrate clean architecture patterns. Built with React 19 + TypeScript + Vite and designed for feature-driven development with centralized API management.
+TimeNotes is a high-density, professional time-tracking and note-taking application designed for efficiency. Built with **React 19**, **TypeScript**, and **Vite**, it utilizes **Turso DB** for global data persistence and is optimized for deployment on **Cloudflare Pages**.
 
-**Key Features:**
-- 🏗️ **Repository Pattern** - Centralized API access through repository classes
-- 📊 **Single Dashboard Feature** - Complete example with data fetching and UI
-- 🎯 **Clean Architecture** - Clear separation of concerns and dependencies
-- 🔧 **Modern Stack** - React 19, TypeScript, Vite, TanStack Query, React Router
-- 🎨 **UI Ready** - Tailwind CSS 4 with shadcn/ui components
+## 🚀 Key Features
 
-## Quick Start
+- **Google-style Calendar**: A monthly overview with color-coded project pills and integrated note indicators.
+- **Ultra-Compact Timesheet**: High-density list views with tight typography (`leading-[1.1]`) and zero-margin formatting for maximum information display.
+- **Integrated Side Panels**: View and edit time entries or notes without leaving your current view using professional side-panel overlays.
+- **Unified Dashboard**: A central command center combining productivity charts, recent activity, and a monthly activity calendar.
+- **Mobile Optimized**: Responsive design featuring a bottom navigation bar, mobile-dedicated edit pages, and a "Scroll-to-Top" FAB.
+- **Automatic Quality Control**: Integrated **Husky** and **Prettier** hooks that ensure all pushed code follows a consistent style.
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React 19 (Compiler enabled), TypeScript, Vite
+- **Styling**: Tailwind CSS 4, shadcn/ui components
+- **State Management**: TanStack Query (React Query)
+- **Database**: Turso (libSQL)
+- **Deployment**: Cloudflare Pages (via Wrangler)
+- **Formatting**: Prettier + Husky (pre-push hooks)
+
+## ⚡ Quick Start
+
+### 1. Prerequisites
+Ensure you have [Bun](https://bun.sh) or [Node.js](https://nodejs.org) installed.
+
+### 2. Installation
 ```bash
 bun install
+```
+
+### 3. Database Setup (Turso)
+TimeNotes uses Turso for its edge-ready database.
+1. Create a database via [Turso CLI](https://docs.turso.tech/cli/introduction) or the [Dashboard](https://turso.tech).
+2. Copy your **Database URL** and **Auth Token**.
+3. Create a `.env` file in the root directory (use `.env.example` as a template):
+```bash
+VITE_TURSO_DATABASE_URL=libsql://your-database-name.turso.io
+VITE_TURSO_AUTH_TOKEN=your-auth-token-here
+```
+
+### 4. Development
+```bash
 bun dev
 ```
 
-### Quality Checks
+## 🌍 Deployment
+
+TimeNotes is optimized for **Cloudflare Pages**.
+
+### Deploy via Wrangler
+Ensure you are logged into Wrangler:
 ```bash
-bun lint              # ESLint + TypeScript checks
-bun type-check         # TypeScript compilation only
+npx wrangler login
 ```
 
-## Template Structure
+Run the deployment script:
+```bash
+npm run cf:deploy
 ```
-src/
-  app/
-    layouts/           # App shell and navigation
-    providers/         # React context providers
-    router/            # Route definitions
-  components/
-    ui/                # Reusable UI components (shadcn/ui)
-  features/
-    dashboard/         # Example feature demonstrating patterns
-      api/             # Repository classes for data access
-      hooks/           # TanStack Query hooks
-      components/      # Feature-specific components
-      routes/          # Page components
-  lib/
-    api/               # Base repository class and utilities
-```
+This will build the production bundle and deploy it to your Cloudflare account.
 
-## Architecture Patterns
+## 📐 Development Standards
 
-### Repository Pattern
-All API calls go through repository classes extending `ApiRepository`:
-```typescript
-class DashboardRepository extends ApiRepository {
-  async getSummary(): Promise<DashboardSummary> {
-    // API implementation
-  }
-}
-```
+### Formatting
+We use **Prettier** for code consistency. A **Husky pre-push hook** is active to ensure no unformatted code is pushed to the repository.
 
-### Data Flow
-1. **Page Components** → call custom hooks
-2. **Custom Hooks** → use TanStack Query with repository methods
-3. **Repository Classes** → handle API communication and data transformation
+- **Manual Format**: `npm run format`
+- **Style Check**: `npm run format:check`
 
-### Adding Features
-1. Study the dashboard feature structure
-2. Create new feature folder: `src/features/<feature>/`
-3. Follow the established patterns for API, hooks, components, and routes
-4. Register routes in `src/app/router/app-router.tsx`
+### Architecture
+The project follows a **Feature-Driven Architecture**:
+- `src/features/`: Contains modular business logic (dashboard, notes, timesheet).
+- `src/components/ui/`: Shared UI components (shadcn/ui).
+- `src/lib/turso/`: Database client configuration.
+- `src/lib/api/`: Repository patterns for data access.
 
-## Documentation
-- [`docs/agents.md`](docs/agents.md) - Detailed workflow guide for AI agents and developers
-- [`docs/rules.md`](docs/rules.md) - Development rules and architectural constraints
+---
+Built with ❤️ for high-performance productivity.

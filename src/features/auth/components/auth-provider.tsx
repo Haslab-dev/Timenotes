@@ -25,9 +25,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
     error: error?.message || null,
   }
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

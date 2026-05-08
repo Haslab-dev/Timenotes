@@ -33,7 +33,13 @@ export function useTimeEntriesByProject(projectId: string) {
 export function useTimeEntriesByDateRange(range: TimeRange) {
   const { user } = useAuthContext()
   return useQuery({
-    queryKey: ['timeEntries', 'dateRange', range.start.toISOString(), range.end.toISOString(), user?.id],
+    queryKey: [
+      'timeEntries',
+      'dateRange',
+      range.start.toISOString(),
+      range.end.toISOString(),
+      user?.id,
+    ],
     queryFn: () => timesheetRepository.getTimeEntriesByDateRange(range, user!.id),
     enabled: !!user,
   })
@@ -44,7 +50,8 @@ export function useCreateTimeEntry() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: CreateTimeEntryRequest) => timesheetRepository.createTimeEntry(data, user!.id),
+    mutationFn: (data: CreateTimeEntryRequest) =>
+      timesheetRepository.createTimeEntry(data, user!.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timeEntries'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })

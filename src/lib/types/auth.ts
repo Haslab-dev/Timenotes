@@ -1,4 +1,4 @@
-// Auth types for TimeNote application
+// Auth types for TimeNotes application
 
 export interface User {
   id: string

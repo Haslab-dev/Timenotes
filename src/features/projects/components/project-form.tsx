@@ -16,7 +16,9 @@ interface ProjectFormProps {
 export function ProjectForm({ project, onSubmit, onCancel, isLoading }: ProjectFormProps) {
   const [name, setName] = useState(project?.name || '')
   const [description, setDescription] = useState(project?.description || '')
-  const [color, setColor] = useState<ProjectColor>(project?.color as ProjectColor || PROJECT_COLORS[0])
+  const [color, setColor] = useState<ProjectColor>(
+    (project?.color as ProjectColor) || PROJECT_COLORS[0]
+  )
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

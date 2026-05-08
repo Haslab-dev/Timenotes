@@ -1,4 +1,4 @@
-// Core entity types for TimeNote application
+// Core entity types for TimeNotes application
 
 // Re-export auth types
 export * from './auth'
@@ -34,6 +34,7 @@ export interface Note {
   title: string
   content: string
   projectId?: string
+  timeEntryId?: string
   tags: string[]
   createdAt: Date
   updatedAt: Date
@@ -61,6 +62,7 @@ export interface UpdateProjectRequest {
 }
 
 export interface CreateTimeEntryRequest {
+  id?: string
   projectId: string
   description?: string
   startTime: Date
@@ -80,6 +82,7 @@ export interface CreateNoteRequest {
   title: string
   content: string
   projectId?: string
+  timeEntryId?: string
   tags: string[]
 }
 
@@ -87,6 +90,7 @@ export interface UpdateNoteRequest {
   title?: string
   content?: string
   projectId?: string
+  timeEntryId?: string
   tags?: string[]
 }
 
@@ -97,8 +101,10 @@ export interface CreateTagRequest {
 
 // Analytics and Dashboard types
 export interface DashboardStats {
+  totalHoursToday: number
   totalHoursThisWeek: number
   totalHoursThisMonth: number
+  activeProjectsToday: number
   activeProjects: number
   totalNotes: number
   recentTimeEntries: TimeEntry[]
@@ -137,4 +143,4 @@ export const PROJECT_COLORS = [
   '#14b8a6', // teal
 ] as const
 
-export type ProjectColor = typeof PROJECT_COLORS[number]
+export type ProjectColor = (typeof PROJECT_COLORS)[number]
