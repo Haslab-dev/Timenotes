@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
-import { FileText, LayoutList, Calendar as CalendarIcon } from 'lucide-react'
+import { FileText, LayoutList, Calendar as CalendarIcon, Clock, Plus, X } from 'lucide-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -29,6 +29,13 @@ export function TimeNoteDashboardPage() {
   const { elapsedSeconds } = useTimerTicker()
   const { data: projects = [] } = useProjects()
   const [view, setView] = useState<'overview' | 'calendar'>('overview')
+  const [isStartingFocus, setIsStartingFocus] = useState(false)
+  const { startTimer } = useActiveTimer()
+
+  const [focusDetails, setFocusDetails] = useState({
+    projectId: '',
+    description: ''
+  })
 
   if (isLoading) {
     return (
@@ -67,69 +74,73 @@ export function TimeNoteDashboardPage() {
 
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-140px)] animate-in fade-in zoom-in-95 duration-500">
-        <div className="text-center space-y-8 max-w-lg w-full p-6 sm:p-10 rounded-3xl bg-card border shadow-2xl shadow-primary/10 relative overflow-hidden">
-          {/* Decorative background element */}
-          <div className="absolute top-0 left-0 w-full h-1.5 bg-primary/20" />
-
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold tracking-widest uppercase">
+        <div className="text-center space-y-8 max-w-xl w-full p-8 sm:p-12 rounded-[40px] bg-card border shadow-2xl shadow-primary/5 relative overflow-hidden">
+          {/* Subtle background glow */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
+          
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-black tracking-[0.2em] uppercase">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               Focus Mode Active
             </div>
           </div>
 
-          <div className="text-7xl sm:text-8xl font-mono font-bold tracking-tighter tabular-nums text-foreground drop-shadow-sm">
-            {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}
-            <span className="text-muted-foreground/30 text-5xl sm:text-6xl">
-              :{seconds.toString().padStart(2, '0')}
+          <div className="text-8xl sm:text-9xl font-mono font-bold tracking-tighter tabular-nums text-foreground drop-shadow-sm select-none">
+            {hours > 0 && `${hours.toString().padStart(2, "0")}:`}
+            {minutes.toString().padStart(2, "0")}
+            <span className="text-muted-foreground/30 ml-2">
+              :{seconds.toString().padStart(2, "0")}
             </span>
           </div>
 
-          {activeProject ? (
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex items-center gap-3 text-2xl font-bold">
+          <div className="flex flex-col items-center gap-4">
+            {activeProject ? (
+              <div className="flex items-center gap-3 px-6 py-2 rounded-2xl bg-muted/30 border border-muted-foreground/10">
                 <div
-                  className="w-4 h-4 rounded-full ring-4 ring-white shadow-sm"
+                  className="w-3 h-3 rounded-full shadow-sm"
                   style={{ backgroundColor: activeProject.color }}
                 />
-                {activeProject.name}
+                <span className="text-xl font-bold tracking-tight">{activeProject.name}</span>
               </div>
-              {activeTimer.description && (
-                <p className="text-lg text-muted-foreground font-medium">
-                  {activeTimer.description}
-                </p>
-              )}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-xl">No project selected</p>
-          )}
+            ) : (
+              <p className="text-muted-foreground text-xl font-medium italic opacity-50">No project selected</p>
+            )}
+            
+            {activeTimer.description && (
+              <p className="text-lg text-muted-foreground font-medium max-w-md">
+                "{activeTimer.description}"
+              </p>
+            )}
+          </div>
 
-          <div className="pt-8 border-t space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+          <div className="pt-10 border-t border-muted/50 space-y-6">
+            <div className="flex items-center justify-center gap-3">
+              <div className="p-2 rounded-full bg-primary/10">
+                <FileText className="h-4 w-4 text-primary" />
+              </div>
+              <h3 className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em]">
                 Session Notes & Tasks
               </h3>
             </div>
+            
             <div
-              className="w-full min-h-[140px] p-5 rounded-2xl bg-muted/20 border-2 border-dashed border-muted-foreground/20 text-left text-muted-foreground text-sm cursor-text hover:bg-muted/40 hover:border-primary/30 transition-all group"
+              className="w-full min-h-[160px] p-6 rounded-[32px] bg-muted/20 border-2 border-dashed border-muted-foreground/10 text-left text-muted-foreground text-sm cursor-text hover:bg-muted/40 hover:border-primary/20 transition-all group flex flex-col items-center justify-center space-y-3"
               onClick={() => {
-                navigate('/notes/new', {
+                navigate("/notes/new", {
                   state: {
                     projectId: activeTimer.projectId,
                     timeEntryId: activeTimer.id,
-                    title: `Notes: ${activeTimer.description || activeProject?.name || 'Focus Session'}`,
+                    title: `Notes: ${activeTimer.description || activeProject?.name || "Focus Session"}`,
                   },
                 })
               }}
             >
-              <div className="flex flex-col items-center justify-center h-full py-4 text-center space-y-2">
-                <div className="p-3 rounded-full bg-primary/5 group-hover:bg-primary/10 transition-colors">
-                  <FileText className="h-6 w-6 text-primary/40 group-hover:text-primary/60" />
-                </div>
-                <p>Click to capture ideas, tasks, or thoughts for this session...</p>
-                <p className="text-[10px] font-bold text-primary/40">
-                  These notes will be linked to this time entry
-                </p>
+              <div className="p-4 rounded-full bg-background shadow-sm group-hover:scale-110 transition-transform">
+                <Plus className="h-6 w-6 text-primary/40" />
+              </div>
+              <div className="text-center">
+                <p className="font-bold text-foreground/70">Click to capture ideas or tasks</p>
+                <p className="text-[10px] font-medium text-muted-foreground mt-1">Notes will be linked to this session</p>
               </div>
             </div>
           </div>
@@ -138,39 +149,126 @@ export function TimeNoteDashboardPage() {
     )
   }
 
-  return (
-    <div className="space-y-4 sm:space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-0.5">
-        <div className="space-y-1 text-left">
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Dashboard</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Good to see you! Here's what's happening today.
-          </p>
+  // Focus Starter Mode
+  if (isStartingFocus) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-140px)] animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="max-w-xl w-full p-8 sm:p-12 rounded-[40px] bg-card border shadow-2xl shadow-primary/5 relative overflow-hidden">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute top-6 right-6 rounded-full h-10 w-10"
+            onClick={() => setIsStartingFocus(false)}
+          >
+            <X className="h-5 w-5" />
+          </Button>
+
+          <div className="text-center space-y-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-black tracking-[0.2em] uppercase">
+                Prepare Focus Session
+              </div>
+              <h2 className="text-4xl font-black tracking-tight">Ready to focus?</h2>
+            </div>
+
+            <div className="space-y-6 text-left">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Select Project</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {projects.map(project => (
+                    <button
+                      key={project.id}
+                      onClick={() => setFocusDetails(prev => ({ ...prev, projectId: project.id }))}
+                      className={[
+                        "flex items-center gap-2 p-3 rounded-2xl border transition-all text-sm font-bold",
+                        focusDetails.projectId === project.id 
+                          ? "border-primary bg-primary/5 text-primary shadow-sm" 
+                          : "border-muted-foreground/10 bg-muted/10 hover:bg-muted/20 text-muted-foreground"
+                      ].join(' ')}
+                    >
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: project.color }} />
+                      <span className="truncate">{project.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">What are you working on?</label>
+                <textarea
+                  placeholder="E.g. Designing mobile interface, Writing documentation..."
+                  className="w-full h-24 p-4 rounded-2xl bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background transition-all outline-none text-sm font-medium resize-none"
+                  value={focusDetails.description}
+                  onChange={(e) => setFocusDetails(prev => ({ ...prev, description: e.target.value }))}
+                />
+              </div>
+
+              <Button
+                className="w-full h-14 rounded-2xl text-lg font-black shadow-xl shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all"
+                onClick={() => {
+                  startTimer(focusDetails.projectId || undefined, focusDetails.description)
+                  setIsStartingFocus(false)
+                }}
+              >
+                Start Session
+              </Button>
+            </div>
+          </div>
         </div>
-        <div className="flex bg-muted p-1 rounded-lg self-start border shadow-sm">
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6 sm:space-y-8">
+      <div className="space-y-4 px-0.5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="space-y-0.5 text-left flex-1">
+            <h1 className="text-3xl font-black tracking-tight">Dashboard</h1>
+            <p className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase tracking-wider">
+              Overview & Tracking
+            </p>
+          </div>
+          
+          {isMobile && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setIsStartingFocus(true)}
+              className="h-9 px-4 rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all active:scale-95"
+            >
+              <Clock className="mr-2 h-3.5 w-3.5" />
+              Start Focus Session
+            </Button>
+          )}
+        </div>
+
+        <div className="flex bg-muted/50 p-1 rounded-xl border shadow-inner w-full sm:w-auto overflow-hidden">
           <Button
             variant={view === 'overview' ? 'default' : 'ghost'}
             size="sm"
             className={[
-              'h-8 px-4 rounded-md text-xs font-bold transition-all duration-200 cursor-pointer',
-              view === 'overview' ? 'shadow-sm' : 'hover:bg-muted-foreground/10',
+              'h-8 flex-1 sm:flex-none px-4 rounded-lg text-[10px] font-bold transition-all duration-200 cursor-pointer',
+              view === 'overview' ? 'shadow-md' : 'text-muted-foreground hover:bg-muted',
             ].join(' ')}
             onClick={() => setView('overview')}
           >
-            <LayoutList className="h-3.5 w-3.5 mr-1.5" />
-            Overview
+            <LayoutList className="h-3.5 w-3.5 sm:mr-1.5" />
+            <span className="hidden sm:inline">Overview View</span>
+            <span className="sm:hidden ml-1.5">Overview</span>
           </Button>
           <Button
             variant={view === 'calendar' ? 'default' : 'ghost'}
             size="sm"
             className={[
-              'h-8 px-4 rounded-md text-xs font-bold transition-all duration-200 cursor-pointer',
-              view === 'calendar' ? 'shadow-sm' : 'hover:bg-muted-foreground/10',
+              'h-8 flex-1 sm:flex-none px-4 rounded-lg text-[10px] font-bold transition-all duration-200 cursor-pointer',
+              view === 'calendar' ? 'shadow-md' : 'text-muted-foreground hover:bg-muted',
             ].join(' ')}
             onClick={() => setView('calendar')}
           >
-            <CalendarIcon className="h-3.5 w-3.5 mr-1.5" />
-            Calendar View
+            <CalendarIcon className="h-3.5 w-3.5 sm:mr-1.5" />
+            <span className="hidden sm:inline">Monthly Calendar</span>
+            <span className="sm:hidden ml-1.5">Calendar</span>
           </Button>
         </div>
       </div>
