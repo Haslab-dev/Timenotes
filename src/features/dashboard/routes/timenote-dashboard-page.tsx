@@ -1,34 +1,31 @@
-import { useNavigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { useNotes } from '@/features/notes/hooks/use-notes'
+import { useTimeEntries } from '@/features/timesheet/hooks/use-timesheet'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 import {
+  Calendar as CalendarIcon,
   FileText,
   LayoutList,
-  Calendar as CalendarIcon,
-  Clock,
-  Plus,
-  X,
   Play,
-  Pause,
+  Plus,
+  RotateCcw,
   Volume2,
   VolumeX,
-  RotateCcw,
+  X,
 } from 'lucide-react'
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
-import { StatsCards } from '../components/stats-cards'
-import { ProjectHoursChart } from '../components/project-hours-chart'
-import { TagHoursChart } from '../components/tag-hours-chart'
-import { RecentActivity } from '../components/recent-activity'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { DashboardCalendar } from '../components/dashboard-calendar'
+import { ProjectHoursChart } from '../components/project-hours-chart'
+import { RecentActivity } from '../components/recent-activity'
+import { StatsCards } from '../components/stats-cards'
+import { TagHoursChart } from '../components/tag-hours-chart'
 import { useTimeNoteDashboard } from '../hooks/use-timenote-dashboard'
-import { useTimeEntries } from '@/features/timesheet/hooks/use-timesheet'
-import { useNotes } from '@/features/notes/hooks/use-notes'
 
-import { useActiveTimer, useTimerTicker } from '@/features/timesheet/hooks/use-active-timer'
+import { NotesSidePanel } from '@/features/notes/components/notes-side-panel'
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import { TimesheetSidePanel } from '@/features/timesheet/components/timesheet-side-panel'
-import { NotesSidePanel } from '@/features/notes/components/notes-side-panel'
+import { useActiveTimer, useTimerTicker } from '@/features/timesheet/hooks/use-active-timer'
 
 export function TimeNoteDashboardPage() {
   const navigate = useNavigate()
@@ -44,11 +41,10 @@ export function TimeNoteDashboardPage() {
     updateSettings,
     timerSettings,
     stopTimer,
-    updateTimer,
     switchMode,
     resetTimer,
   } = useActiveTimer()
-  const { elapsedSeconds, remainingSeconds, totalWorkSeconds } = useTimerTicker()
+  const { elapsedSeconds, remainingSeconds } = useTimerTicker()
   const { data: projects = [] } = useProjects()
   const [view, setView] = useState<'overview' | 'calendar'>('overview')
   const [isStartingFocus, setIsStartingFocus] = useState(false)
@@ -288,13 +284,13 @@ export function TimeNoteDashboardPage() {
 
     const countdownTime =
       remainingSeconds !== null ? formatTime(remainingSeconds) : formatTime(elapsedSeconds)
-    const sessionTime = formatTime(totalWorkSeconds)
+    // const sessionTime = formatTime(totalWorkSeconds)
 
-    const modeColors = {
-      work: 'primary',
-      shortBreak: 'teal-500',
-      longBreak: 'blue-500',
-    }
+    // const modeColors = {
+    //   work: 'primary',
+    //   shortBreak: 'teal-500',
+    //   longBreak: 'blue-500',
+    // }
 
     const modeLabels = {
       work: 'Pomodoro',

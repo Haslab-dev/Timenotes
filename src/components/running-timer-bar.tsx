@@ -1,9 +1,5 @@
-import { Square, Plus, X } from 'lucide-react'
-import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { useActiveTimer, useTimerTicker } from '@/features/timesheet/hooks/use-active-timer'
-import { useProjects } from '@/features/projects/hooks/use-projects'
-import { useCreateTimeEntry } from '@/features/timesheet/hooks/use-timesheet'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -11,12 +7,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
+import { useProjects } from '@/features/projects/hooks/use-projects'
+import { useActiveTimer, useTimerTicker } from '@/features/timesheet/hooks/use-active-timer'
+import { useCreateTimeEntry } from '@/features/timesheet/hooks/use-timesheet'
+import { Plus, Square, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export function RunningTimerBar() {
   const { activeTimer, stopTimer, updateTimer } = useActiveTimer()
-  const { elapsedSeconds, totalWorkSeconds } = useTimerTicker()
+  const { totalWorkSeconds } = useTimerTicker()
   const { data: projects = [] } = useProjects()
   const createTimeEntryMutation = useCreateTimeEntry()
   const navigate = useNavigate()
