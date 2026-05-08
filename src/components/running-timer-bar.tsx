@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom'
 
 export function RunningTimerBar() {
   const { activeTimer, stopTimer, updateTimer } = useActiveTimer()
-  const { elapsedSeconds } = useTimerTicker()
+  const { elapsedSeconds, totalWorkSeconds } = useTimerTicker()
   const { data: projects = [] } = useProjects()
   const createTimeEntryMutation = useCreateTimeEntry()
   const navigate = useNavigate()
@@ -108,7 +108,7 @@ export function RunningTimerBar() {
 
         <div className="flex items-center gap-4 sm:gap-6 shrink-0">
           <div className="text-base sm:text-lg font-mono font-medium text-zinc-100 tabular-nums tracking-wide">
-            {formatTime(elapsedSeconds)}
+            {formatTime(totalWorkSeconds)}
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">

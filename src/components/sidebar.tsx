@@ -119,6 +119,14 @@ export function Sidebar() {
           New note
         </Button>
         <Button
+          variant="outline"
+          className="w-full justify-start text-sm h-9"
+          onClick={() => navigate('/timesheet/new')}
+        >
+          <Clock className="mr-2 h-4 w-4" />
+          New time entry
+        </Button>
+        <Button
           variant="ghost"
           className="w-full justify-start text-sm h-9 text-muted-foreground"
           onClick={() => {
