@@ -34,7 +34,7 @@ export function TimeNoteDashboardPage() {
 
   const [focusDetails, setFocusDetails] = useState({
     projectId: '',
-    description: ''
+    description: '',
   })
 
   if (isLoading) {
@@ -77,7 +77,7 @@ export function TimeNoteDashboardPage() {
         <div className="text-center space-y-8 max-w-xl w-full p-8 sm:p-12 rounded-[40px] bg-card border shadow-2xl shadow-primary/5 relative overflow-hidden">
           {/* Subtle background glow */}
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
-          
+
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-black tracking-[0.2em] uppercase">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
@@ -86,10 +86,10 @@ export function TimeNoteDashboardPage() {
           </div>
 
           <div className="text-8xl sm:text-9xl font-mono font-bold tracking-tighter tabular-nums text-foreground drop-shadow-sm select-none">
-            {hours > 0 && `${hours.toString().padStart(2, "0")}:`}
-            {minutes.toString().padStart(2, "0")}
+            {hours > 0 && `${hours.toString().padStart(2, '0')}:`}
+            {minutes.toString().padStart(2, '0')}
             <span className="text-muted-foreground/30 ml-2">
-              :{seconds.toString().padStart(2, "0")}
+              :{seconds.toString().padStart(2, '0')}
             </span>
           </div>
 
@@ -103,9 +103,11 @@ export function TimeNoteDashboardPage() {
                 <span className="text-xl font-bold tracking-tight">{activeProject.name}</span>
               </div>
             ) : (
-              <p className="text-muted-foreground text-xl font-medium italic opacity-50">No project selected</p>
+              <p className="text-muted-foreground text-xl font-medium italic opacity-50">
+                No project selected
+              </p>
             )}
-            
+
             {activeTimer.description && (
               <p className="text-lg text-muted-foreground font-medium max-w-md">
                 "{activeTimer.description}"
@@ -122,15 +124,15 @@ export function TimeNoteDashboardPage() {
                 Session Notes & Tasks
               </h3>
             </div>
-            
+
             <div
               className="w-full min-h-[160px] p-6 rounded-[32px] bg-muted/20 border-2 border-dashed border-muted-foreground/10 text-left text-muted-foreground text-sm cursor-text hover:bg-muted/40 hover:border-primary/20 transition-all group flex flex-col items-center justify-center space-y-3"
               onClick={() => {
-                navigate("/notes/new", {
+                navigate('/notes/new', {
                   state: {
                     projectId: activeTimer.projectId,
                     timeEntryId: activeTimer.id,
-                    title: `Notes: ${activeTimer.description || activeProject?.name || "Focus Session"}`,
+                    title: `Notes: ${activeTimer.description || activeProject?.name || 'Focus Session'}`,
                   },
                 })
               }}
@@ -140,7 +142,9 @@ export function TimeNoteDashboardPage() {
               </div>
               <div className="text-center">
                 <p className="font-bold text-foreground/70">Click to capture ideas or tasks</p>
-                <p className="text-[10px] font-medium text-muted-foreground mt-1">Notes will be linked to this session</p>
+                <p className="text-[10px] font-medium text-muted-foreground mt-1">
+                  Notes will be linked to this session
+                </p>
               </div>
             </div>
           </div>
@@ -154,9 +158,9 @@ export function TimeNoteDashboardPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-140px)] animate-in fade-in slide-in-from-bottom-8 duration-700">
         <div className="max-w-xl w-full p-8 sm:p-12 rounded-[40px] bg-card border shadow-2xl shadow-primary/5 relative overflow-hidden">
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="absolute top-6 right-6 rounded-full h-10 w-10"
             onClick={() => setIsStartingFocus(false)}
           >
@@ -173,20 +177,27 @@ export function TimeNoteDashboardPage() {
 
             <div className="space-y-6 text-left">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Select Project</label>
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">
+                  Select Project
+                </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {projects.map(project => (
+                  {projects.map((project) => (
                     <button
                       key={project.id}
-                      onClick={() => setFocusDetails(prev => ({ ...prev, projectId: project.id }))}
+                      onClick={() =>
+                        setFocusDetails((prev) => ({ ...prev, projectId: project.id }))
+                      }
                       className={[
-                        "flex items-center gap-2 p-3 rounded-2xl border transition-all text-sm font-bold",
-                        focusDetails.projectId === project.id 
-                          ? "border-primary bg-primary/5 text-primary shadow-sm" 
-                          : "border-muted-foreground/10 bg-muted/10 hover:bg-muted/20 text-muted-foreground"
+                        'flex items-center gap-2 p-3 rounded-2xl border transition-all text-sm font-bold',
+                        focusDetails.projectId === project.id
+                          ? 'border-primary bg-primary/5 text-primary shadow-sm'
+                          : 'border-muted-foreground/10 bg-muted/10 hover:bg-muted/20 text-muted-foreground',
                       ].join(' ')}
                     >
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: project.color }} />
+                      <div
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ backgroundColor: project.color }}
+                      />
                       <span className="truncate">{project.name}</span>
                     </button>
                   ))}
@@ -194,12 +205,16 @@ export function TimeNoteDashboardPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">What are you working on?</label>
+                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">
+                  What are you working on?
+                </label>
                 <textarea
                   placeholder="E.g. Designing mobile interface, Writing documentation..."
                   className="w-full h-24 p-4 rounded-2xl bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background transition-all outline-none text-sm font-medium resize-none"
                   value={focusDetails.description}
-                  onChange={(e) => setFocusDetails(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setFocusDetails((prev) => ({ ...prev, description: e.target.value }))
+                  }
                 />
               </div>
 
@@ -229,7 +244,7 @@ export function TimeNoteDashboardPage() {
               Overview & Tracking
             </p>
           </div>
-          
+
           {isMobile && (
             <Button
               variant="default"
