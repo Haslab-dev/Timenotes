@@ -77,30 +77,68 @@ export function EditNotePage() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+    <div className="space-y-6 max-w-3xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between gap-4 border-b pb-4 border-zinc-100 dark:border-zinc-800">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="sm:hidden h-9 w-9 shrink-0"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="hidden sm:flex rounded-xl shrink-0"
+            onClick={() => navigate(-1)}
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
-          <h1 className="text-2xl font-bold">Edit Note</h1>
+          <div className="flex flex-col gap-0.5">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+              Note Detail
+            </p>
+            {timeTrackedToday && (
+              <div className="flex sm:hidden items-center gap-1 px-1.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[9px] font-bold uppercase tracking-wider border border-indigo-100 dark:border-indigo-800/50">
+                <Clock className="h-3 w-3" />
+                {timeTrackedToday}
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center gap-2 shrink-0">
           {timeTrackedToday && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              <Clock className="h-4 w-4" />
-              Worked on: {timeTrackedToday} today
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider border border-indigo-100 dark:border-indigo-800/50">
+              <Clock className="h-3.5 w-3.5" />
+              <span>Worked today: {timeTrackedToday}</span>
             </div>
           )}
-          <Button variant="outline" size="sm" onClick={handleShare}>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden sm:flex rounded-xl border-zinc-200 dark:border-zinc-800"
+            onClick={handleShare}
+          >
             {copied ? <Check className="h-4 w-4 mr-2" /> : <Share className="h-4 w-4 mr-2" />}
             {copied ? 'Copied!' : 'Share'}
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="sm:hidden h-9 w-9 rounded-xl border-zinc-200 dark:border-zinc-800"
+            onClick={handleShare}
+          >
+            {copied ? <Check className="h-4 w-4" /> : <Share className="h-4 w-4" />}
           </Button>
         </div>
       </div>
 
-      <div className="bg-card rounded-2xl border p-6 shadow-sm">
+      <div className="bg-card rounded-3xl border border-zinc-100 dark:border-zinc-800 p-4 sm:p-8 shadow-sm">
         <NoteForm
           note={note}
           onSubmit={handleUpdate}

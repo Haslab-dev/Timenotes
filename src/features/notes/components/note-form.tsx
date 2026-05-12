@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -10,7 +11,7 @@ import {
 } from '@/components/ui/select'
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import type { CreateNoteRequest, Note } from '@/lib/types'
-import { useState } from 'react'
+import { useState, useRef, useLayoutEffect } from 'react'
 import { NoteEditor } from './note-editor'
 
 interface NoteFormProps {
@@ -40,6 +41,15 @@ export function NoteForm({
   const [timeEntryId] = useState(note?.timeEntryId || defaultTimeEntryId || '')
   const [tags, setTags] = useState(note?.tags.join(', ') || '')
   const [error, setError] = useState('')
+  const titleRef = useRef<HTMLTextAreaElement>(null)
+
+  // Auto-expand title textarea
+  useLayoutEffect(() => {
+    if (titleRef.current) {
+      titleRef.current.style.height = 'inherit'
+      titleRef.current.style.height = `${titleRef.current.scrollHeight}px`
+    }
+  }, [title])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,17 +75,19 @@ export function NoteForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
+      <div className="space-y-4">
         <Label htmlFor="title" className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
           Title
         </Label>
-        <Input
+        <Textarea
           id="title"
+          ref={titleRef}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter note title"
           required
-          className="h-11 rounded-xl border-zinc-200 dark:border-zinc-800 focus:ring-2 focus:ring-indigo-500 transition-all"
+          rows={1}
+          className="min-h-0 text-xl sm:text-2xl font-bold rounded-xl border-zinc-200 dark:border-zinc-800 focus:ring-2 focus:ring-indigo-500 resize-none py-2 px-4 overflow-hidden"
         />
       </div>
 
@@ -89,7 +101,7 @@ export function NoteForm({
           placeholder="Write your note, ideas, or checklist here..."
         />
         <p className="text-[10px] text-zinc-400">
-          Pro tip: Type <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">[]</code> then
+          Pro tip: Type <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded text-indigo-600 dark:text-indigo-400">[]</code> then
           space to start a checklist.
         </p>
       </div>
@@ -106,7 +118,7 @@ export function NoteForm({
             <SelectTrigger className="h-11 rounded-xl border-zinc-200 dark:border-zinc-800">
               <SelectValue placeholder="Select a project" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl">
+            <SelectContent className="rounded-xl border-zinc-200 dark:border-zinc-800">
               <SelectItem value="__none__">No project</SelectItem>
               {projects.map((project) => (
                 <SelectItem key={project.id} value={project.id}>
@@ -143,19 +155,19 @@ export function NoteForm({
         </div>
       )}
 
-      <div className="flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+      <div className="flex items-center justify-end gap-3 pt-6 border-t border-zinc-100 dark:border-zinc-800">
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           onClick={onCancel}
-          className="rounded-xl h-11 px-6 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
+          className="rounded-xl h-11 px-6 font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
         >
           Cancel
         </Button>
         <Button
           type="submit"
           disabled={!title.trim() || isLoading}
-          className="rounded-xl h-11 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
+          className="rounded-xl h-11 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-all shadow-indigo-200 dark:shadow-none shadow-lg hover:shadow-xl active:scale-[0.98] disabled:opacity-50"
         >
           {isLoading ? 'Saving...' : note ? 'Update Note' : 'Create Note'}
         </Button>
