@@ -4,6 +4,8 @@ import TaskItem from '@tiptap/extension-task-item'
 import TaskList from '@tiptap/extension-task-list'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import Link from '@tiptap/extension-link'
+import Underline from '@tiptap/extension-underline'
 import {
   Bold,
   CheckSquare,
@@ -43,8 +45,20 @@ export function NoteEditor({
       }),
       Markdown,
       TaskList,
+      Underline,
       TaskItem.configure({
         nested: true,
+      }),
+      Link.configure({
+        openOnClick: true,
+        autolink: true,
+        linkOnPaste: true,
+        HTMLAttributes: {
+          class:
+            'text-indigo-600 dark:text-indigo-400 font-bold decoration-indigo-600/30 underline-offset-4 hover:decoration-indigo-600 transition-all cursor-pointer',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
       }),
       Placeholder.configure({
         placeholder,

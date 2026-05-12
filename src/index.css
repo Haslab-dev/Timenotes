@@ -382,6 +382,13 @@
   .prose li.task-list-item {
     list-style-type: none !important;
   }
+
+  /* Global Link Styling for Prose/Editors */
+  .prose a,
+  .tiptap a,
+  .bn-container a {
+    @apply text-indigo-600 dark:text-indigo-400 font-bold underline decoration-indigo-600/30 underline-offset-4 hover:decoration-indigo-600 transition-all;
+  }
 }
 
 @keyframes fade-in {

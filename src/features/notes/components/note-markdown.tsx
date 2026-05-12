@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 import { Checkbox } from '@/components/ui/checkbox'
 
 interface NoteMarkdownProps {
@@ -29,7 +30,16 @@ export function NoteMarkdown({ content, onChecklistChange, className }: NoteMark
     <div className={`prose prose-sm max-w-none dark:prose-invert ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
         components={{
+          a: ({ node, ...props }) => (
+            <a
+              {...props}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-600 dark:text-indigo-400 font-bold decoration-indigo-600/30 underline-offset-4 hover:decoration-indigo-600 transition-all break-all"
+            />
+          ),
           li: ({ node, children, ...props }) => {
             // Only use custom checkbox if we are in edit mode (onChecklistChange provided)
             const isChecked = (props as any).checked

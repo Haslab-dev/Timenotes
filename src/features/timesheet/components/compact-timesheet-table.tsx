@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import type { TimeEntry } from '@/lib/types'
 import { LinkedNotes } from './linked-notes'
+import { LinkifiedText } from '@/components/ui/linkified-text'
 
 interface CompactTimesheetTableProps {
   timeEntries: TimeEntry[]
@@ -201,9 +202,17 @@ export function CompactTimesheetTable({
                                   <FileText className="h-3 w-3" />
                                   Description
                                 </div>
-                                <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-tight">
-                                  {entry.description.replace(/\n\s*\n/g, '\n')}
-                                </p>
+                                {entry.description.trim().startsWith('<') ? (
+                                  <div
+                                    className="text-sm text-foreground/90 leading-tight tiptap prose prose-sm max-w-none dark:prose-invert"
+                                    dangerouslySetInnerHTML={{ __html: entry.description }}
+                                  />
+                                ) : (
+                                  <LinkifiedText
+                                    text={entry.description}
+                                    className="text-sm text-foreground/90 whitespace-pre-wrap leading-tight"
+                                  />
+                                )}
                               </div>
                             ) : (
                               <p className="text-sm text-muted-foreground italic">
