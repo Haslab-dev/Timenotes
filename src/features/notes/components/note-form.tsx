@@ -101,8 +101,11 @@ export function NoteForm({
           placeholder="Write your note, ideas, or checklist here..."
         />
         <p className="text-[10px] text-zinc-400">
-          Pro tip: Type <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded text-indigo-600 dark:text-indigo-400">[]</code> then
-          space to start a checklist.
+          Pro tip: Type{' '}
+          <code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded text-indigo-600 dark:text-indigo-400">
+            []
+          </code>{' '}
+          then space to start a checklist.
         </p>
       </div>
 
