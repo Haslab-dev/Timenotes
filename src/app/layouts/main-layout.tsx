@@ -1,5 +1,5 @@
 import { LayoutDashboard, FolderOpen, Clock, FileText, LogOut, User } from 'lucide-react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router'
 import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { useAuthContext } from '@/features/auth/hooks/use-auth-context'
@@ -129,14 +129,14 @@ export function MainLayout() {
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/90 backdrop-blur-md border-t pb-safe flex items-center justify-around px-2 py-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/90 backdrop-blur-md border-t flex items-center justify-around px-2 py-3 pb-6 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         {navItems.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
               [
-                'flex flex-col items-center justify-center gap-1 w-16 p-2 rounded-xl transition-all',
+                'flex flex-col items-center justify-center gap-1 w-16 p-1 rounded-xl transition-all',
                 isActive
                   ? 'text-primary'
                   : 'text-muted-foreground hover:text-foreground hover:bg-accent',

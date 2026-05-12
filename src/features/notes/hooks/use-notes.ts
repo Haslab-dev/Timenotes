@@ -21,6 +21,14 @@ export function useNote(id: string) {
   })
 }
 
+export function usePublicNote(id: string) {
+  return useQuery({
+    queryKey: ['public-note', id],
+    queryFn: () => notesRepository.getPublicNote(id),
+    enabled: !!id,
+  })
+}
+
 export function useNotesByProject(projectId: string) {
   const { user } = useAuthContext()
   return useQuery({

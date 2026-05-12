@@ -12,59 +12,62 @@ export function StatsCards({ stats }: StatsCardsProps) {
       title: 'Today',
       value: formatDuration(Math.round(stats.totalHoursToday * 60)),
       icon: Clock,
-      description: `${stats.activeProjectsToday} project${stats.activeProjectsToday === 1 ? '' : 's'} tracked today`,
+      description: `${stats.activeProjectsToday} projects`,
+      accent: 'bg-blue-500',
     },
     {
-      title: 'Hours This Week',
+      title: 'This Week',
       value: formatDuration(Math.round(stats.totalHoursThisWeek * 60)),
-      icon: Clock,
-      description: 'Time tracked this week',
-    },
-    {
-      title: 'Hours This Month',
-      value: formatDuration(Math.round(stats.totalHoursThisMonth * 60)),
       icon: Calendar,
-      description: 'Time tracked this month',
+      description: 'Weekly summary',
+      accent: 'bg-emerald-500',
     },
     {
-      title: 'Active Projects',
+      title: 'This Month',
+      value: formatDuration(Math.round(stats.totalHoursThisMonth * 60)),
+      icon: Clock,
+      description: 'Monthly total',
+      accent: 'bg-purple-500',
+    },
+    {
+      title: 'Active',
       value: stats.activeProjects.toString(),
       icon: FolderOpen,
       description: 'Total projects',
+      accent: 'bg-orange-500',
     },
   ]
 
   return (
-    <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {cards.map((card, index) => {
+    <div className="grid gap-6 grid-cols-2 lg:grid-cols-4">
+      {cards.map((card) => {
         const Icon = card.icon
-        const isPrimary = index === 0
         return (
           <div
             key={card.title}
-            className={`border rounded-xl p-4 sm:p-6 space-y-2 shadow-sm text-left transition-transform hover:scale-[1.02] ${isPrimary ? 'bg-primary text-primary-foreground border-primary/20 md:col-span-2 lg:col-span-1' : 'bg-card'}`}
+            className="group relative bg-card border rounded-[24px] p-6 shadow-sm hover:shadow-md transition-all duration-300 text-left overflow-hidden"
           >
-            <div className="flex items-center justify-between">
-              <p
-                className={`text-sm font-medium ${isPrimary ? 'text-primary-foreground/70 uppercase tracking-wider text-xs' : 'text-muted-foreground'}`}
-              >
-                {card.title}
-              </p>
-              <Icon
-                className={`h-4 w-4 ${isPrimary ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}
-              />
-            </div>
-            <div>
-              <div
-                className={`font-bold ${isPrimary ? 'text-4xl tracking-tight text-primary-foreground' : 'text-2xl'}`}
-              >
-                {card.value}
+            {/* Accent Bar */}
+            <div
+              className={`absolute left-0 top-0 bottom-0 w-1.5 ${card.accent} opacity-40 group-hover:opacity-100 transition-opacity`}
+            />
+
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                  {card.title}
+                </span>
+                <Icon className="h-4 w-4 text-muted-foreground/50 group-hover:text-foreground transition-colors" />
               </div>
-              <p
-                className={`text-xs mt-1 ${isPrimary ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}
-              >
-                {card.description}
-              </p>
+
+              <div className="space-y-1">
+                <div className="text-3xl font-black tracking-tighter text-foreground tabular-nums">
+                  {card.value}
+                </div>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider opacity-60">
+                  {card.description}
+                </p>
+              </div>
             </div>
           </div>
         )

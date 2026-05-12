@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 import { useCreateNote } from '../hooks/use-notes'
 import { NoteForm } from '../components/note-form'
 import { Button } from '@/components/ui/button'

@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { ProjectDetail } from '../components/project-detail'
 
 export function ProjectDetailPage() {

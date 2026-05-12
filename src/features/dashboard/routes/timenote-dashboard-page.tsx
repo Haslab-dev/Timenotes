@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router'
 import { DashboardCalendar } from '../components/dashboard-calendar'
 import { ProjectHoursChart } from '../components/project-hours-chart'
 import { RecentActivity } from '../components/recent-activity'
@@ -26,6 +26,8 @@ import { NotesSidePanel } from '@/features/notes/components/notes-side-panel'
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import { TimesheetSidePanel } from '@/features/timesheet/components/timesheet-side-panel'
 import { useActiveTimer, useTimerTicker } from '@/features/timesheet/hooks/use-active-timer'
+import { BookDashboard } from '@/features/books/components/book-dashboard'
+import { useBooks, useDeleteBook } from '@/features/books/hooks/use-books'
 
 export function TimeNoteDashboardPage() {
   const navigate = useNavigate()
@@ -49,6 +51,8 @@ export function TimeNoteDashboardPage() {
   const [view, setView] = useState<'overview' | 'calendar'>('overview')
   const [isStartingFocus, setIsStartingFocus] = useState(false)
   const { startTimer } = useActiveTimer()
+  const { data: booksData = [] } = useBooks()
+  const deleteBook = useDeleteBook()
 
   const [focusDetails, setFocusDetails] = useState({
     projectId: '',
@@ -422,8 +426,20 @@ export function TimeNoteDashboardPage() {
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8 pb-24 sm:pb-8">
-      <div className="flex items-center justify-between gap-2 px-0.5">
+    <div className="space-y-8 pb-24 sm:pb-12 animate-in fade-in duration-700">
+      {/* Refined Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1">
+        <div className="space-y-1 text-left">
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground">
+            {activeTimer ? 'Focusing...' : 'Overview'}
+          </h1>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-60">
+            {activeTimer ? 'Session in progress' : 'Welcome back to your workspace'}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 px-1">
         <div className="flex bg-muted/50 p-1 rounded-xl border shadow-inner overflow-hidden">
           <Button
             variant={view === 'overview' ? 'default' : 'ghost'}
@@ -491,6 +507,22 @@ export function TimeNoteDashboardPage() {
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
             <ProjectHoursChart stats={stats} />
             <TagHoursChart stats={stats} />
+          </div>
+
+          {/* Books Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-black tracking-tight">Your Books</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/books')}
+                className="text-primary font-bold"
+              >
+                View All
+              </Button>
+            </div>
+            <BookDashboard books={booksData.slice(0, 5)} onDelete={(id) => deleteBook.mutate(id)} />
           </div>
 
           {/* Recent Activity */}

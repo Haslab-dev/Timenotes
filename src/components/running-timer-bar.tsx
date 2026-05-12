@@ -12,7 +12,7 @@ import { useActiveTimer, useTimerTicker } from '@/features/timesheet/hooks/use-a
 import { useCreateTimeEntry } from '@/features/timesheet/hooks/use-timesheet'
 import { Plus, Square, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 export function RunningTimerBar() {
   const { activeTimer, stopTimer, updateTimer } = useActiveTimer()

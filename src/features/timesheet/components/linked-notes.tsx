@@ -1,7 +1,7 @@
 import { useNotesByTimeEntry } from '../../notes/hooks/use-notes'
 import { FileText, Loader2 } from 'lucide-react'
 import { format } from 'date-fns'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 
 interface LinkedNotesProps {

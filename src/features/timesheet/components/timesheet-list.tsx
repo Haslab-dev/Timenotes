@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Pagination } from '@/components/ui/pagination'
-import { useSearchParams, useNavigate, useLocation } from 'react-router-dom'
+import { useSearchParams, useNavigate, useLocation } from 'react-router'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 import { TimeEntryForm } from './time-entry-form'
 import { CompactTimesheetTable } from './compact-timesheet-table'

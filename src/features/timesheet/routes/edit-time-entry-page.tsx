@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 import { useEffect } from 'react'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 import { useTimeEntry, useUpdateTimeEntry } from '../hooks/use-timesheet'

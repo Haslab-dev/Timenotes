@@ -1,9 +1,12 @@
-import { useSearchParams, useParams, useLocation, useNavigate } from 'react-router-dom'
+import { useSearchParams, useParams, useLocation, useNavigate } from 'react-router'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
 import { NoteForm } from './note-form'
 import { useNote, useUpdateNote } from '../hooks/use-notes'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 import type { UpdateNoteRequest } from '@/lib/types'
+import { Check, Share } from 'lucide-react'
+import { useState } from 'react'
 
 export function NotesSidePanel() {
   const navigate = useNavigate()
@@ -22,6 +25,7 @@ export function NotesSidePanel() {
 
   const { data: note, isLoading } = useNote(noteId || '')
   const updateMutation = useUpdateNote()
+  const [copied, setCopied] = useState(false)
 
   const isOpen = !!noteId && !isMobile
 
@@ -51,11 +55,28 @@ export function NotesSidePanel() {
     }
   }
 
+  const handleShare = async () => {
+    if (!note) return
+
+    const url = `${window.location.origin}/shared/notes/${note.id}`
+    await navigator.clipboard.writeText(url)
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <SheetContent side="right" className="sm:max-w-2xl overflow-y-auto">
-        <SheetHeader className="mb-6">
-          <SheetTitle>Edit Note</SheetTitle>
+        <SheetHeader className="mb-6 pr-12">
+          <div className="flex items-center justify-between gap-3">
+            <SheetTitle className="truncate">Edit Note</SheetTitle>
+            {note && (
+              <Button variant="outline" size="sm" className="shrink-0" onClick={handleShare}>
+                {copied ? <Check className="h-4 w-4 mr-2" /> : <Share className="h-4 w-4 mr-2" />}
+                {copied ? 'Copied!' : 'Share'}
+              </Button>
+            )}
+          </div>
         </SheetHeader>
 
         {isLoading ? (

@@ -1,5 +1,14 @@
-import { LayoutDashboard, FolderOpen, Clock, FileText, Play, Plus, Search } from 'lucide-react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import {
+  LayoutDashboard,
+  FolderOpen,
+  Clock,
+  FileText,
+  Play,
+  Plus,
+  Search,
+  Book,
+} from 'lucide-react'
+import { NavLink, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { useActiveTimer } from '@/features/timesheet/hooks/use-active-timer'
 import { useTimeEntriesByDateRange } from '@/features/timesheet/hooks/use-timesheet'
@@ -10,6 +19,7 @@ const navItems = [
   { to: '/projects', label: 'Projects', icon: FolderOpen },
   { to: '/timesheet', label: 'Timesheet', icon: Clock },
   { to: '/notes', label: 'Notes', icon: FileText },
+  { to: '/books', label: 'Books', icon: Book },
 ]
 
 export function Sidebar() {

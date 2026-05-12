@@ -31,47 +31,37 @@ export function NoteMarkdown({ content, onChecklistChange, className }: NoteMark
         remarkPlugins={[remarkGfm]}
         components={{
           li: ({ node, children, ...props }) => {
-            // Check if this list item has a checkbox
-            // In react-markdown v9+, the checkbox is often passed in props or as a child
-            const isTaskItem = (props as any).className?.includes('task-list-item')
+            // Only use custom checkbox if we are in edit mode (onChecklistChange provided)
             const isChecked = (props as any).checked
+            const isTaskItem =
+              isChecked !== undefined || (props as any).className?.includes('task-list-item')
 
-            // If it's a task item but props don't have checked, check children
-            const hasCheckbox =
-              isTaskItem ||
-              node?.children?.some(
-                (child: any) => child.tagName === 'input' && child.properties?.type === 'checkbox'
-              )
-
-            if (hasCheckbox) {
-              const checkboxChild: any = node?.children?.find(
-                (child: any) => child.tagName === 'input' && child.properties?.type === 'checkbox'
-              )
-              const finalChecked =
-                isChecked !== undefined ? isChecked : checkboxChild?.properties?.checked
-
+            if (isTaskItem && onChecklistChange) {
               const checkboxIndex =
                 content.slice(0, (node as any).position?.start.offset).match(/\[([ xX])\]/g)
                   ?.length || 0
 
               return (
                 <li
-                  className="flex items-center gap-2.5 list-none -ml-6 py-1 group/item"
+                  className={`flex items-start gap-2.5 list-none -ml-6 py-1.5 px-2 rounded-lg transition-colors group/item ${isChecked ? 'bg-primary/5' : ''}`}
                   {...props}
                 >
                   <Checkbox
-                    checked={finalChecked}
+                    checked={isChecked}
                     onCheckedChange={(checked) => handleCheckboxChange(checkboxIndex, !!checked)}
-                    className="flex-shrink-0"
+                    className="mt-1 flex-shrink-0"
                   />
                   <div
-                    className={`flex-1 min-w-0 ${finalChecked ? 'text-muted-foreground/60 line-through' : ''}`}
+                    className={`flex-1 min-w-0 ${isChecked ? 'text-muted-foreground/60 line-through' : ''}`}
                   >
                     {children}
                   </div>
                 </li>
               )
             }
+
+            // For read-only mode (shared links), use the default rendering
+            // and let CSS handle the alignment and bullet removal.
             return <li {...props}>{children}</li>
           },
         }}

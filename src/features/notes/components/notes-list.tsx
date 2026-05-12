@@ -8,7 +8,7 @@ import { exportNotesToCsv } from '@/lib/utils/csv-export'
 import { Download, Edit2, FileText, Plus, Trash2 } from 'lucide-react'
 import { useMemo } from 'react'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { useNotes, useDeleteNote } from '../hooks/use-notes'
 import { NotesFiltersComponent } from './notes-filters'

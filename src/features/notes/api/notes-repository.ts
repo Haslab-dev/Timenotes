@@ -32,6 +32,25 @@ class TursoNotesRepository extends TursoRepository<Note, NoteRow> {
     }
   }
 
+  async getPublicNote(id: string): Promise<Note | null> {
+    const rows = await tursoClient.query<NoteRow>('SELECT * FROM notes WHERE id = ?', [id])
+    const row = rows[0]
+
+    if (!row) {
+      return null
+    }
+
+    const tags = await tursoClient.query<{ tag_name: string }>(
+      'SELECT tag_name FROM note_tags WHERE note_id = ? ORDER BY tag_name ASC',
+      [id]
+    )
+
+    return {
+      ...this.rowToEntity(row),
+      tags: tags.map((tag) => tag.tag_name),
+    }
+  }
+
   async createNote(data: CreateNoteRequest, userId: string): Promise<Note> {
     // Start transaction to create note and tags
     const statements = []

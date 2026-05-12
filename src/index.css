@@ -73,71 +73,98 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(98% 0.002 247);
-  --foreground: oklch(15% 0.008 264);
-  --card: oklch(100% 0 0);
-  --card-foreground: oklch(15% 0.008 264);
-  --popover: oklch(100% 0 0);
-  --popover-foreground: oklch(15% 0.008 264);
-  --primary: oklch(51% 0.225 264);
-  --primary-foreground: oklch(98% 0.002 264);
-  --secondary: oklch(95% 0.006 264);
-  --secondary-foreground: oklch(20% 0.012 264);
-  --muted: oklch(96% 0.004 264);
-  --muted-foreground: oklch(45% 0.012 264);
-  --accent: oklch(95% 0.006 264);
-  --accent-foreground: oklch(20% 0.012 264);
-  --destructive: oklch(62% 0.204 25);
-  --border: oklch(90% 0.004 264);
-  --input: oklch(90% 0.004 264);
-  --ring: oklch(51% 0.225 264);
-  --chart-1: oklch(62% 0.196 15);
-  --chart-2: oklch(73% 0.106 180);
-  --chart-3: oklch(57% 0.148 264);
-  --chart-4: oklch(65% 0.175 27);
-  --chart-5: oklch(70% 0.134 315);
-  --sidebar: oklch(96% 0.004 264);
-  --sidebar-foreground: oklch(20% 0.012 264);
-  --sidebar-primary: oklch(51% 0.225 264);
-  --sidebar-primary-foreground: oklch(98% 0.002 264);
-  --sidebar-accent: oklch(92% 0.006 264);
-  --sidebar-accent-foreground: oklch(20% 0.012 264);
-  --sidebar-border: oklch(90% 0.004 264);
-  --sidebar-ring: oklch(51% 0.225 264);
+
+  --background: hsl(220 10% 97%);
+  --foreground: hsl(255 15% 13%);
+
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(255 15% 13%);
+
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(255 15% 13%);
+
+  --primary: hsl(252 80% 57%);
+  --primary-foreground: hsl(0 0% 98%);
+
+  --secondary: hsl(240 12% 94%);
+  --secondary-foreground: hsl(255 15% 18%);
+
+  --muted: hsl(240 10% 95%);
+  --muted-foreground: hsl(255 8% 42%);
+
+  --accent: hsl(240 12% 94%);
+  --accent-foreground: hsl(255 15% 18%);
+
+  --destructive: hsl(10 75% 55%);
+
+  --border: hsl(240 8% 88%);
+  --input: hsl(240 8% 88%);
+  --ring: hsl(252 80% 57%);
+
+  --chart-1: hsl(15 75% 58%);
+  --chart-2: hsl(180 45% 55%);
+  --chart-3: hsl(252 55% 50%);
+  --chart-4: hsl(27 70% 58%);
+  --chart-5: hsl(315 55% 60%);
+
+  --sidebar: hsl(240 10% 95%);
+  --sidebar-foreground: hsl(255 15% 18%);
+
+  --sidebar-primary: hsl(252 80% 57%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+
+  --sidebar-accent: hsl(240 10% 91%);
+  --sidebar-accent-foreground: hsl(255 15% 18%);
+
+  --sidebar-border: hsl(240 8% 88%);
+  --sidebar-ring: hsl(252 80% 57%);
 }
 
 .dark {
-  --background: oklch(9% 0.008 264);
-  --foreground: oklch(98% 0.002 264);
-  --card: oklch(12% 0.008 264);
-  --card-foreground: oklch(98% 0.002 264);
-  --popover: oklch(12% 0.008 264);
-  --popover-foreground: oklch(98% 0.002 264);
-  --primary: oklch(73% 0.225 264);
-  --primary-foreground: oklch(9% 0.008 264);
-  --secondary: oklch(16% 0.008 264);
-  --secondary-foreground: oklch(98% 0.002 264);
-  --muted: oklch(16% 0.008 264);
-  --muted-foreground: oklch(65% 0.012 264);
-  --accent: oklch(16% 0.008 264);
-  --accent-foreground: oklch(98% 0.002 264);
-  --destructive: oklch(70% 0.204 25);
-  --border: oklch(22% 0.012 264);
-  --input: oklch(22% 0.012 264);
-  --ring: oklch(73% 0.225 264);
-  --chart-1: oklch(65% 0.196 15);
-  --chart-2: oklch(73% 0.106 180);
-  --chart-3: oklch(73% 0.225 264);
-  --chart-4: oklch(65% 0.175 27);
-  --chart-5: oklch(70% 0.134 315);
-  --sidebar: oklch(12% 0.008 264);
-  --sidebar-foreground: oklch(98% 0.002 264);
-  --sidebar-primary: oklch(73% 0.225 264);
-  --sidebar-primary-foreground: oklch(9% 0.008 264);
-  --sidebar-accent: oklch(16% 0.008 264);
-  --sidebar-accent-foreground: oklch(98% 0.002 264);
-  --sidebar-border: oklch(22% 0.012 264);
-  --sidebar-ring: oklch(73% 0.225 264);
+  --background: hsl(255 15% 8%);
+  --foreground: hsl(0 0% 98%);
+
+  --card: hsl(255 14% 11%);
+  --card-foreground: hsl(0 0% 98%);
+
+  --popover: hsl(255 14% 11%);
+  --popover-foreground: hsl(0 0% 98%);
+
+  --primary: hsl(252 85% 70%);
+  --primary-foreground: hsl(255 15% 8%);
+
+  --secondary: hsl(255 10% 15%);
+  --secondary-foreground: hsl(0 0% 98%);
+
+  --muted: hsl(255 10% 15%);
+  --muted-foreground: hsl(255 8% 65%);
+
+  --accent: hsl(255 10% 15%);
+  --accent-foreground: hsl(0 0% 98%);
+
+  --destructive: hsl(10 80% 65%);
+
+  --border: hsl(255 10% 22%);
+  --input: hsl(255 10% 22%);
+  --ring: hsl(252 85% 70%);
+
+  --chart-1: hsl(15 75% 60%);
+  --chart-2: hsl(180 45% 55%);
+  --chart-3: hsl(252 85% 70%);
+  --chart-4: hsl(27 70% 58%);
+  --chart-5: hsl(315 55% 60%);
+
+  --sidebar: hsl(255 14% 11%);
+  --sidebar-foreground: hsl(0 0% 98%);
+
+  --sidebar-primary: hsl(252 85% 70%);
+  --sidebar-primary-foreground: hsl(255 15% 8%);
+
+  --sidebar-accent: hsl(255 10% 15%);
+  --sidebar-accent-foreground: hsl(0 0% 98%);
+
+  --sidebar-border: hsl(255 10% 22%);
+  --sidebar-ring: hsl(252 85% 70%);
 }
 
 @layer base {
@@ -174,8 +201,8 @@
     padding: 1px;
     background: linear-gradient(
       135deg,
-      hsl(var(--primary)),
-      hsl(var(--primary) / 0.5),
+      var(--primary),
+      color-mix(in srgb, var(--primary), transparent 50%),
       transparent
     );
     border-radius: inherit;
@@ -267,7 +294,7 @@
     width: 1.1rem;
     height: 1.1rem;
     margin: 0;
-    accent-color: hsl(var(--primary));
+    accent-color: var(--primary);
     border-radius: 4px;
     /* Reset any browser defaults */
     -webkit-appearance: checkbox;
@@ -282,14 +309,64 @@
     height: 0;
   }
 
-  /* Global Prose Checklist Fixes */
-  .prose li.flex {
-    list-style: none !important;
+  /* Aggressive Checklist & Task List Reset */
+  /* Targets both Markdown-rendered and Editor-rendered lists */
+  li.task-list-item,
+  li[data-content-type='check_list_item'] {
+    list-style-type: none !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+    padding-left: 0.5rem !important;
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+    margin-left: -0.5rem !important;
+    border-radius: 0.5rem !important;
+    transition: background-color 0.2s !important;
   }
 
-  .prose li.flex::before {
+  /* Highlight checked items */
+  li.task-list-item:has(input[type='checkbox']:checked),
+  li[data-content-type='check_list_item']:has(input[type='checkbox']:checked),
+  li:has(button[role='checkbox'][data-state='checked']) {
+    background-color: color-mix(in srgb, var(--primary), transparent 95%) !important;
+  }
+
+  /* Kill all bullets/pseudo-elements from Tailwind Typography */
+  .prose ul > li.task-list-item::before,
+  .prose ul > li:has(input[type='checkbox'])::before,
+  .prose ul > li:has(button[role='checkbox'])::before,
+  li.task-list-item::before,
+  li[data-content-type='check_list_item']::before {
     display: none !important;
     content: none !important;
+  }
+
+  /* Alignment for the text container */
+  .prose li > div,
+  .prose li > p,
+  li.task-list-item > div {
+    flex: 1 !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    display: inline-block !important;
+  }
+
+  /* Handle the checkboxes themselves */
+  /* If we have a custom button, hide the native input */
+  li:has(button[role='checkbox']) input[type='checkbox'],
+  .task-list-item:has(button[role='checkbox']) input[type='checkbox'] {
+    display: none !important;
+  }
+
+  /* Style native checkboxes if they are the only ones there */
+  .prose li input[type='checkbox'] {
+    width: 1rem !important;
+    height: 1rem !important;
+    margin-top: 0.25rem !important;
+    margin-right: 0.5rem !important;
+    flex-shrink: 0 !important;
   }
 
   .prose li.flex p {

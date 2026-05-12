@@ -1,5 +1,5 @@
 import { TimesheetList } from '../components/timesheet-list'
-import { useParams, Navigate } from 'react-router-dom'
+import { useParams, Navigate } from 'react-router'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 
 export function TimesheetPage() {

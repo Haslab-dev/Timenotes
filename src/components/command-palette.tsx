@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 import { Command } from 'cmdk'
 import { Search, Folder, FileText, Play, Plus } from 'lucide-react'

@@ -117,3 +117,41 @@ CREATE TRIGGER IF NOT EXISTS update_notes_updated_at
 BEGIN 
     UPDATE notes SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id; 
 END;
+
+-- Books table
+CREATE TABLE IF NOT EXISTS books (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    thumbnail TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Pages table
+CREATE TABLE IF NOT EXISTS book_pages (
+    id TEXT PRIMARY KEY,
+    book_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    page_number INTEGER NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_books_user_id ON books(user_id);
+CREATE INDEX IF NOT EXISTS idx_book_pages_book_id ON book_pages(book_id);
+
+CREATE TRIGGER IF NOT EXISTS update_books_updated_at 
+    AFTER UPDATE ON books 
+BEGIN 
+    UPDATE books SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id; 
+END;
+
+CREATE TRIGGER IF NOT EXISTS update_book_pages_updated_at 
+    AFTER UPDATE ON book_pages 
+BEGIN 
+    UPDATE book_pages SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id; 
+END;
