@@ -179,9 +179,7 @@ interface QdrantSearchResponse {
  * `/points/search` endpoint. Qdrant fuses the results using RRF
  * (Reciprocal Rank Fusion) by default.
  */
-export async function hybridSearchRaw(
-  params: HybridSearchParams
-): Promise<QdrantSearchHit[]> {
+export async function hybridSearchRaw(params: HybridSearchParams): Promise<QdrantSearchHit[]> {
   const { vector, sparseVector, limit, scoreThreshold, filter } = params
 
   const url = `${baseUrl()}/collections/${_config.collectionName}/points/search`

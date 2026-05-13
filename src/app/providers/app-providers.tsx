@@ -12,9 +12,7 @@ export function AppProviders({ children }: PropsWithChildren) {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TimerProvider>
-          <SearchProvider>
-            {children}
-          </SearchProvider>
+          <SearchProvider>{children}</SearchProvider>
           <ReactQueryDevtools buttonPosition="bottom-right" initialIsOpen={false} />
         </TimerProvider>
       </AuthProvider>

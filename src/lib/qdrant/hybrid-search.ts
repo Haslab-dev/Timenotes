@@ -11,12 +11,7 @@
 import { generateEmbedding } from './embedding'
 import { hybridSearchRaw } from './qdrant-client'
 import { buildQuerySparseVector } from './sparse'
-import type {
-  SearchQuery,
-  SearchResult,
-  SearchEntityType,
-  QdrantSearchHit,
-} from './types'
+import type { SearchQuery, SearchResult, SearchEntityType, QdrantSearchHit } from './types'
 
 // ── Public API ────────────────────────────────────────────────────────
 

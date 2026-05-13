@@ -24,10 +24,7 @@ export function CommandPalette() {
   const { ready: qdrantReady } = useSearchStatus()
 
   // Qdrant hybrid search — debounced 300ms, only fires when qdrant is ready
-  const {
-    results: vectorResults,
-    loading: vectorLoading,
-  } = useHybridSearch(search, user?.id, {
+  const { results: vectorResults, loading: vectorLoading } = useHybridSearch(search, user?.id, {
     limit: 5,
     minLength: 3,
   })

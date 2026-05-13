@@ -64,7 +64,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
             apiKey: embedApiKey,
             apiUrl:
               (import.meta.env.VITE_EMBEDDING_API_URL as string) || 'https://api.openai.com/v1',
-            model: (import.meta.env.VITE_EMBEDDING_MODEL as string) || 'openai/text-embedding-3-large',
+            model:
+              (import.meta.env.VITE_EMBEDDING_MODEL as string) || 'openai/text-embedding-3-large',
             dimensions,
           })
         }
