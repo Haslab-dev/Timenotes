@@ -12,14 +12,7 @@ import {
   endOfWeek,
   isToday,
 } from 'date-fns'
-import {
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  AlertCircle,
-  CalendarDays,
-  List,
-} from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, AlertCircle, CalendarDays, List } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { TaskList } from './task-list'
@@ -109,10 +102,7 @@ export function TaskPlannerCalendar({
     const dayTasks = getTasksForDay(day)
     const today = new Date(new Date().toDateString())
     return dayTasks.filter(
-      (t) =>
-        t.status !== 'completed' &&
-        t.status !== 'cancelled' &&
-        day < today
+      (t) => t.status !== 'completed' && t.status !== 'cancelled' && day < today
     ).length
   }
 
@@ -274,9 +264,7 @@ export function TaskPlannerCalendar({
                         >
                           {format(day, 'd')}
                         </span>
-                        {overdueCount > 0 && (
-                          <AlertCircle className="h-3 w-3 text-destructive" />
-                        )}
+                        {overdueCount > 0 && <AlertCircle className="h-3 w-3 text-destructive" />}
                       </div>
 
                       {hasTasks && (
@@ -326,9 +314,10 @@ export function TaskPlannerCalendar({
                 {Array.from(sortedTasksByDate.entries()).map(([dateStr, dateTasks]) => {
                   const isNoDate = dateStr === '__no_date'
                   const date = isNoDate ? null : new Date(dateStr + 'T00:00:00')
-                  const isOverdue =
-                    date && date < new Date(new Date().toDateString())
-                  const todayTasks = dateTasks.filter((t) => t.status !== 'completed' && t.status !== 'cancelled')
+                  const isOverdue = date && date < new Date(new Date().toDateString())
+                  const todayTasks = dateTasks.filter(
+                    (t) => t.status !== 'completed' && t.status !== 'cancelled'
+                  )
                   const doneTasks = dateTasks.filter((t) => t.status === 'completed')
 
                   return (
@@ -357,7 +346,10 @@ export function TaskPlannerCalendar({
                             </span>
                           )}
                           {isOverdue && (
-                            <Badge variant="destructive" className="text-[8px] h-4 px-1.5 font-bold">
+                            <Badge
+                              variant="destructive"
+                              className="text-[8px] h-4 px-1.5 font-bold"
+                            >
                               Overdue
                             </Badge>
                           )}
@@ -385,9 +377,7 @@ export function TaskPlannerCalendar({
       <div className="lg:w-80 border rounded-2xl bg-card shadow-sm flex flex-col transition-all overflow-hidden">
         <div className="p-3 sm:p-4 border-b bg-muted/20 flex items-center justify-between">
           <div className="text-left">
-            <h4 className="font-bold text-xs sm:text-sm">
-              {format(selectedDate, 'EEEE, MMM d')}
-            </h4>
+            <h4 className="font-bold text-xs sm:text-sm">{format(selectedDate, 'EEEE, MMM d')}</h4>
             <p className="text-[9px] sm:text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
               {sortedDayTasks.length} task{sortedDayTasks.length !== 1 ? 's' : ''}
             </p>

@@ -27,11 +27,9 @@ export function NotificationManager() {
           notifiedRef.current.add(task.id)
           try {
             await taskRepository.markNotified(task.id, user.id)
-          } catch {
-          }
+          } catch {}
         }
-      } catch {
-      }
+      } catch {}
     }
 
     const requestPermission = async () => {
@@ -56,7 +54,13 @@ export function NotificationManager() {
   return null
 }
 
-function showNotification(task: { id: string; title: string; description?: string; dueDate?: Date; dueTime?: string }) {
+function showNotification(task: {
+  id: string
+  title: string
+  description?: string
+  dueDate?: Date
+  dueTime?: string
+}) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return
 
   const dueStr = task.dueDate
@@ -65,9 +69,7 @@ function showNotification(task: { id: string; title: string; description?: strin
 
   try {
     new Notification('Task Reminder', {
-      body: task.description
-        ? `${task.title}${dueStr ? ` — ${dueStr}` : ''}`
-        : task.title,
+      body: task.description ? `${task.title}${dueStr ? ` — ${dueStr}` : ''}` : task.title,
       icon: '/favicon.ico',
       tag: `task-${task.id}`,
       requireInteraction: true,
@@ -78,8 +80,7 @@ function showNotification(task: { id: string; title: string; description?: strin
         body: task.title,
         tag: `task-${task.id}`,
       })
-    } catch {
-    }
+    } catch {}
   }
 }
 

@@ -77,23 +77,29 @@ export function TimeNoteDashboardPage() {
     setTaskDialogOpen(true)
   }, [])
 
-  const handleToggleTask = useCallback((task: Task) => {
-    const newStatus = task.status === 'completed' ? 'pending' : 'completed'
-    updateTask.mutate({ id: task.id, data: { status: newStatus } })
-  }, [updateTask])
+  const handleToggleTask = useCallback(
+    (task: Task) => {
+      const newStatus = task.status === 'completed' ? 'pending' : 'completed'
+      updateTask.mutate({ id: task.id, data: { status: newStatus } })
+    },
+    [updateTask]
+  )
 
-  const handleSaveTask = useCallback((data: CreateTaskRequest | UpdateTaskRequest) => {
-    if (editingTask) {
-      updateTask.mutate(
-        { id: editingTask.id, data: data as UpdateTaskRequest },
-        { onSuccess: () => setTaskDialogOpen(false) }
-      )
-    } else {
-      createTask.mutate(data as CreateTaskRequest, {
-        onSuccess: () => setTaskDialogOpen(false),
-      })
-    }
-  }, [editingTask, createTask, updateTask])
+  const handleSaveTask = useCallback(
+    (data: CreateTaskRequest | UpdateTaskRequest) => {
+      if (editingTask) {
+        updateTask.mutate(
+          { id: editingTask.id, data: data as UpdateTaskRequest },
+          { onSuccess: () => setTaskDialogOpen(false) }
+        )
+      } else {
+        createTask.mutate(data as CreateTaskRequest, {
+          onSuccess: () => setTaskDialogOpen(false),
+        })
+      }
+    },
+    [editingTask, createTask, updateTask]
+  )
 
   const [focusDetails, setFocusDetails] = useState({
     projectId: '',

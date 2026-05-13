@@ -102,21 +102,45 @@ class TursoTaskRepository {
     const sets: string[] = []
     const values: (string | number | boolean | null)[] = []
 
-    if (data.title !== undefined) { sets.push('title = ?'); values.push(data.title) }
-    if (data.description !== undefined) { sets.push('description = ?'); values.push(data.description || null) }
-    if (data.dueDate !== undefined) { sets.push('due_date = ?'); values.push(data.dueDate.toISOString().split('T')[0]) }
-    if (data.dueTime !== undefined) { sets.push('due_time = ?'); values.push(data.dueTime || null) }
-    if (data.priority !== undefined) { sets.push('priority = ?'); values.push(data.priority) }
+    if (data.title !== undefined) {
+      sets.push('title = ?')
+      values.push(data.title)
+    }
+    if (data.description !== undefined) {
+      sets.push('description = ?')
+      values.push(data.description || null)
+    }
+    if (data.dueDate !== undefined) {
+      sets.push('due_date = ?')
+      values.push(data.dueDate.toISOString().split('T')[0])
+    }
+    if (data.dueTime !== undefined) {
+      sets.push('due_time = ?')
+      values.push(data.dueTime || null)
+    }
+    if (data.priority !== undefined) {
+      sets.push('priority = ?')
+      values.push(data.priority)
+    }
     if (data.status !== undefined) {
-      sets.push('status = ?'); values.push(data.status)
+      sets.push('status = ?')
+      values.push(data.status)
       if (data.status === 'completed') {
-        sets.push('completed_at = ?'); values.push(new Date().toISOString())
+        sets.push('completed_at = ?')
+        values.push(new Date().toISOString())
       } else if (data.status === 'pending' || data.status === 'in_progress') {
-        sets.push('completed_at = ?'); values.push(null)
+        sets.push('completed_at = ?')
+        values.push(null)
       }
     }
-    if (data.projectId !== undefined) { sets.push('project_id = ?'); values.push(data.projectId || null) }
-    if (data.reminderMinutes !== undefined) { sets.push('reminder_minutes = ?'); values.push(data.reminderMinutes || null) }
+    if (data.projectId !== undefined) {
+      sets.push('project_id = ?')
+      values.push(data.projectId || null)
+    }
+    if (data.reminderMinutes !== undefined) {
+      sets.push('reminder_minutes = ?')
+      values.push(data.reminderMinutes || null)
+    }
 
     if (sets.length === 0) return existing
 
@@ -140,10 +164,10 @@ class TursoTaskRepository {
   }
 
   async deleteTask(id: string, userId: string): Promise<boolean> {
-    const result = await tursoClient.run(
-      'DELETE FROM tasks WHERE id = ? AND user_id = ?',
-      [id, userId]
-    )
+    const result = await tursoClient.run('DELETE FROM tasks WHERE id = ? AND user_id = ?', [
+      id,
+      userId,
+    ])
     return result.changes > 0
   }
 

@@ -167,12 +167,21 @@ export function DashboardCalendar({
             const projectSummaries = getProjectSummariesForDay(dayActivity.entries)
             const dayNotes = dayActivity.notes
             const dayTasks = dayActivity.tasks
-            const activeTasks = dayTasks.filter((t) => t.status !== 'completed' && t.status !== 'cancelled')
+            const activeTasks = dayTasks.filter(
+              (t) => t.status !== 'completed' && t.status !== 'cancelled'
+            )
             const completedTasks = dayTasks.filter((t) => t.status === 'completed')
 
-            const totalDisplayCount = projectSummaries.length + (dayNotes.length > 0 ? 1 : 0) + (activeTasks.length > 0 ? 1 : 0)
+            const totalDisplayCount =
+              projectSummaries.length +
+              (dayNotes.length > 0 ? 1 : 0) +
+              (activeTasks.length > 0 ? 1 : 0)
             const displaySummaries = projectSummaries.slice(0, 1)
-            const remainingCount = totalDisplayCount - displaySummaries.length - (dayNotes.length > 0 ? 1 : 0) - (activeTasks.length > 0 ? 1 : 0)
+            const remainingCount =
+              totalDisplayCount -
+              displaySummaries.length -
+              (dayNotes.length > 0 ? 1 : 0) -
+              (activeTasks.length > 0 ? 1 : 0)
 
             return (
               <div
@@ -321,20 +330,42 @@ export function DashboardCalendar({
                     >
                       <div className="flex items-start gap-2">
                         <button
-                          onClick={(e) => { e.stopPropagation(); onToggleTask(task) }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onToggleTask(task)
+                          }}
                           className="mt-0.5 shrink-0"
                         >
                           {isCompleted ? (
-                            <svg className="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <svg
+                              className="h-3.5 w-3.5 text-green-500"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
                             </svg>
                           ) : (
-                            <svg className="h-3.5 w-3.5 text-muted-foreground/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <svg
+                              className="h-3.5 w-3.5 text-muted-foreground/40"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={1.5}
+                            >
                               <circle cx="12" cy="12" r="9" />
                             </svg>
                           )}
                         </button>
-                        <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onEditTask(task)}>
+                        <div
+                          className="flex-1 min-w-0 cursor-pointer"
+                          onClick={() => onEditTask(task)}
+                        >
                           <div className="flex items-center gap-1.5">
                             <div
                               className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -342,7 +373,9 @@ export function DashboardCalendar({
                             />
                             <span
                               className={`text-[10px] font-semibold truncate ${
-                                isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'
+                                isCompleted
+                                  ? 'line-through text-muted-foreground'
+                                  : 'text-foreground'
                               }`}
                             >
                               {task.title}
@@ -360,7 +393,9 @@ export function DashboardCalendar({
                 })}
               </div>
             ) : (
-              <p className="text-[10px] text-muted-foreground italic text-left">No tasks scheduled</p>
+              <p className="text-[10px] text-muted-foreground italic text-left">
+                No tasks scheduled
+              </p>
             )}
           </div>
 

@@ -18,10 +18,7 @@ import {
 } from '@/components/ui/select'
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from '@/lib/types'
-import {
-  PRIORITY_COLORS,
-  PRIORITY_LABELS,
-} from '@/lib/types'
+import { PRIORITY_COLORS, PRIORITY_LABELS } from '@/lib/types'
 import { CalendarIcon, Clock } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -34,7 +31,14 @@ interface TaskDialogProps {
   isSaving: boolean
 }
 
-export function TaskDialog({ open, onOpenChange, task, defaultDate, onSave, isSaving }: TaskDialogProps) {
+export function TaskDialog({
+  open,
+  onOpenChange,
+  task,
+  defaultDate,
+  onSave,
+  isSaving,
+}: TaskDialogProps) {
   const { data: projects = [] } = useProjects()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -160,7 +164,9 @@ export function TaskDialog({ open, onOpenChange, task, defaultDate, onSave, isSa
                       <div className="flex items-center gap-2">
                         <div
                           className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: PRIORITY_COLORS[value as keyof typeof PRIORITY_COLORS] }}
+                          style={{
+                            backgroundColor: PRIORITY_COLORS[value as keyof typeof PRIORITY_COLORS],
+                          }}
                         />
                         {label}
                       </div>
@@ -217,11 +223,7 @@ export function TaskDialog({ open, onOpenChange, task, defaultDate, onSave, isSa
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={!title.trim() || isSaving}>

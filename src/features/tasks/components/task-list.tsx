@@ -1,11 +1,5 @@
 import { format } from 'date-fns'
-import {
-  CheckCircle2,
-  Circle,
-  Clock,
-  Trash2,
-  Pencil,
-} from 'lucide-react'
+import { CheckCircle2, Circle, Clock, Trash2, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useProjects } from '@/features/projects/hooks/use-projects'
@@ -20,7 +14,13 @@ interface TaskListProps {
   compact?: boolean
 }
 
-export function TaskList({ tasks, onToggleStatus, onEdit, onDelete, compact = false }: TaskListProps) {
+export function TaskList({
+  tasks,
+  onToggleStatus,
+  onEdit,
+  onDelete,
+  compact = false,
+}: TaskListProps) {
   const { data: projects = [] } = useProjects()
 
   if (tasks.length === 0) {
@@ -69,7 +69,9 @@ export function TaskList({ tasks, onToggleStatus, onEdit, onDelete, compact = fa
               <div className="flex items-center gap-2 flex-wrap">
                 <span
                   className={`text-sm font-semibold truncate ${
-                    task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'
+                    task.status === 'completed'
+                      ? 'line-through text-muted-foreground'
+                      : 'text-foreground'
                   }`}
                 >
                   {task.title}
@@ -82,7 +84,9 @@ export function TaskList({ tasks, onToggleStatus, onEdit, onDelete, compact = fa
               </div>
 
               {task.description && !compact && (
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  {task.description}
+                </p>
               )}
 
               <div className="flex items-center gap-2 flex-wrap mt-1.5">
@@ -98,8 +102,12 @@ export function TaskList({ tasks, onToggleStatus, onEdit, onDelete, compact = fa
 
                 {task.dueDate && (
                   <div className="flex items-center gap-1">
-                    <Clock className={`h-3 w-3 ${isOverdue ? 'text-destructive' : 'text-muted-foreground'}`} />
-                    <span className={`text-[10px] font-medium ${isOverdue ? 'text-destructive font-bold' : 'text-muted-foreground'}`}>
+                    <Clock
+                      className={`h-3 w-3 ${isOverdue ? 'text-destructive' : 'text-muted-foreground'}`}
+                    />
+                    <span
+                      className={`text-[10px] font-medium ${isOverdue ? 'text-destructive font-bold' : 'text-muted-foreground'}`}
+                    >
                       {format(task.dueDate, 'MMM d')}
                       {task.dueTime ? ` ${task.dueTime}` : ''}
                     </span>

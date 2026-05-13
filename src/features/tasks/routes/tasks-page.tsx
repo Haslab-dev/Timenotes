@@ -52,29 +52,38 @@ export function TasksPage() {
     setShowDialog(true)
   }, [])
 
-  const handleToggleTask = useCallback((task: Task) => {
-    const newStatus = task.status === 'completed' ? 'pending' : 'completed'
-    updateTask.mutate({ id: task.id, data: { status: newStatus } })
-  }, [updateTask])
+  const handleToggleTask = useCallback(
+    (task: Task) => {
+      const newStatus = task.status === 'completed' ? 'pending' : 'completed'
+      updateTask.mutate({ id: task.id, data: { status: newStatus } })
+    },
+    [updateTask]
+  )
 
-  const handleDeleteTask = useCallback((task: Task) => {
-    if (confirm(`Delete "${task.title}"?`)) {
-      deleteTask.mutate(task.id)
-    }
-  }, [deleteTask])
+  const handleDeleteTask = useCallback(
+    (task: Task) => {
+      if (confirm(`Delete "${task.title}"?`)) {
+        deleteTask.mutate(task.id)
+      }
+    },
+    [deleteTask]
+  )
 
-  const handleSaveTask = useCallback((data: CreateTaskRequest | UpdateTaskRequest) => {
-    if (editingTask) {
-      updateTask.mutate(
-        { id: editingTask.id, data: data as UpdateTaskRequest },
-        { onSuccess: () => setShowDialog(false) }
-      )
-    } else {
-      createTask.mutate(data as CreateTaskRequest, {
-        onSuccess: () => setShowDialog(false),
-      })
-    }
-  }, [editingTask, createTask, updateTask])
+  const handleSaveTask = useCallback(
+    (data: CreateTaskRequest | UpdateTaskRequest) => {
+      if (editingTask) {
+        updateTask.mutate(
+          { id: editingTask.id, data: data as UpdateTaskRequest },
+          { onSuccess: () => setShowDialog(false) }
+        )
+      } else {
+        createTask.mutate(data as CreateTaskRequest, {
+          onSuccess: () => setShowDialog(false),
+        })
+      }
+    },
+    [editingTask, createTask, updateTask]
+  )
 
   const handleNotificationToggle = async () => {
     if (notificationEnabled) {
@@ -85,20 +94,21 @@ export function TasksPage() {
     }
   }
 
-  const activeTasks = tasks.filter(
-    (t) => t.status !== 'completed' && t.status !== 'cancelled'
-  )
+  const activeTasks = tasks.filter((t) => t.status !== 'completed' && t.status !== 'cancelled')
   const completedTasks = tasks.filter((t) => t.status === 'completed')
   const totalTasks = tasks.length
 
-  const filteredTasks = tasks.filter((task) => {
-    if (statusFilter === 'active') return task.status !== 'completed' && task.status !== 'cancelled'
-    if (statusFilter === 'completed') return task.status === 'completed'
-    return true
-  }).filter((task) => {
-    if (priorityFilter === 'all') return true
-    return task.priority === priorityFilter
-  })
+  const filteredTasks = tasks
+    .filter((task) => {
+      if (statusFilter === 'active')
+        return task.status !== 'completed' && task.status !== 'cancelled'
+      if (statusFilter === 'completed') return task.status === 'completed'
+      return true
+    })
+    .filter((task) => {
+      if (priorityFilter === 'all') return true
+      return task.priority === priorityFilter
+    })
 
   const statusCounts = {
     total: totalTasks,
@@ -174,7 +184,9 @@ export function TasksPage() {
             </span>
             <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-400" />
           </div>
-          <p className="text-xl sm:text-2xl font-black mt-1 text-green-500">{statusCounts.completed}</p>
+          <p className="text-xl sm:text-2xl font-black mt-1 text-green-500">
+            {statusCounts.completed}
+          </p>
         </div>
         <div className="bg-card border rounded-xl p-3 sm:p-4 shadow-sm">
           <div className="flex items-center justify-between">
@@ -183,7 +195,9 @@ export function TasksPage() {
             </span>
             <AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive" />
           </div>
-          <p className={`text-xl sm:text-2xl font-black mt-1 ${overdueTasks.length > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+          <p
+            className={`text-xl sm:text-2xl font-black mt-1 ${overdueTasks.length > 0 ? 'text-destructive' : 'text-muted-foreground'}`}
+          >
             {statusCounts.overdue}
           </p>
         </div>
