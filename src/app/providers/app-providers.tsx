@@ -3,6 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider } from '@/features/auth/components/auth-provider'
 import { TimerProvider } from '@/features/timesheet/hooks/use-active-timer'
+import { SearchProvider } from '@/lib/qdrant/search-provider'
 
 import { queryClient } from './query-client'
 
@@ -11,7 +12,9 @@ export function AppProviders({ children }: PropsWithChildren) {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TimerProvider>
-          {children}
+          <SearchProvider>
+            {children}
+          </SearchProvider>
           <ReactQueryDevtools buttonPosition="bottom-right" initialIsOpen={false} />
         </TimerProvider>
       </AuthProvider>

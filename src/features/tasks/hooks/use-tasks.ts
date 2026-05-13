@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { taskRepository } from '../api/task-repository'
 import { useAuthContext } from '@/features/auth/hooks/use-auth-context'
+import { indexTask, removeTask } from '@/lib/qdrant/search-sync'
 import type { CreateTaskRequest, UpdateTaskRequest } from '@/lib/types'
 
 export function useTasks() {
@@ -72,7 +73,17 @@ export function useCreateTask() {
 
   return useMutation({
     mutationFn: (data: CreateTaskRequest) => taskRepository.createTask(data, user!.id),
-    onSuccess: () => {
+    onSuccess: (task) => {
+      // Index in Qdrant for hybrid search
+      indexTask({
+        id: task.id,
+        userId: user!.id,
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+      }).catch((err) => console.warn('Failed to index task for search:', err))
+
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
     },
   })
@@ -85,7 +96,19 @@ export function useUpdateTask() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateTaskRequest }) =>
       taskRepository.updateTask(id, user!.id, data),
-    onSuccess: () => {
+    onSuccess: (task) => {
+      // Re-index updated task in Qdrant
+      if (task) {
+        indexTask({
+          id: task.id,
+          userId: user!.id,
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          priority: task.priority,
+        }).catch((err) => console.warn('Failed to re-index task for search:', err))
+      }
+
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
     },
   })
@@ -97,7 +120,12 @@ export function useDeleteTask() {
 
   return useMutation({
     mutationFn: (id: string) => taskRepository.deleteTask(id, user!.id),
-    onSuccess: () => {
+    onSuccess: (_success, deletedId) => {
+      // Remove from Qdrant index
+      removeTask(deletedId).catch((err) =>
+        console.warn('Failed to remove task from search index:', err)
+      )
+
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
     },
   })

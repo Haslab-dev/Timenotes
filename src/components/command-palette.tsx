@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 import { Command } from 'cmdk'
-import { Search, Folder, FileText, Play, Plus } from 'lucide-react'
+import { Search, Folder, FileText, Play, Plus, Sparkles } from 'lucide-react'
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import { useNotes } from '@/features/notes/hooks/use-notes'
 import { useActiveTimer } from '@/features/timesheet/hooks/use-active-timer'
+import { useAuthContext } from '@/features/auth/hooks/use-auth-context'
+import { useHybridSearch } from '@/lib/qdrant/use-hybrid-search'
+import { useSearchStatus } from '@/lib/qdrant/search-provider'
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false)
@@ -17,6 +20,17 @@ export function CommandPalette() {
   const { data: projects = [] } = useProjects()
   const { data: notes = [] } = useNotes()
   const { startTimer, activeTimer } = useActiveTimer()
+  const { user } = useAuthContext()
+  const { ready: qdrantReady } = useSearchStatus()
+
+  // Qdrant hybrid search — debounced 300ms, only fires when qdrant is ready
+  const {
+    results: vectorResults,
+    loading: vectorLoading,
+  } = useHybridSearch(search, user?.id, {
+    limit: 5,
+    minLength: 3,
+  })
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -141,6 +155,61 @@ export function CommandPalette() {
                   {note.title}
                 </Command.Item>
               ))}
+            </Command.Group>
+          )}
+
+          {qdrantReady && vectorResults.length > 0 && (
+            <Command.Group
+              heading="AI Search"
+              className="px-2 py-1.5 text-xs font-medium text-muted-foreground mt-2"
+            >
+              {vectorResults.map((result) => (
+                <Command.Item
+                  key={result.id}
+                  value={`${result.entityType}:${result.title}`}
+                  onSelect={() => {
+                    const nav = () => {
+                      switch (result.entityType) {
+                        case 'note':
+                          if (isMobile) navigate(`/notes/${result.entityId}/edit`)
+                          else setSearchParams({ noteId: result.entityId })
+                          break
+                        case 'task':
+                          navigate(`/tasks?highlight=${result.entityId}`)
+                          break
+                        case 'project':
+                          navigate(`/projects/${result.entityId}`)
+                          break
+                        case 'time_entry':
+                          navigate(`/timesheet?highlight=${result.entityId}`)
+                          break
+                      }
+                    }
+                    runCommand(nav)
+                  }}
+                  className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-2.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground"
+                >
+                  <Sparkles className="mr-2 h-4 w-4 text-primary" />
+                  <div className="flex flex-col min-w-0">
+                    <span className="truncate">{result.title || result.content?.slice(0, 60)}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {result.entityType} · score {result.score.toFixed(2)}
+                    </span>
+                  </div>
+                </Command.Item>
+              ))}
+            </Command.Group>
+          )}
+
+          {qdrantReady && vectorLoading && search.length >= 3 && (
+            <Command.Group
+              heading="AI Search"
+              className="px-2 py-1.5 text-xs font-medium text-muted-foreground mt-2"
+            >
+              <div className="flex items-center gap-2 px-2 py-3 text-sm text-muted-foreground">
+                <Sparkles className="h-4 w-4 animate-pulse" />
+                Searching across all content...
+              </div>
             </Command.Group>
           )}
 

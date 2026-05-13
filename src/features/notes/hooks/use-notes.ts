@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { notesRepository } from '../api/notes-repository'
 import { useAuthContext } from '@/features/auth/hooks/use-auth-context'
-import type { CreateNoteRequest, UpdateNoteRequest } from '@/lib/types'
+import { indexNote, removeNote } from '@/lib/qdrant/search-sync'
+import type { CreateNoteRequest, UpdateNoteRequest, Note } from '@/lib/types'
 
 export function useNotes() {
   const { user } = useAuthContext()
@@ -62,7 +63,15 @@ export function useCreateNote() {
 
   return useMutation({
     mutationFn: (data: CreateNoteRequest) => notesRepository.createNote(data, user!.id),
-    onSuccess: () => {
+    onSuccess: (note) => {
+      // Index in Qdrant for hybrid search
+      indexNote({
+        id: note.id,
+        userId: user!.id,
+        title: note.title,
+        content: note.content,
+      }).catch((err) => console.warn('Failed to index note for search:', err))
+
       queryClient.invalidateQueries({ queryKey: ['notes'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
@@ -76,9 +85,18 @@ export function useUpdateNote() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateNoteRequest }) =>
       notesRepository.updateNote(id, user!.id, data),
-    onSuccess: (_, { id }) => {
+    onSuccess: (note) => {
+      // Re-index updated note in Qdrant
+      if (note) {
+        indexNote({
+          id: note.id,
+          userId: user!.id,
+          title: note.title,
+          content: note.content,
+        }).catch((err) => console.warn('Failed to re-index note for search:', err))
+      }
+
       queryClient.invalidateQueries({ queryKey: ['notes'] })
-      queryClient.invalidateQueries({ queryKey: ['notes', id] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
@@ -90,7 +108,12 @@ export function useDeleteNote() {
 
   return useMutation({
     mutationFn: (id: string) => notesRepository.deleteNote(id, user!.id),
-    onSuccess: () => {
+    onSuccess: (_success, deletedId) => {
+      // Remove from Qdrant index
+      removeNote(deletedId).catch((err) =>
+        console.warn('Failed to remove note from search index:', err)
+      )
+
       queryClient.invalidateQueries({ queryKey: ['notes'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
