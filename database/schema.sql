@@ -155,3 +155,35 @@ CREATE TRIGGER IF NOT EXISTS update_book_pages_updated_at
 BEGIN 
     UPDATE book_pages SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id; 
 END;
+
+-- Tasks table for task planner and scheduler
+CREATE TABLE IF NOT EXISTS tasks (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    due_date TEXT,
+    due_time TEXT,
+    priority TEXT NOT NULL DEFAULT 'medium',
+    status TEXT NOT NULL DEFAULT 'pending',
+    project_id TEXT,
+    completed_at DATETIME,
+    reminder_minutes INTEGER,
+    notified INTEGER NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON tasks(user_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
+CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
+
+CREATE TRIGGER IF NOT EXISTS update_tasks_updated_at 
+    AFTER UPDATE ON tasks 
+BEGIN 
+    UPDATE tasks SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id; 
+END;

@@ -13,7 +13,7 @@ import {
   VolumeX,
   X,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { DashboardCalendar } from '../components/dashboard-calendar'
 import { ProjectHoursChart } from '../components/project-hours-chart'
@@ -28,6 +28,9 @@ import { TimesheetSidePanel } from '@/features/timesheet/components/timesheet-si
 import { useActiveTimer, useTimerTicker } from '@/features/timesheet/hooks/use-active-timer'
 import { BookDashboard } from '@/features/books/components/book-dashboard'
 import { useBooks, useDeleteBook } from '@/features/books/hooks/use-books'
+import { useTasks, useCreateTask, useUpdateTask } from '@/features/tasks/hooks/use-tasks'
+import { TaskDialog } from '@/features/tasks/components/task-dialog'
+import type { Task, CreateTaskRequest, UpdateTaskRequest } from '@/lib/types'
 
 export function TimeNoteDashboardPage() {
   const navigate = useNavigate()
@@ -53,6 +56,44 @@ export function TimeNoteDashboardPage() {
   const { startTimer } = useActiveTimer()
   const { data: booksData = [] } = useBooks()
   const deleteBook = useDeleteBook()
+
+  const { data: tasks = [] } = useTasks()
+  const createTask = useCreateTask()
+  const updateTask = useUpdateTask()
+
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false)
+  const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [taskDefaultDate, setTaskDefaultDate] = useState<Date>()
+
+  const handleAddTask = useCallback((date?: Date) => {
+    setEditingTask(null)
+    setTaskDefaultDate(date || new Date())
+    setTaskDialogOpen(true)
+  }, [])
+
+  const handleEditTask = useCallback((task: Task) => {
+    setEditingTask(task)
+    setTaskDefaultDate(undefined)
+    setTaskDialogOpen(true)
+  }, [])
+
+  const handleToggleTask = useCallback((task: Task) => {
+    const newStatus = task.status === 'completed' ? 'pending' : 'completed'
+    updateTask.mutate({ id: task.id, data: { status: newStatus } })
+  }, [updateTask])
+
+  const handleSaveTask = useCallback((data: CreateTaskRequest | UpdateTaskRequest) => {
+    if (editingTask) {
+      updateTask.mutate(
+        { id: editingTask.id, data: data as UpdateTaskRequest },
+        { onSuccess: () => setTaskDialogOpen(false) }
+      )
+    } else {
+      createTask.mutate(data as CreateTaskRequest, {
+        onSuccess: () => setTaskDialogOpen(false),
+      })
+    }
+  }, [editingTask, createTask, updateTask])
 
   const [focusDetails, setFocusDetails] = useState({
     projectId: '',
@@ -548,6 +589,7 @@ export function TimeNoteDashboardPage() {
         <DashboardCalendar
           timeEntries={timeEntries}
           notes={notes}
+          tasks={tasks}
           onSelectEntry={(entry) => {
             if (isMobile) {
               navigate(`/timesheet/${entry.id}/edit`)
@@ -562,8 +604,20 @@ export function TimeNoteDashboardPage() {
               setSearchParams({ noteId: note.id })
             }
           }}
+          onAddTask={handleAddTask}
+          onToggleTask={handleToggleTask}
+          onEditTask={handleEditTask}
         />
       )}
+
+      <TaskDialog
+        open={taskDialogOpen}
+        onOpenChange={setTaskDialogOpen}
+        task={editingTask}
+        defaultDate={taskDefaultDate}
+        onSave={handleSaveTask}
+        isSaving={createTask.isPending || updateTask.isPending}
+      />
 
       {/* Detail Side Panels (Desktop only, mobile uses full-page navigation) */}
       {!isMobile && (

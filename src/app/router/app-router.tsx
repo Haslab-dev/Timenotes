@@ -11,6 +11,7 @@ import { EditNotePage } from '@/features/notes/routes/edit-note-page'
 import { NewNotePage } from '@/features/notes/routes/new-note-page'
 import { PublicNotePage } from '@/features/notes/routes/public-note-page'
 import { BooksPage } from '@/features/books/routes/books-page'
+import { TasksPage } from '@/features/tasks/routes/tasks-page'
 import { BookDetailPage } from '@/features/books/routes/book-detail-page'
 import { PublicBookPage } from '@/features/books/routes/public-book-page'
 import { TimesheetPage } from '@/features/timesheet/routes/timesheet-page'
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
       { path: 'notes/:id', element: <NotesPage /> },
       { path: 'notes/new', element: <NewNotePage /> },
       { path: 'notes/:id/edit', element: <EditNotePage /> },
+      { path: 'tasks', element: <TasksPage /> },
       { path: 'books', element: <BooksPage /> },
       { path: 'books/:id', element: <BookDetailPage /> },
     ],

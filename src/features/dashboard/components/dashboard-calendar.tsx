@@ -12,25 +12,33 @@ import {
   endOfWeek,
   isToday,
 } from 'date-fns'
-import { ChevronLeft, ChevronRight, Clock, FileText, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock, FileText, ListTodo, Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useProjects } from '@/features/projects/hooks/use-projects'
-import type { TimeEntry, Note } from '@/lib/types'
-// import { CompactTimesheetTable } from '@/features/timesheet/components/compact-timesheet-table'
+import type { TimeEntry, Note, Task } from '@/lib/types'
+import { PRIORITY_COLORS } from '@/lib/types'
 
 interface DashboardCalendarProps {
   timeEntries: TimeEntry[]
   notes: Note[]
+  tasks: Task[]
   onSelectEntry: (entry: TimeEntry) => void
   onSelectNote: (note: Note) => void
+  onAddTask: (date?: Date) => void
+  onToggleTask: (task: Task) => void
+  onEditTask: (task: Task) => void
 }
 
 export function DashboardCalendar({
   timeEntries,
   notes,
+  tasks,
   onSelectEntry,
   onSelectNote,
+  onAddTask,
+  onToggleTask,
+  onEditTask,
 }: DashboardCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date())
@@ -46,31 +54,36 @@ export function DashboardCalendar({
     end: endDate,
   })
 
-  const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1))
-  const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1))
-
   const activityByDate = useMemo(() => {
-    const map: Record<string, { entries: TimeEntry[]; notes: Note[] }> = {}
+    const map: Record<string, { entries: TimeEntry[]; notes: Note[]; tasks: Task[] }> = {}
 
     timeEntries.forEach((entry) => {
       const dateStr = format(entry.startTime, 'yyyy-MM-dd')
-      if (!map[dateStr]) map[dateStr] = { entries: [], notes: [] }
+      if (!map[dateStr]) map[dateStr] = { entries: [], notes: [], tasks: [] }
       map[dateStr].entries.push(entry)
     })
 
     notes.forEach((note) => {
       const dateStr = format(note.createdAt, 'yyyy-MM-dd')
-      if (!map[dateStr]) map[dateStr] = { entries: [], notes: [] }
+      if (!map[dateStr]) map[dateStr] = { entries: [], notes: [], tasks: [] }
       map[dateStr].notes.push(note)
     })
 
+    tasks.forEach((task) => {
+      if (task.dueDate) {
+        const dateStr = format(task.dueDate, 'yyyy-MM-dd')
+        if (!map[dateStr]) map[dateStr] = { entries: [], notes: [], tasks: [] }
+        map[dateStr].tasks.push(task)
+      }
+    })
+
     return map
-  }, [timeEntries, notes])
+  }, [timeEntries, notes, tasks])
 
   const selectedDayActivity = useMemo(() => {
-    if (!selectedDate) return { entries: [], notes: [] }
+    if (!selectedDate) return { entries: [], notes: [], tasks: [] }
     const dateStr = format(selectedDate, 'yyyy-MM-dd')
-    return activityByDate[dateStr] || { entries: [], notes: [] }
+    return activityByDate[dateStr] || { entries: [], notes: [], tasks: [] }
   }, [selectedDate, activityByDate])
 
   const formatDuration = (minutes: number) => {
@@ -100,7 +113,6 @@ export function DashboardCalendar({
   return (
     <div className="flex flex-col lg:flex-row gap-6 animate-in fade-in duration-500 min-h-[600px]">
       <div className="flex-1 bg-card border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-4">
             <h3 className="text-xl font-medium text-foreground min-w-[150px] text-left">
@@ -111,7 +123,7 @@ export function DashboardCalendar({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 rounded-md cursor-pointer"
-                onClick={prevMonth}
+                onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -127,7 +139,7 @@ export function DashboardCalendar({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 rounded-md cursor-pointer"
-                onClick={nextMonth}
+                onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -135,7 +147,6 @@ export function DashboardCalendar({
           </div>
         </div>
 
-        {/* Grid Header */}
         <div className="grid grid-cols-7 bg-muted/5 border-b">
           {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((day) => (
             <div
@@ -147,20 +158,21 @@ export function DashboardCalendar({
           ))}
         </div>
 
-        {/* Grid Cells */}
         <div className="grid grid-cols-7 flex-1">
           {calendarDays.map((day) => {
             const isSelected = selectedDate && isSameDay(day, selectedDate)
             const isCurrentMonth = isSameMonth(day, monthStart)
             const dateStr = format(day, 'yyyy-MM-dd')
-            const dayActivity = activityByDate[dateStr] || { entries: [], notes: [] }
+            const dayActivity = activityByDate[dateStr] || { entries: [], notes: [], tasks: [] }
             const projectSummaries = getProjectSummariesForDay(dayActivity.entries)
             const dayNotes = dayActivity.notes
+            const dayTasks = dayActivity.tasks
+            const activeTasks = dayTasks.filter((t) => t.status !== 'completed' && t.status !== 'cancelled')
+            const completedTasks = dayTasks.filter((t) => t.status === 'completed')
 
-            const totalDisplayCount = projectSummaries.length + (dayNotes.length > 0 ? 1 : 0)
-            const displaySummaries = projectSummaries.slice(0, 2)
-            const remainingCount =
-              totalDisplayCount - displaySummaries.length - (dayNotes.length > 0 ? 1 : 0)
+            const totalDisplayCount = projectSummaries.length + (dayNotes.length > 0 ? 1 : 0) + (activeTasks.length > 0 ? 1 : 0)
+            const displaySummaries = projectSummaries.slice(0, 1)
+            const remainingCount = totalDisplayCount - displaySummaries.length - (dayNotes.length > 0 ? 1 : 0) - (activeTasks.length > 0 ? 1 : 0)
 
             return (
               <div
@@ -213,6 +225,21 @@ export function DashboardCalendar({
                       </div>
                     )}
 
+                    {activeTasks.length > 0 && (
+                      <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-[4px] bg-amber-500 text-[9px] font-bold text-white truncate shadow-sm">
+                        <ListTodo className="h-2.5 w-2.5" />
+                        <span className="truncate">
+                          {activeTasks.length} Task{activeTasks.length > 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    )}
+
+                    {completedTasks.length > 0 && (
+                      <div className="text-[8px] text-muted-foreground/60 px-1">
+                        {completedTasks.length} done
+                      </div>
+                    )}
+
                     {remainingCount > 0 && (
                       <div className="text-[9px] font-bold text-muted-foreground px-1 py-0.5">
                         + {remainingCount} more
@@ -226,7 +253,6 @@ export function DashboardCalendar({
         </div>
       </div>
 
-      {/* Side Panel */}
       <div
         className={[
           'lg:w-80 border rounded-2xl bg-card shadow-sm flex flex-col transition-all overflow-hidden',
@@ -255,6 +281,89 @@ export function DashboardCalendar({
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          {/* Tasks Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h5 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
+                <ListTodo className="h-3 w-3" />
+                Tasks
+              </h5>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 rounded-md text-[9px] font-bold"
+                onClick={() => onAddTask(selectedDate || undefined)}
+              >
+                <Plus className="h-3 w-3 mr-0.5" />
+                Add
+              </Button>
+            </div>
+
+            {selectedDayActivity.tasks.length > 0 ? (
+              <div className="space-y-1.5">
+                {selectedDayActivity.tasks.map((task) => {
+                  const isCompleted = task.status === 'completed' || task.status === 'cancelled'
+                  const isOverdue =
+                    !isCompleted &&
+                    task.dueDate &&
+                    task.dueDate < new Date(new Date().toDateString())
+
+                  return (
+                    <div
+                      key={task.id}
+                      className={`p-2 rounded-lg border transition-colors text-left group ${
+                        isCompleted
+                          ? 'bg-muted/20 border-muted/30 opacity-60'
+                          : isOverdue
+                            ? 'bg-red-500/5 border-red-200 dark:border-red-900/30'
+                            : 'bg-background/50 border-border hover:bg-background'
+                      }`}
+                    >
+                      <div className="flex items-start gap-2">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onToggleTask(task) }}
+                          className="mt-0.5 shrink-0"
+                        >
+                          {isCompleted ? (
+                            <svg className="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          ) : (
+                            <svg className="h-3.5 w-3.5 text-muted-foreground/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                              <circle cx="12" cy="12" r="9" />
+                            </svg>
+                          )}
+                        </button>
+                        <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onEditTask(task)}>
+                          <div className="flex items-center gap-1.5">
+                            <div
+                              className="w-1.5 h-1.5 rounded-full shrink-0"
+                              style={{ backgroundColor: PRIORITY_COLORS[task.priority] }}
+                            />
+                            <span
+                              className={`text-[10px] font-semibold truncate ${
+                                isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'
+                              }`}
+                            >
+                              {task.title}
+                            </span>
+                          </div>
+                          {task.dueTime && (
+                            <span className="text-[8px] text-muted-foreground ml-[18px]">
+                              {task.dueTime}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-[10px] text-muted-foreground italic text-left">No tasks scheduled</p>
+            )}
+          </div>
+
           {/* Time Entries Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">

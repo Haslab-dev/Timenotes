@@ -131,6 +131,69 @@ export interface ProjectTimeReport {
   timeEntries: TimeEntry[]
 }
 
+// Task types for planner and scheduler
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent'
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled'
+
+export interface Task {
+  id: string
+  userId: string
+  title: string
+  description?: string
+  dueDate?: Date
+  dueTime?: string
+  priority: TaskPriority
+  status: TaskStatus
+  projectId?: string
+  completedAt?: Date
+  reminderMinutes?: number
+  notified: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface CreateTaskRequest {
+  title: string
+  description?: string
+  dueDate?: Date
+  dueTime?: string
+  priority: TaskPriority
+  projectId?: string
+  reminderMinutes?: number
+}
+
+export interface UpdateTaskRequest {
+  title?: string
+  description?: string
+  dueDate?: Date
+  dueTime?: string
+  priority?: TaskPriority
+  status?: TaskStatus
+  projectId?: string
+  reminderMinutes?: number
+}
+
+export const PRIORITY_COLORS = {
+  low: '#6b7280',
+  medium: '#3b82f6',
+  high: '#f59e0b',
+  urgent: '#ef4444',
+} as const
+
+export const PRIORITY_LABELS = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+  urgent: 'Urgent',
+} as const
+
+export const STATUS_LABELS = {
+  pending: 'Pending',
+  in_progress: 'In Progress',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
+} as const
+
 // Color options for projects and tags
 export const PROJECT_COLORS = [
   '#3b82f6', // blue

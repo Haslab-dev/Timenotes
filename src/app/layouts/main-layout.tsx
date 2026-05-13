@@ -1,4 +1,4 @@
-import { LayoutDashboard, FolderOpen, Clock, FileText, LogOut, User } from 'lucide-react'
+import { LayoutDashboard, FolderOpen, Clock, FileText, LogOut, User, ListTodo } from 'lucide-react'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
@@ -12,9 +12,11 @@ import { Sidebar } from '@/components/sidebar'
 import { useActiveTimer } from '@/features/timesheet/hooks/use-active-timer'
 import { NotesSidePanel } from '@/features/notes/components/notes-side-panel'
 import { TimesheetSidePanel } from '@/features/timesheet/components/timesheet-side-panel'
+import { NotificationManager } from '@/features/tasks/components/notification-manager'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/tasks', label: 'Tasks', icon: ListTodo },
   { to: '/projects', label: 'Projects', icon: FolderOpen },
   { to: '/timesheet', label: 'Timesheet', icon: Clock },
   { to: '/notes', label: 'Notes', icon: FileText },
@@ -152,6 +154,7 @@ export function MainLayout() {
       <CommandPalette />
       <NotesSidePanel />
       <TimesheetSidePanel />
+      <NotificationManager />
       <ScrollToTop />
     </div>
   )

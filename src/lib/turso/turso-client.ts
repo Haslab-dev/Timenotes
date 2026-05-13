@@ -311,3 +311,20 @@ export interface NoteTagRow {
   tag_name: string
   user_id: string
 }
+
+export interface TaskRow {
+  id: string
+  user_id: string
+  title: string
+  description: string | null
+  due_date: string | null
+  due_time: string | null
+  priority: string
+  status: string
+  project_id: string | null
+  completed_at: string | null
+  reminder_minutes: number | null
+  notified: number
+  created_at: string
+  updated_at: string
+}

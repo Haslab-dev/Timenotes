@@ -7,6 +7,7 @@ import {
   Plus,
   Search,
   Book,
+  ListTodo,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,7 @@ import { useMemo } from 'react'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/tasks', label: 'Tasks', icon: ListTodo },
   { to: '/projects', label: 'Projects', icon: FolderOpen },
   { to: '/timesheet', label: 'Timesheet', icon: Clock },
   { to: '/notes', label: 'Notes', icon: FileText },
