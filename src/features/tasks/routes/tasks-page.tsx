@@ -21,7 +21,11 @@ import {
   useDeleteTask,
 } from '../hooks/use-tasks'
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from '@/lib/types'
-import { requestNotificationPermission } from '../components/notification-manager'
+import {
+  getNotificationSettings,
+  setBrowserNotifications,
+  requestNotificationPermission,
+} from '@/lib/utils/notification-settings'
 
 export function TasksPage() {
   const { data: tasks = [] } = useTasks()
@@ -30,12 +34,13 @@ export function TasksPage() {
   const updateTask = useUpdateTask()
   const deleteTask = useDeleteTask()
 
+  const initialSettings = getNotificationSettings()
   const [showDialog, setShowDialog] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [defaultDate, setDefaultDate] = useState<Date>()
   const [view, setView] = useState<'calendar' | 'list'>('calendar')
   const [notificationEnabled, setNotificationEnabled] = useState(
-    () => 'Notification' in window && Notification.permission === 'granted'
+    initialSettings.browserNotifications
   )
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed'>('all')
   const [priorityFilter, setPriorityFilter] = useState<string>('all')
@@ -88,9 +93,12 @@ export function TasksPage() {
   const handleNotificationToggle = async () => {
     if (notificationEnabled) {
       setNotificationEnabled(false)
+      setBrowserNotifications(false)
     } else {
       const result = await requestNotificationPermission()
-      setNotificationEnabled(result === 'granted')
+      const granted = result === 'granted'
+      setNotificationEnabled(granted)
+      setBrowserNotifications(granted)
     }
   }
 
@@ -233,7 +241,7 @@ export function TasksPage() {
           <div className="flex items-center gap-2">
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
+              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'completed')}
               className="h-8 rounded-lg border bg-background px-2 text-xs font-medium text-muted-foreground outline-none"
             >
               <option value="all">All Status</option>

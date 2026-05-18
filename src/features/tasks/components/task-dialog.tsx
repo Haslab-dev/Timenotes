@@ -75,7 +75,7 @@ export function TaskDialog({
     const data: CreateTaskRequest | UpdateTaskRequest = {
       title: title.trim(),
       description: description.trim() || undefined,
-      dueDate: dueDate ? new Date(dueDate + 'T00:00:00Z') : undefined,
+      dueDate: dueDate ? new Date(dueDate + 'T00:00:00') : undefined,
       dueTime: dueTime || undefined,
       priority,
       projectId: projectId === 'none' ? undefined : projectId,

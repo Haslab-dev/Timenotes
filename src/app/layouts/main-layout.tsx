@@ -13,6 +13,7 @@ import { useActiveTimer } from '@/features/timesheet/hooks/use-active-timer'
 import { NotesSidePanel } from '@/features/notes/components/notes-side-panel'
 import { TimesheetSidePanel } from '@/features/timesheet/components/timesheet-side-panel'
 import { NotificationManager } from '@/features/tasks/components/notification-manager'
+import { NotificationToastContainer } from '@/components/notification-toast'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -155,6 +156,7 @@ export function MainLayout() {
       <NotesSidePanel />
       <TimesheetSidePanel />
       <NotificationManager />
+      <NotificationToastContainer />
       <ScrollToTop />
     </div>
   )

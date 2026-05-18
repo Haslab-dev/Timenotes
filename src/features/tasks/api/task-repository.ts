@@ -3,6 +3,13 @@ import type { TaskRow } from '@/lib/turso/turso-client'
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from '@/lib/types'
 import { v4 as uuidv4 } from 'uuid'
 
+function getLocalDateString(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 class TursoTaskRepository {
   async getAllTasks(userId: string): Promise<Task[]> {
     const rows = await tursoClient.query<TaskRow>(
@@ -70,11 +77,11 @@ class TursoTaskRepository {
   async createTask(data: CreateTaskRequest, userId: string): Promise<Task> {
     const id = uuidv4()
     const now = new Date().toISOString()
-    const dueDate = data.dueDate ? data.dueDate.toISOString().split('T')[0] : null
+    const dueDate = data.dueDate ? getLocalDateString(data.dueDate) : null
 
     await tursoClient.run(
-      `INSERT INTO tasks (id, user_id, title, description, due_date, due_time, priority, project_id, reminder_minutes, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO tasks (id, user_id, title, description, due_date, due_time, priority, project_id, reminder_minutes, notified, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`,
       [
         id,
         userId,
@@ -112,11 +119,13 @@ class TursoTaskRepository {
     }
     if (data.dueDate !== undefined) {
       sets.push('due_date = ?')
-      values.push(data.dueDate.toISOString().split('T')[0])
+      values.push(getLocalDateString(data.dueDate))
+      sets.push('notified = 0')
     }
     if (data.dueTime !== undefined) {
       sets.push('due_time = ?')
       values.push(data.dueTime || null)
+      sets.push('notified = 0')
     }
     if (data.priority !== undefined) {
       sets.push('priority = ?')
@@ -140,6 +149,7 @@ class TursoTaskRepository {
     if (data.reminderMinutes !== undefined) {
       sets.push('reminder_minutes = ?')
       values.push(data.reminderMinutes || null)
+      sets.push('notified = 0')
     }
 
     if (sets.length === 0) return existing
@@ -181,12 +191,12 @@ class TursoTaskRepository {
 
   async getUnnotifiedDueTasks(userId: string): Promise<Task[]> {
     const now = new Date()
-    const today = now.toISOString().split('T')[0]
+    const today = getLocalDateString(now)
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 
     const rows = await tursoClient.query<TaskRow>(
       `SELECT * FROM tasks 
-       WHERE user_id = ? AND status NOT IN ('completed', 'cancelled') AND notified = 0
+       WHERE user_id = ? AND status NOT IN ('completed', 'cancelled') AND (notified = 0 OR notified IS NULL)
        AND due_date IS NOT NULL
        AND (due_date < ? OR (due_date = ? AND due_time IS NOT NULL AND due_time <= ?))
        ORDER BY due_date ASC`,
@@ -197,12 +207,12 @@ class TursoTaskRepository {
 
   async getTasksNeedingReminders(userId: string): Promise<Task[]> {
     const now = new Date()
-    const today = now.toISOString().split('T')[0]
+    const today = getLocalDateString(now)
     const currentMinutes = now.getHours() * 60 + now.getMinutes()
 
     const rows = await tursoClient.query<TaskRow>(
       `SELECT * FROM tasks 
-       WHERE user_id = ? AND status NOT IN ('completed', 'cancelled') AND notified = 0
+       WHERE user_id = ? AND status NOT IN ('completed', 'cancelled') AND (notified = 0 OR notified IS NULL)
        AND due_date = ? AND due_time IS NOT NULL AND reminder_minutes IS NOT NULL`,
       [userId, today]
     )
@@ -224,7 +234,7 @@ class TursoTaskRepository {
       userId: row.user_id,
       title: row.title,
       description: row.description || undefined,
-      dueDate: row.due_date ? new Date(row.due_date + 'T00:00:00Z') : undefined,
+      dueDate: row.due_date ? new Date(row.due_date + 'T00:00:00') : undefined,
       dueTime: row.due_time || undefined,
       priority: row.priority as Task['priority'],
       status: row.status as Task['status'],
