@@ -170,6 +170,9 @@ CREATE TABLE IF NOT EXISTS tasks (
     completed_at DATETIME,
     reminder_minutes INTEGER,
     notified INTEGER NOT NULL DEFAULT 0,
+    email_reminder_sent_at DATETIME,
+    email_due_sent_at DATETIME,
+    email_last_error TEXT,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -181,6 +184,8 @@ CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
 CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
+CREATE INDEX IF NOT EXISTS idx_tasks_email_due_sent_at ON tasks(email_due_sent_at);
+CREATE INDEX IF NOT EXISTS idx_tasks_email_reminder_sent_at ON tasks(email_reminder_sent_at);
 
 CREATE TRIGGER IF NOT EXISTS update_tasks_updated_at 
     AFTER UPDATE ON tasks 

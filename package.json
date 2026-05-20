@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:scheduler": "npx wrangler deploy --dry-run --config workers/email-scheduler/wrangler.jsonc",
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
     "cf:deploy": "bun run build && npx wrangler pages deploy --branch production",
+    "cf:deploy:scheduler": "npx wrangler deploy --config workers/email-scheduler/wrangler.jsonc",
     "prepare": "husky"
   },
   "dependencies": {

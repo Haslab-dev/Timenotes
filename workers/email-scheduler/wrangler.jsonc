@@ -1,0 +1,28 @@
+{
+  "name": "timenotes-email-scheduler",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": [
+    "global_fetch_strictly_public"
+  ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
+  },
+  "triggers": {
+    "crons": [
+      "*/5 * * * *"
+    ]
+  },
+  "vars": {
+    "TURSO_DATABASE_URL": "",
+    "MAIL_FROM": "lutfiikbalmajid@timenotes.com",
+    "MAIL_FROM_NAME": "Timenotes",
+    "EMAIL_API_URL": "",
+    "CRON_BATCH_LIMIT": "50",
+    "LOCAL_TIME_OFFSET_MINUTES": "420",
+    "SEND_DELAY_MS": "250"
+  }
+}

@@ -108,6 +108,7 @@ class TursoTaskRepository {
 
     const sets: string[] = []
     const values: (string | number | boolean | null)[] = []
+    let shouldResetEmailNotifications = false
 
     if (data.title !== undefined) {
       sets.push('title = ?')
@@ -121,11 +122,13 @@ class TursoTaskRepository {
       sets.push('due_date = ?')
       values.push(getLocalDateString(data.dueDate))
       sets.push('notified = 0')
+      shouldResetEmailNotifications = true
     }
     if (data.dueTime !== undefined) {
       sets.push('due_time = ?')
       values.push(data.dueTime || null)
       sets.push('notified = 0')
+      shouldResetEmailNotifications = true
     }
     if (data.priority !== undefined) {
       sets.push('priority = ?')
@@ -140,6 +143,7 @@ class TursoTaskRepository {
       } else if (data.status === 'pending' || data.status === 'in_progress') {
         sets.push('completed_at = ?')
         values.push(null)
+        shouldResetEmailNotifications = true
       }
     }
     if (data.projectId !== undefined) {
@@ -150,6 +154,16 @@ class TursoTaskRepository {
       sets.push('reminder_minutes = ?')
       values.push(data.reminderMinutes || null)
       sets.push('notified = 0')
+      shouldResetEmailNotifications = true
+    }
+
+    if (shouldResetEmailNotifications) {
+      sets.push('email_due_sent_at = ?')
+      values.push(null)
+      sets.push('email_reminder_sent_at = ?')
+      values.push(null)
+      sets.push('email_last_error = ?')
+      values.push(null)
     }
 
     if (sets.length === 0) return existing
