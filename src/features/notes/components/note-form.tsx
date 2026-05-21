@@ -13,6 +13,7 @@ import { useProjects } from '@/features/projects/hooks/use-projects'
 import type { CreateNoteRequest, Note } from '@/lib/types'
 import { useState, useRef, useLayoutEffect } from 'react'
 import { NoteEditor } from './note-editor'
+import { ImageAttachmentsSection, extractImageUrls } from '@/components/ui/image-attachments'
 
 interface NoteFormProps {
   note?: Note
@@ -73,6 +74,8 @@ export function NoteForm({
     })
   }
 
+  const imageAttachments = extractImageUrls(content)
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
@@ -107,6 +110,7 @@ export function NoteForm({
           </code>{' '}
           then space to start a checklist.
         </p>
+        {imageAttachments.length > 0 && <ImageAttachmentsSection images={imageAttachments} />}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

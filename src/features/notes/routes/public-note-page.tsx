@@ -2,6 +2,7 @@ import { FileText } from 'lucide-react'
 import { useParams } from 'react-router'
 import { NoteMarkdown } from '../components/note-markdown'
 import { usePublicNote } from '../hooks/use-notes'
+import { ImageAttachmentsSection, extractImageUrls } from '@/components/ui/image-attachments'
 
 export function PublicNotePage() {
   const { id } = useParams<{ id: string }>()
@@ -31,7 +32,11 @@ export function PublicNotePage() {
     )
   }
 
-  const isHtmlContent = note.content.trim().startsWith('<')
+  const isHtmlContent =
+    /<\/(p|div|h[1-6]|span|ul|ol|li|table|tr|td|th|thead|tbody|strong|em|b|i|br|img|a|section|article|header|footer|nav|main|pre|code|blockquote)(?:\s[^>]*)?>|<(p|div|h[1-6]|span|ul|ol|li|table|tr|td|th|thead|tbody|strong|em|b|i|br|img|a|section|article|header|footer|nav|main|pre|code|blockquote)(?:\s[^>]*)?\/?>/.test(
+      note.content.trim()
+    )
+  const imageAttachments = extractImageUrls(note.content)
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary/20 selection:text-primary">
@@ -78,6 +83,7 @@ export function PublicNotePage() {
           ) : (
             <NoteMarkdown content={note.content} className="break-words" />
           )}
+          {imageAttachments.length > 0 && <ImageAttachmentsSection images={imageAttachments} />}
         </article>
       </div>
 

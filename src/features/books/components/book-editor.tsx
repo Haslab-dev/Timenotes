@@ -14,6 +14,7 @@ import {
 } from '@blocknote/react'
 import { useEffect, useMemo, useRef } from 'react'
 import { Calendar, Clock3 } from 'lucide-react'
+import { ImageAttachmentsSection, extractImageUrls } from '@/components/ui/image-attachments'
 
 const DateTimeBlock = createReactBlockSpec(
   {
@@ -190,6 +191,12 @@ export function BookEditor({ initialContent, onChange, editable = true }: BookEd
     ]
   }, [editor])
 
+  // Extract image URLs from the editor content for the attachment section
+  const imageAttachments = useMemo(() => {
+    if (!initialContent) return []
+    return extractImageUrls(initialContent)
+  }, [initialContent])
+
   return (
     <div className="w-full min-h-[400px]">
       <BlockNoteView editor={editor} editable={editable} theme="light" slashMenu={false}>
@@ -198,6 +205,7 @@ export function BookEditor({ initialContent, onChange, editable = true }: BookEd
           getItems={async (query) => filterSuggestionItems(customSlashMenuItems, query)}
         />
       </BlockNoteView>
+      {imageAttachments.length > 0 && <ImageAttachmentsSection images={imageAttachments} />}
     </div>
   )
 }
