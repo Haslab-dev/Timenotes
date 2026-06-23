@@ -22,12 +22,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import { Markdown } from 'tiptap-markdown'
 import { ImageUploadPopover } from '@/components/ui/image-upload'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 
 interface NoteEditorProps {
   content: string
@@ -219,9 +214,7 @@ export function NoteEditor({
               <ImageIcon className="h-4 w-4" />
             </Button>
           }
-          onUploaded={(url, name) =>
-            editor.chain().focus().setImage({ src: url, alt: name }).run()
-          }
+          onUploaded={(url, name) => editor.chain().focus().setImage({ src: url, alt: name }).run()}
         />
 
         <div className="ml-auto flex items-center gap-1">

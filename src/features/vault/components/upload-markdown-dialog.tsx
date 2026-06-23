@@ -20,11 +20,7 @@ import {
 } from '@/components/ui/select'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useProjects } from '@/features/projects/hooks/use-projects'
-import {
-  buildMarkdownFileKey,
-  getS3Client,
-  isS3Configured,
-} from '@/lib/s3/s3-client'
+import { buildMarkdownFileKey, getS3Client, isS3Configured } from '@/lib/s3/s3-client'
 import { useCreateVaultDoc, useUpdateVaultDoc } from '../hooks/use-vault'
 
 interface UploadMarkdownDialogProps {
@@ -35,7 +31,12 @@ interface UploadMarkdownDialogProps {
 type Mode = 'files' | 'paste'
 
 function titleFromFilename(name: string): string {
-  return name.replace(/\.(md|markdown|mdx|txt)$/i, '').replace(/[-_]+/g, ' ').trim() || name
+  return (
+    name
+      .replace(/\.(md|markdown|mdx|txt)$/i, '')
+      .replace(/[-_]+/g, ' ')
+      .trim() || name
+  )
 }
 
 export function UploadMarkdownDialog({ open, onOpenChange }: UploadMarkdownDialogProps) {
@@ -102,12 +103,7 @@ export function UploadMarkdownDialog({ open, onOpenChange }: UploadMarkdownDialo
   const importPaste = async () => {
     if (!user?.id || !pasteContent.trim()) return
     setError(null)
-    const title =
-      pasteTitle.trim() ||
-      pasteContent
-        .match(/^#\s+(.+)$/m)?.[1]
-        ?.trim() ||
-      'Untitled'
+    const title = pasteTitle.trim() || pasteContent.match(/^#\s+(.+)$/m)?.[1]?.trim() || 'Untitled'
     try {
       const doc = await createDoc.mutateAsync({
         title,

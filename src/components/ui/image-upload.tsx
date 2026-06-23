@@ -1,11 +1,7 @@
 import { Image as ImageIcon, Loader2, Upload } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -41,10 +37,7 @@ export function ImageUploadPopover({
   const [compressed, setCompressed] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const previewUrl = useMemo(
-    () => (file ? URL.createObjectURL(file) : null),
-    [file]
-  )
+  const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : null), [file])
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl)
@@ -175,8 +168,7 @@ export function ImageUploadPopover({
             <SelectContent className="rounded-lg">
               {IMAGE_QUALITY_OPTIONS.map((option) => (
                 <SelectItem key={option} value={String(option)}>
-                  {option}%
-                  {option === 100 ? ' (original)' : ' quality'}
+                  {option}%{option === 100 ? ' (original)' : ' quality'}
                 </SelectItem>
               ))}
             </SelectContent>

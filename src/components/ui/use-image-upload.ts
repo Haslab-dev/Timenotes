@@ -1,10 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useAuth } from '@/features/auth/hooks/use-auth'
-import {
-  buildGenericAttachmentKey,
-  getS3Client,
-  isS3Configured,
-} from '@/lib/s3/s3-client'
+import { buildGenericAttachmentKey, getS3Client, isS3Configured } from '@/lib/s3/s3-client'
 import { compressImage, type ImageQuality } from '@/lib/utils/image-compress'
 
 export function useImageUpload() {

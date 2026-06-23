@@ -185,7 +185,9 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
               {project.name.substring(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-left break-words">{project.name}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-left break-words">
+                {project.name}
+              </h1>
               {project.description && (
                 <p className="text-muted-foreground break-words">{project.description}</p>
               )}

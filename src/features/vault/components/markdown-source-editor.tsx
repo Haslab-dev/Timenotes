@@ -50,7 +50,10 @@ export function MarkdownSourceEditor({
     const end = el.selectionEnd
     const lineStart = value.lastIndexOf('\n', start - 1) + 1
     const block = value.slice(lineStart, end)
-    const replaced = block.split('\n').map((line) => `${prefix}${line}`).join('\n')
+    const replaced = block
+      .split('\n')
+      .map((line) => `${prefix}${line}`)
+      .join('\n')
     const next = value.slice(0, lineStart) + replaced + value.slice(end)
     onChange(next)
     requestAnimationFrame(() => {

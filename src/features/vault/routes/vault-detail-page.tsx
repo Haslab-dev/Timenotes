@@ -10,11 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  buildAttachmentKey,
-  getS3Client,
-  isS3Configured,
-} from '@/lib/s3/s3-client'
+import { buildAttachmentKey, getS3Client, isS3Configured } from '@/lib/s3/s3-client'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import { MarkdownReader } from '../components/markdown-reader'
@@ -59,11 +55,7 @@ export function VaultDetailPage() {
     if (!current) return
     const savedProject = current.projectId ?? null
     const localProject = projectId === '__none__' ? null : projectId
-    if (
-      title === current.title &&
-      content === current.content &&
-      localProject === savedProject
-    ) {
+    if (title === current.title && content === current.content && localProject === savedProject) {
       return
     }
     const handle = setTimeout(() => {
@@ -86,8 +78,7 @@ export function VaultDetailPage() {
   }
 
   const handleDownload = () => {
-    const safeName =
-      (title || 'untitled').replace(/[^a-z0-9-_ ]/gi, '').trim() || 'untitled'
+    const safeName = (title || 'untitled').replace(/[^a-z0-9-_ ]/gi, '').trim() || 'untitled'
     const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
@@ -136,7 +127,12 @@ export function VaultDetailPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 pb-4 border-b">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/vault')} className="rounded-full shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/vault')}
+            className="rounded-full shrink-0"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
 
@@ -164,7 +160,13 @@ export function VaultDetailPage() {
                 Edit
               </Button>
             </div>
-            <Button variant="outline" size="icon" className="rounded-full h-9 w-9" onClick={handleDownload} title="Download .md">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full h-9 w-9"
+              onClick={handleDownload}
+              title="Download .md"
+            >
               <Download className="h-4 w-4" />
             </Button>
             <Button

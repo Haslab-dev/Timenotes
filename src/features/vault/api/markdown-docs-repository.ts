@@ -126,10 +126,10 @@ class MarkdownDocsRepository {
   }
 
   async delete(id: string, userId: string): Promise<boolean> {
-    const result = await tursoClient.run(
-      'DELETE FROM markdown_docs WHERE id = ? AND user_id = ?',
-      [id, userId]
-    )
+    const result = await tursoClient.run('DELETE FROM markdown_docs WHERE id = ? AND user_id = ?', [
+      id,
+      userId,
+    ])
     return result.changes > 0
   }
 }

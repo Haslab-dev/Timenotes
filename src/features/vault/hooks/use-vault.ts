@@ -39,8 +39,7 @@ export function useCreateVaultDoc() {
   const { data: user } = useAuth()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: CreateMarkdownDocRequest) =>
-      markdownDocsRepository.create(data, user!.id),
+    mutationFn: (data: CreateMarkdownDocRequest) => markdownDocsRepository.create(data, user!.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...vaultQueryKey, 'list'] })
     },

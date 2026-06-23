@@ -86,12 +86,7 @@ export function BookViewer({
             {!readOnly && (
               <ImageUploadPopover
                 trigger={
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full"
-                  >
+                  <Button type="button" variant="outline" size="sm" className="rounded-full">
                     <ImageIcon className="h-4 w-4 sm:mr-2" />
                     <span className="hidden sm:inline">Image</span>
                   </Button>

@@ -89,7 +89,11 @@ export function MarkdownReader({ content, docs, className }: MarkdownReaderProps
         components={{
           a: ({ href, children, title }) => {
             if (href && href.startsWith('/vault/')) {
-              return <Link to={href} title={title}>{children}</Link>
+              return (
+                <Link to={href} title={title}>
+                  {children}
+                </Link>
+              )
             }
             return (
               <a href={href} title={title} target="_blank" rel="noopener noreferrer">

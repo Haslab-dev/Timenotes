@@ -31,7 +31,11 @@ export function VaultPage() {
     for (const file of importable) {
       const content = await file.text()
       await createDoc.mutateAsync({
-        title: file.name.replace(/\.(md|markdown|mdx|txt)$/i, '').replace(/[-_]+/g, ' ').trim() || file.name,
+        title:
+          file.name
+            .replace(/\.(md|markdown|mdx|txt)$/i, '')
+            .replace(/[-_]+/g, ' ')
+            .trim() || file.name,
         content,
         source: 'upload',
       })
@@ -56,7 +60,11 @@ export function VaultPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="rounded-2xl h-11" onClick={() => setDialogOpen(true)}>
+          <Button
+            variant="outline"
+            className="rounded-2xl h-11"
+            onClick={() => setDialogOpen(true)}
+          >
             <Upload className="mr-2 h-4 w-4" />
             Upload
           </Button>
