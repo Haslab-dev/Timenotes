@@ -70,3 +70,24 @@ self.addEventListener('message', (event) => {
     self.skipWaiting()
   }
 })
+
+// Reroute blocked r2.dev image requests to pages.dev/images/*
+self.addEventListener('fetch', (event) => {
+  const { request } = event
+  if (request.method !== 'GET') return
+  let url
+  try {
+    url = new URL(request.url)
+  } catch {
+    return
+  }
+  if (!/\.r2\.dev$/.test(url.hostname)) return
+  if (!/\.(jpe?g|png|gif|webp|avif|svg|bmp|ico|tiff?)(\?|#|$)/i.test(url.pathname)) return
+
+  const rewritten = `${self.location.origin}/images${url.pathname}${url.search}`
+  event.respondWith(
+    fetch(rewritten, { credentials: 'omit', redirect: 'follow' }).catch(() =>
+      fetch(request)
+    )
+  )
+})
