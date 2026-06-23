@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, List, BookOpen } from 'lucide-react'
+import { BookOpen, ChevronLeft, ChevronRight, Image as ImageIcon, List } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ImageUploadPopover } from '@/components/ui/image-upload'
 import type { BookPage } from '../types'
-import { BookEditor } from './book-editor'
+import { BookEditor, type BookEditorHandle } from './book-editor'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 
 interface BookViewerProps {
@@ -25,6 +26,8 @@ export function BookViewer({
 }: BookViewerProps) {
   const [viewMode, setViewMode] = useState<'page' | 'scroll'>(defaultViewMode)
   const [currentPageIndex, setCurrentPageIndex] = useState(0)
+  const [activePageId, setActivePageId] = useState<string | null>(null)
+  const editorsRef = useRef<Record<string, BookEditorHandle | null>>({})
 
   useEffect(() => {
     onPageChange?.(currentPageIndex)
@@ -33,6 +36,12 @@ export function BookViewer({
   const isMobile = useIsMobile()
 
   const sortedPages = [...pages].sort((a, b) => a.pageNumber - b.pageNumber)
+
+  const handleInsertImage = (url: string, fileName: string) => {
+    const targetId = activePageId ?? sortedPages[currentPageIndex]?.id
+    const handle = (targetId && editorsRef.current[targetId]) || null
+    handle?.insertImage(url, fileName)
+  }
 
   const nextPage = () => {
     if (currentPageIndex < sortedPages.length - 1) {
@@ -74,6 +83,22 @@ export function BookViewer({
               <List className="h-4 w-4 mr-2" />
               Scroll
             </Button>
+            {!readOnly && (
+              <ImageUploadPopover
+                trigger={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full"
+                  >
+                    <ImageIcon className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Image</span>
+                  </Button>
+                }
+                onUploaded={handleInsertImage}
+              />
+            )}
           </div>
 
           {viewMode === 'page' && (
@@ -125,8 +150,14 @@ export function BookViewer({
                   if (info.offset.x > 100) prevPage()
                 }}
               >
-                <div className="flex-1 flex flex-col gap-6">
+                <div
+                  className="flex-1 flex flex-col gap-6"
+                  onFocus={() => setActivePageId(sortedPages[currentPageIndex].id)}
+                >
                   <BookEditor
+                    ref={(handle) => {
+                      editorsRef.current[sortedPages[currentPageIndex].id] = handle ?? null
+                    }}
                     initialContent={sortedPages[currentPageIndex].content}
                     onChange={(content) => onUpdatePage(sortedPages[currentPageIndex].id, content)}
                     editable={!readOnly}
@@ -138,8 +169,15 @@ export function BookViewer({
         ) : (
           <div className="flex flex-col gap-12 p-0 sm:p-8 max-w-5xl mx-auto pb-20">
             {sortedPages.map((page) => (
-              <div key={page.id} className="flex flex-col gap-6 border-b pb-12 last:border-0">
+              <div
+                key={page.id}
+                className="flex flex-col gap-6 border-b pb-12 last:border-0"
+                onFocus={() => setActivePageId(page.id)}
+              >
                 <BookEditor
+                  ref={(handle) => {
+                    editorsRef.current[page.id] = handle ?? null
+                  }}
                   initialContent={page.content}
                   onChange={(content) => onUpdatePage(page.id, content)}
                   editable={!readOnly}

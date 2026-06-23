@@ -12,9 +12,9 @@ import {
   SuggestionMenuController,
   useCreateBlockNote,
 } from '@blocknote/react'
-import { useEffect, useMemo, useRef } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { Calendar, Clock3 } from 'lucide-react'
-import { ImageAttachmentsSection, extractImageUrls } from '@/components/ui/image-attachments'
+import { useImageUpload } from '@/components/ui/use-image-upload'
 
 const DateTimeBlock = createReactBlockSpec(
   {
@@ -72,6 +72,10 @@ interface BookEditorProps {
   editable?: boolean
 }
 
+export interface BookEditorHandle {
+  insertImage: (url: string, fileName: string) => void
+}
+
 function createParagraphBlock(text: string): PartialBlock<typeof schema.blockSchema> {
   return {
     type: 'paragraph',
@@ -124,14 +128,39 @@ function getCurrentDateTime() {
   }
 }
 
-export function BookEditor({ initialContent, onChange, editable = true }: BookEditorProps) {
+export const BookEditor = forwardRef<BookEditorHandle, BookEditorProps>(function BookEditor(
+  { initialContent, onChange, editable = true },
+  ref
+) {
   const parsedContent = useMemo(() => parseInitialContent(initialContent), [initialContent])
   const saveTimeoutRef = useRef<number | null>(null)
+  const { upload } = useImageUpload()
+
+  const uploadFile = useCallback(
+    (file: File) => upload(file, 75).then((url) => url ?? ''),
+    [upload]
+  )
 
   const editor = useCreateBlockNote({
     schema,
     initialContent: parsedContent,
+    uploadFile,
   })
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      insertImage: (url, fileName) => {
+        editor.focus()
+        editor.insertBlocks(
+          [{ type: 'image', props: { url, caption: fileName } }],
+          editor.getTextCursorPosition().block,
+          'after'
+        )
+      },
+    }),
+    [editor]
+  )
 
   useEffect(() => {
     const unsubscribe = editor.onChange(() => {
@@ -191,12 +220,6 @@ export function BookEditor({ initialContent, onChange, editable = true }: BookEd
     ]
   }, [editor])
 
-  // Extract image URLs from the editor content for the attachment section
-  const imageAttachments = useMemo(() => {
-    if (!initialContent) return []
-    return extractImageUrls(initialContent)
-  }, [initialContent])
-
   return (
     <div className="w-full min-h-[400px]">
       <BlockNoteView editor={editor} editable={editable} theme="light" slashMenu={false}>
@@ -205,7 +228,6 @@ export function BookEditor({ initialContent, onChange, editable = true }: BookEd
           getItems={async (query) => filterSuggestionItems(customSlashMenuItems, query)}
         />
       </BlockNoteView>
-      {imageAttachments.length > 0 && <ImageAttachmentsSection images={imageAttachments} />}
     </div>
   )
-}
+})

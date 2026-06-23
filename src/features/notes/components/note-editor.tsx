@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import Placeholder from '@tiptap/extension-placeholder'
 import TaskItem from '@tiptap/extension-task-item'
 import TaskList from '@tiptap/extension-task-list'
+import Image from '@tiptap/extension-image'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
@@ -9,6 +10,7 @@ import Underline from '@tiptap/extension-underline'
 import {
   Bold,
   CheckSquare,
+  Image as ImageIcon,
   Italic,
   Link as LinkIcon,
   List,
@@ -17,8 +19,15 @@ import {
   Strikethrough,
   Underline as UnderlineIcon,
 } from 'lucide-react'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Markdown } from 'tiptap-markdown'
+import { ImageUploadPopover } from '@/components/ui/image-upload'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 interface NoteEditorProps {
   content: string
@@ -46,6 +55,13 @@ export function NoteEditor({
       Markdown,
       TaskList,
       Underline,
+      Image.configure({
+        inline: true,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: 'inline-block max-w-[45%] max-h-[45vh] h-auto rounded-xl border my-2',
+        },
+      }),
       TaskItem.configure({
         nested: true,
       }),
@@ -82,6 +98,8 @@ export function NoteEditor({
       },
     },
   })
+
+  const [previewSrc, setPreviewSrc] = useState<string | null>(null)
 
   // Update content if it changes externally (e.g. initial load)
   useEffect(() => {
@@ -189,6 +207,22 @@ export function NoteEditor({
         >
           <LinkIcon className="h-4 w-4" />
         </Button>
+        <ImageUploadPopover
+          trigger={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg"
+              title="Upload image"
+            >
+              <ImageIcon className="h-4 w-4" />
+            </Button>
+          }
+          onUploaded={(url, name) =>
+            editor.chain().focus().setImage({ src: url, alt: name }).run()
+          }
+        />
 
         <div className="ml-auto flex items-center gap-1">
           <Button
@@ -206,7 +240,17 @@ export function NoteEditor({
       </div>
 
       {/* Editor Content */}
-      <div className="relative">
+      <div
+        className="relative"
+        onMouseDown={(e) => {
+          const target = e.target as HTMLElement
+          if (target.tagName === 'IMG') {
+            e.preventDefault()
+            const img = target as HTMLImageElement
+            setPreviewSrc(img.currentSrc || img.src)
+          }
+        }}
+      >
         <EditorContent editor={editor} />
 
         {/* Simplified Status Bar */}
@@ -217,6 +261,20 @@ export function NoteEditor({
           </div>
         </div>
       </div>
+
+      <Dialog open={!!previewSrc} onOpenChange={(open) => !open && setPreviewSrc(null)}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] w-auto p-0 border-none bg-black/95 overflow-hidden">
+          <DialogTitle className="sr-only">Image preview</DialogTitle>
+          <DialogDescription className="sr-only">Click outside to close</DialogDescription>
+          {previewSrc && (
+            <img
+              src={previewSrc}
+              alt="Preview"
+              className="max-w-full max-h-[90vh] object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

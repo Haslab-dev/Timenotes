@@ -208,3 +208,16 @@ export function buildAttachmentKey(userId: string, docId: string, fileName: stri
       .replace(/^-+|-+$/g, '') || 'attachment'
   return `markdown/${userId}/${docId}/${Date.now()}-${sanitized}`
 }
+
+export function buildGenericAttachmentKey(userId: string, fileName: string): string {
+  const now = new Date()
+  const month = `${now.getUTCFullYear()}/${String(now.getUTCMonth() + 1).padStart(2, '0')}`
+  const sanitized =
+    fileName
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9._-]+/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'image'
+  return `attachments/${userId}/${month}/${Date.now()}-${sanitized}`
+}

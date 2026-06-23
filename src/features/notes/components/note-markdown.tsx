@@ -1,7 +1,14 @@
+import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 interface NoteMarkdownProps {
   content: string
@@ -10,6 +17,8 @@ interface NoteMarkdownProps {
 }
 
 export function NoteMarkdown({ content, onChecklistChange, className }: NoteMarkdownProps) {
+  const [previewSrc, setPreviewSrc] = useState<string | null>(null)
+
   const handleCheckboxChange = (index: number, checked: boolean) => {
     if (!onChecklistChange) return
 
@@ -27,11 +36,12 @@ export function NoteMarkdown({ content, onChecklistChange, className }: NoteMark
   }
 
   return (
-    <div className={`prose prose-sm max-w-none dark:prose-invert ${className}`}>
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]}
-        components={{
+    <>
+      <div className={`prose prose-sm max-w-none dark:prose-invert ${className}`}>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw]}
+          components={{
           a: ({ node, ...props }) => (
             <a
               {...props}
@@ -40,6 +50,18 @@ export function NoteMarkdown({ content, onChecklistChange, className }: NoteMark
               className="text-indigo-600 dark:text-indigo-400 font-bold decoration-indigo-600/30 underline-offset-4 hover:decoration-indigo-600 transition-all break-all"
             />
           ),
+          img: ({ src, alt }) => {
+            const url = typeof src === 'string' ? src : ''
+            return (
+              <img
+                src={url}
+                alt={alt}
+                loading="lazy"
+                className="inline-block max-w-[45%] max-h-[45vh] h-auto rounded-xl border my-2 cursor-zoom-in"
+                onClick={() => url && setPreviewSrc(url)}
+              />
+            )
+          },
           li: ({ node, children, ...props }) => {
             // Only use custom checkbox if we are in edit mode (onChecklistChange provided)
             const isChecked = (props as any).checked
@@ -78,6 +100,21 @@ export function NoteMarkdown({ content, onChecklistChange, className }: NoteMark
       >
         {content}
       </ReactMarkdown>
-    </div>
+      </div>
+
+      <Dialog open={!!previewSrc} onOpenChange={(open) => !open && setPreviewSrc(null)}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] w-auto p-0 border-none bg-black/95 overflow-hidden">
+          <DialogTitle className="sr-only">Image preview</DialogTitle>
+          <DialogDescription className="sr-only">Click outside to close</DialogDescription>
+          {previewSrc && (
+            <img
+              src={previewSrc}
+              alt="Preview"
+              className="max-w-full max-h-[90vh] object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
