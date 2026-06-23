@@ -149,9 +149,9 @@ export function TaskPlannerCalendar({
   return (
     <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 min-h-[600px]">
       <div className="flex-1 bg-card border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-3 sm:p-4 border-b">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <h3 className="text-base sm:text-xl font-medium text-foreground min-w-[130px] sm:min-w-[150px] text-left">
+        <div className="flex flex-wrap items-center justify-between gap-2 p-3 sm:p-4 border-b">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <h3 className="text-base sm:text-xl font-medium text-foreground min-w-0 sm:min-w-[150px] text-left">
               {format(currentMonth, 'MMMM yyyy')}
             </h3>
             <div className="flex items-center bg-muted/50 rounded-lg p-1 border">
@@ -182,7 +182,7 @@ export function TaskPlannerCalendar({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <div className="flex bg-muted/50 p-0.5 rounded-lg border">
               <Button
                 variant={viewMode === 'calendar' ? 'default' : 'ghost'}

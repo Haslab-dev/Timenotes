@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   Clock,
   FileText,
+  Files,
   Plus,
   Edit2,
   Trash2,
@@ -27,6 +28,7 @@ import {
   useDeleteTimeEntry,
 } from '@/features/timesheet/hooks/use-timesheet'
 import { useNotes } from '@/features/notes/hooks/use-notes'
+import { useCreateVaultDoc, useVaultDocsByProject } from '@/features/vault/hooks/use-vault'
 import { ProjectForm } from './project-form'
 import { CompactTimesheetTable } from '@/features/timesheet/components/compact-timesheet-table'
 import { TimesheetCalendar } from '@/features/timesheet/components/timesheet-calendar'
@@ -45,7 +47,9 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const [, setSearchParams] = useSearchParams()
-  const [activeTab, setActiveTab] = useState<'overview' | 'timesheet' | 'notes'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'timesheet' | 'notes' | 'vault'>(
+    'overview'
+  )
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isTimeEntryDialogOpen, setIsTimeEntryDialogOpen] = useState(false)
   const [timesheetView, setTimesheetView] = useState<'list' | 'calendar'>('list')
@@ -53,6 +57,8 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
   const { data: projects } = useProjects()
   const { data: timeEntries = [] } = useTimeEntries()
   const { data: notes = [] } = useNotes()
+  const projectVaultDocs = useVaultDocsByProject(projectId)
+  const createVaultDoc = useCreateVaultDoc()
 
   const updateMutation = useUpdateProject()
   const deleteMutation = useDeleteProject()
@@ -139,10 +145,25 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
     exportNotesToCsv(projectNotes, [project], `${project.name}-notes-export.csv`)
   }
 
+  const handleCreateVaultDoc = async () => {
+    try {
+      const doc = await createVaultDoc.mutateAsync({
+        title: 'Untitled',
+        content: '',
+        source: 'manual',
+        projectId: project.id,
+      })
+      navigate(`/vault/${doc.id}`)
+    } catch (error) {
+      console.error('Failed to create vault document:', error)
+    }
+  }
+
   const tabs = [
     { key: 'overview' as const, label: 'Overview', icon: FileText },
     { key: 'timesheet' as const, label: 'Time Entries', icon: Clock, count: totalEntries },
     { key: 'notes' as const, label: 'Notes', icon: FileText, count: totalNotes },
+    { key: 'vault' as const, label: 'Vault', icon: Files, count: projectVaultDocs.length },
   ]
 
   return (
@@ -156,17 +177,17 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
               Back
             </Button>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm text-white font-bold text-xl"
+              className="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm text-white font-bold text-xl shrink-0"
               style={{ backgroundColor: project.color }}
             >
               {project.name.substring(0, 2).toUpperCase()}
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-left">{project.name}</h1>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-left break-words">{project.name}</h1>
               {project.description && (
-                <p className="text-muted-foreground">{project.description}</p>
+                <p className="text-muted-foreground break-words">{project.description}</p>
               )}
             </div>
           </div>
@@ -270,7 +291,7 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
           <div className="space-y-4 sm:space-y-6">
             <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
               {/* Recent Time Entries */}
-              <div className="bg-gradient-to-br from-card to-muted/10 rounded-xl border p-4 sm:p-6 space-y-4 sm:space-y-6">
+              <div className="bg-gradient-to-br from-card to-muted/10 rounded-xl border p-4 sm:p-6 space-y-4 sm:space-y-6 min-w-0">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 rounded-lg bg-primary/10">
@@ -388,7 +409,7 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
               </div>
 
               {/* Recent Notes */}
-              <div className="bg-gradient-to-br from-card to-muted/10 rounded-xl border p-4 sm:p-6 space-y-4 sm:space-y-6">
+              <div className="bg-gradient-to-br from-card to-muted/10 rounded-xl border p-4 sm:p-6 space-y-4 sm:space-y-6 min-w-0">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 rounded-lg bg-primary/10">
@@ -644,6 +665,60 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
                 <div className="text-center py-12">
                   <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">No notes for this project yet</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'vault' && (
+          <div className="space-y-4">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Vault Documents</h3>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <Button
+                  onClick={handleCreateVaultDoc}
+                  className="w-full sm:w-auto"
+                  disabled={createVaultDoc.isPending}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Vault Document
+                </Button>
+              </div>
+            </div>
+            <div className="grid gap-4">
+              {projectVaultDocs.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="bg-card rounded-lg border p-4 sm:p-6 cursor-pointer hover:shadow-md transition-all"
+                  onClick={() => navigate(`/vault/${doc.id}`)}
+                >
+                  <div className="flex items-start justify-between mb-2 gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Files className="h-4 w-4 text-primary shrink-0" />
+                      <h4 className="font-semibold truncate">{doc.title}</h4>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge variant="outline" className="text-[10px] uppercase">
+                        {doc.source}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {format(doc.updatedAt, 'MMM dd, yyyy')}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground line-clamp-2">
+                    {doc.content
+                      .replace(/[#>*`_~\-[\]()!]/g, ' ')
+                      .replace(/\s+/g, ' ')
+                      .trim() || 'Empty document'}
+                  </div>
+                </div>
+              ))}
+              {projectVaultDocs.length === 0 && (
+                <div className="text-center py-12">
+                  <Files className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No vault documents for this project yet</p>
                 </div>
               )}
             </div>

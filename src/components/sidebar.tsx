@@ -8,6 +8,7 @@ import {
   Search,
   Book,
   ListTodo,
+  Files,
 } from 'lucide-react'
 import { NavLink, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
@@ -22,6 +23,7 @@ const navItems = [
   { to: '/timesheet', label: 'Timesheet', icon: Clock },
   { to: '/notes', label: 'Notes', icon: FileText },
   { to: '/books', label: 'Books', icon: Book },
+  { to: '/vault', label: 'Vault', icon: Files },
 ]
 
 export function Sidebar() {

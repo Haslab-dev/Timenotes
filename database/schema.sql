@@ -189,6 +189,31 @@ CREATE INDEX IF NOT EXISTS idx_tasks_email_reminder_sent_at ON tasks(email_remin
 
 CREATE TRIGGER IF NOT EXISTS update_tasks_updated_at 
     AFTER UPDATE ON tasks 
-BEGIN 
-    UPDATE tasks SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id; 
+    BEGIN 
+        UPDATE tasks SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id; 
+END;
+
+-- Markdown documents (Obsidian-style vault)
+CREATE TABLE IF NOT EXISTS markdown_docs (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    project_id TEXT,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL DEFAULT 'manual', -- manual | upload | paste
+    file_key TEXT,                          -- optional R2/S3 key for the original uploaded file
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_markdown_docs_user_id ON markdown_docs(user_id);
+CREATE INDEX IF NOT EXISTS idx_markdown_docs_project_id ON markdown_docs(project_id);
+CREATE INDEX IF NOT EXISTS idx_markdown_docs_updated_at ON markdown_docs(updated_at);
+
+CREATE TRIGGER IF NOT EXISTS update_markdown_docs_updated_at 
+    AFTER UPDATE ON markdown_docs 
+    BEGIN 
+        UPDATE markdown_docs SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id; 
 END;
