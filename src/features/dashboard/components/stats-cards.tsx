@@ -1,6 +1,7 @@
-import { Clock, FolderOpen, Calendar } from 'lucide-react'
+import { IconClock, IconCalendarStats, IconCalendarMonth, IconFolder } from '@tabler/icons-react'
 import type { DashboardStats } from '@/lib/types'
 import { formatDuration } from '@/lib/utils'
+import { Card } from '@/components/ui/card'
 
 interface StatsCardsProps {
   stats: DashboardStats
@@ -11,65 +12,58 @@ export function StatsCards({ stats }: StatsCardsProps) {
     {
       title: 'Today',
       value: formatDuration(Math.round(stats.totalHoursToday * 60)),
-      icon: Clock,
-      description: `${stats.activeProjectsToday} projects`,
-      accent: 'bg-blue-500',
+      icon: IconClock,
+      description: `${stats.activeProjectsToday} active ${stats.activeProjectsToday === 1 ? 'project' : 'projects'}`,
+      tone: 'bg-primary/10 text-primary',
     },
     {
       title: 'This Week',
       value: formatDuration(Math.round(stats.totalHoursThisWeek * 60)),
-      icon: Calendar,
-      description: 'Weekly summary',
-      accent: 'bg-emerald-500',
+      icon: IconCalendarStats,
+      description: '7-day cumulative',
+      tone: 'bg-secondary text-secondary-foreground',
     },
     {
       title: 'This Month',
       value: formatDuration(Math.round(stats.totalHoursThisMonth * 60)),
-      icon: Clock,
+      icon: IconCalendarMonth,
       description: 'Monthly total',
-      accent: 'bg-purple-500',
+      tone: 'bg-secondary text-secondary-foreground',
     },
     {
-      title: 'Active',
+      title: 'Active Projects',
       value: stats.activeProjects.toString(),
-      icon: FolderOpen,
-      description: 'Total projects',
-      accent: 'bg-orange-500',
+      icon: IconFolder,
+      description: 'Workspace total',
+      tone: 'bg-tertiary text-tertiary-foreground',
     },
   ]
 
   return (
-    <div className="grid gap-6 grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => {
         const Icon = card.icon
         return (
-          <div
+          <Card
             key={card.title}
-            className="group relative bg-card border rounded-[24px] p-6 shadow-sm hover:shadow-md transition-all duration-300 text-left overflow-hidden"
+            className="p-4 sm:p-5 text-left transition-colors hover:border-primary/30"
           >
-            {/* Accent Bar */}
-            <div
-              className={`absolute left-0 top-0 bottom-0 w-1.5 ${card.accent} opacity-40 group-hover:opacity-100 transition-opacity`}
-            />
-
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                  {card.title}
-                </span>
-                <Icon className="h-4 w-4 text-muted-foreground/50 group-hover:text-foreground transition-colors" />
+                <span className="text-xs font-medium text-muted-foreground">{card.title}</span>
+                <div className={`flex h-7 w-7 items-center justify-center rounded-md ${card.tone}`}>
+                  <Icon className="h-4 w-4" stroke={1.75} />
+                </div>
               </div>
 
-              <div className="space-y-1">
-                <div className="text-3xl font-black tracking-tighter text-foreground tabular-nums">
+              <div>
+                <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground tabular-nums">
                   {card.value}
                 </div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider opacity-60">
-                  {card.description}
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">{card.description}</p>
               </div>
             </div>
-          </div>
+          </Card>
         )
       })}
     </div>

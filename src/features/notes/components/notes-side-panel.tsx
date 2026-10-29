@@ -5,7 +5,7 @@ import { NoteForm } from './note-form'
 import { useNote, useUpdateNote } from '../hooks/use-notes'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 import type { UpdateNoteRequest } from '@/lib/types'
-import { Check, Share } from 'lucide-react'
+import { IconCheck, IconDownload, IconNotes, IconShare } from '@tabler/icons-react'
 import { useState } from 'react'
 
 export function NotesSidePanel() {
@@ -15,8 +15,6 @@ export function NotesSidePanel() {
   const [searchParams, setSearchParams] = useSearchParams()
   const isMobile = useIsMobile()
 
-  // Detect ID from search param OR from clean path /notes/:id
-  // But only use pathId if we are on a notes route and it's not '/new' or '/edit'
   const isNotesPath =
     location.pathname.startsWith('/notes/') &&
     !location.pathname.endsWith('/edit') &&
@@ -48,8 +46,6 @@ export function NotesSidePanel() {
     if (!noteId) return
     try {
       await updateMutation.mutateAsync({ id: noteId, data })
-      // Keep it open or close? User might want to keep editing.
-      // Usually keeping it open is fine.
     } catch (err) {
       console.error(err)
     }
@@ -64,24 +60,57 @@ export function NotesSidePanel() {
     window.setTimeout(() => setCopied(false), 2000)
   }
 
+  const handleDownloadMd = () => {
+    if (!note) return
+    const safeName = (note.title || 'untitled').replace(/[^a-z0-9-_ ]/gi, '').trim() || 'untitled'
+    const blob = new Blob([note.content], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `${safeName}.md`
+    anchor.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <SheetContent side="right" className="sm:max-w-2xl overflow-y-auto">
-        <SheetHeader className="mb-6 pr-12">
+      <SheetContent side="right" className="sm:max-w-2xl overflow-y-auto px-6 sm:px-8">
+        <SheetHeader className="mb-4 pr-10 pb-3 border-b border-border/60">
           <div className="flex items-center justify-between gap-3">
-            <SheetTitle className="truncate">Edit Note</SheetTitle>
+            <SheetTitle className="flex items-center gap-2 text-xs font-medium text-muted-foreground truncate">
+              <IconNotes className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span>Notes</span>
+              <span>/</span>
+              <span className="text-foreground truncate">{note?.title || 'Untitled'}</span>
+            </SheetTitle>
             {note && (
-              <Button variant="outline" size="sm" className="shrink-0" onClick={handleShare}>
-                {copied ? <Check className="h-4 w-4 mr-2" /> : <Share className="h-4 w-4 mr-2" />}
-                {copied ? 'Copied!' : 'Share'}
-              </Button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={handleDownloadMd}
+                  title="Download .md"
+                >
+                  <IconDownload className="h-3.5 w-3.5 mr-1" />
+                  .md
+                </Button>
+                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={handleShare}>
+                  {copied ? (
+                    <IconCheck className="h-3.5 w-3.5 mr-1" />
+                  ) : (
+                    <IconShare className="h-3.5 w-3.5 mr-1" />
+                  )}
+                  {copied ? 'Copied!' : 'Share'}
+                </Button>
+              </div>
             )}
           </div>
         </SheetHeader>
 
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-primary" />
           </div>
         ) : note ? (
           <NoteForm
@@ -91,7 +120,7 @@ export function NotesSidePanel() {
             isLoading={updateMutation.isPending}
           />
         ) : (
-          <div className="text-center py-12 text-muted-foreground">Note not found</div>
+          <div className="text-center py-12 text-sm text-muted-foreground">Note not found</div>
         )}
       </SheetContent>
     </Sheet>

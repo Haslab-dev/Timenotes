@@ -1,7 +1,8 @@
-import { FileText, Trash2, Upload } from 'lucide-react'
+import { IconFileText, IconTrash, IconUpload } from '@tabler/icons-react'
 import { useNavigate } from 'react-router'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import type { MarkdownDoc } from '../types'
 
 interface VaultDashboardProps {
@@ -29,59 +30,61 @@ export function VaultDashboard({ docs, onDelete }: VaultDashboardProps) {
 
   if (docs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed rounded-3xl bg-muted/20 text-center">
-        <Upload className="h-12 w-12 text-muted-foreground mb-4 opacity-30" />
-        <p className="text-muted-foreground font-medium">Your vault is empty</p>
+      <Card className="flex flex-col items-center justify-center py-14 border-dashed text-center">
+        <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center mb-3">
+          <IconUpload className="h-5 w-5 text-muted-foreground" />
+        </div>
+        <p className="text-sm font-medium text-foreground">Your vault is empty</p>
         <p className="text-xs text-muted-foreground mt-1 max-w-sm">
           Create a new document, upload <code>.md</code> files, or paste markdown to get started.
         </p>
-      </div>
+      </Card>
     )
   }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {docs.map((doc) => (
-        <div
+        <Card
           key={doc.id}
           onClick={() => navigate(`/vault/${doc.id}`)}
-          className="group relative flex flex-col gap-3 p-5 bg-card border rounded-2xl cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-lg"
+          className="group relative flex flex-col gap-3 p-5 cursor-pointer transition-colors hover:border-primary/40"
         >
           <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <FileText className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-tertiary text-tertiary-foreground flex items-center justify-center shrink-0">
+                <IconFileText className="h-4 w-4" />
               </div>
-              <h3 className="font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+              <h3 className="font-semibold text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                 {doc.title}
               </h3>
             </div>
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 hover:bg-destructive hover:text-white"
+              className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
               onClick={(e) => {
                 e.stopPropagation()
                 if (confirm(`Delete "${doc.title}"?`)) onDelete(doc.id)
               }}
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <IconTrash className="h-3.5 w-3.5" />
             </Button>
           </div>
 
-          <p className="text-sm text-muted-foreground line-clamp-3 min-h-[3.75rem]">
+          <p className="text-xs text-muted-foreground line-clamp-3 min-h-[3.25rem] leading-relaxed">
             {snippet(doc.content) || 'Empty document'}
           </p>
 
-          <div className="flex items-center justify-between mt-auto pt-2 border-t">
-            <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-wider">
+          <div className="flex items-center justify-between mt-auto pt-2.5 border-t border-border/60">
+            <Badge variant="secondary" className="text-[11px]">
               {sourceLabel[doc.source] ?? doc.source}
             </Badge>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground tabular-nums">
               {new Date(doc.updatedAt).toLocaleDateString()}
             </span>
           </div>
-        </div>
+        </Card>
       ))}
     </div>
   )

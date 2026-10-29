@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { RouterProvider, createBrowserRouter } from 'react-router'
+import { Navigate, RouterProvider, createBrowserRouter } from 'react-router'
 
 import { MainLayout } from '@/app/layouts/main-layout'
 import { NotFoundPage } from '@/components/not-found-page'
@@ -14,8 +14,6 @@ import { BooksPage } from '@/features/books/routes/books-page'
 import { TasksPage } from '@/features/tasks/routes/tasks-page'
 import { BookDetailPage } from '@/features/books/routes/book-detail-page'
 import { PublicBookPage } from '@/features/books/routes/public-book-page'
-import { VaultPage } from '@/features/vault/routes/vault-page'
-import { VaultDetailPage } from '@/features/vault/routes/vault-detail-page'
 import { TimesheetPage } from '@/features/timesheet/routes/timesheet-page'
 import { EditTimeEntryPage } from '@/features/timesheet/routes/edit-time-entry-page'
 import { NewTimeEntryPage } from '@/features/timesheet/routes/new-time-entry-page'
@@ -49,8 +47,8 @@ const router = createBrowserRouter([
       { path: 'tasks', element: <TasksPage /> },
       { path: 'books', element: <BooksPage /> },
       { path: 'books/:id', element: <BookDetailPage /> },
-      { path: 'vault', element: <VaultPage /> },
-      { path: 'vault/:id', element: <VaultDetailPage /> },
+      { path: 'vault', element: <Navigate to="/notes" replace /> },
+      { path: 'vault/:id', element: <Navigate to="/notes" replace /> },
     ],
   },
   { path: '/shared/notes/:id', element: <PublicNotePage /> },

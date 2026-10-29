@@ -1,4 +1,4 @@
-import { FileUp, Loader2, ClipboardPaste, Upload } from 'lucide-react'
+import { IconFileUpload, IconLoader2, IconClipboardText, IconUpload } from '@tabler/icons-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import {
@@ -131,38 +131,40 @@ export function UploadMarkdownDialog({ open, onOpenChange }: UploadMarkdownDialo
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex gap-2 rounded-xl bg-muted/40 p-1">
+        <div className="flex gap-1.5 rounded-lg bg-secondary/50 p-1">
           <button
             type="button"
             onClick={() => setMode('files')}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
-              mode === 'files' ? 'bg-background shadow-sm' : 'text-muted-foreground'
+            className={`flex-1 flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              mode === 'files'
+                ? 'bg-background text-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <FileUp className="h-4 w-4" />
+            <IconFileUpload className="h-4 w-4" />
             Upload files
           </button>
           <button
             type="button"
             onClick={() => setMode('paste')}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
-              mode === 'paste' ? 'bg-background shadow-sm' : 'text-muted-foreground'
+            className={`flex-1 flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              mode === 'paste'
+                ? 'bg-background text-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <ClipboardPaste className="h-4 w-4" />
+            <IconClipboardText className="h-4 w-4" />
             Paste markdown
           </button>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Project (optional)
-          </label>
+          <label className="text-xs font-medium text-muted-foreground">Project (optional)</label>
           <Select value={projectForImport} onValueChange={setProjectForImport}>
-            <SelectTrigger className="h-10 rounded-xl">
+            <SelectTrigger>
               <SelectValue placeholder="Select a project" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl">
+            <SelectContent>
               <SelectItem value="__none__">No project</SelectItem>
               {projects.map((project) => (
                 <SelectItem key={project.id} value={project.id}>
@@ -181,8 +183,8 @@ export function UploadMarkdownDialog({ open, onOpenChange }: UploadMarkdownDialo
 
         {mode === 'files' ? (
           <div className="space-y-3">
-            <label className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-8 cursor-pointer hover:bg-accent/40 transition-colors text-center">
-              <Upload className="h-8 w-8 text-muted-foreground" />
+            <label className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border p-8 cursor-pointer hover:bg-secondary/40 transition-colors text-center">
+              <IconUpload className="h-7 w-7 text-muted-foreground" />
               <span className="text-sm font-medium">
                 {files.length ? `${files.length} file(s) selected` : 'Click to select .md files'}
               </span>
@@ -205,7 +207,7 @@ export function UploadMarkdownDialog({ open, onOpenChange }: UploadMarkdownDialo
                 {files.map((file, index) => (
                   <li
                     key={`${file.name}-${index}`}
-                    className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-1.5"
+                    className="flex items-center justify-between rounded-md bg-secondary/40 px-3 py-1.5 text-xs"
                   >
                     <span className="truncate">{file.name}</span>
                     <button
@@ -221,7 +223,7 @@ export function UploadMarkdownDialog({ open, onOpenChange }: UploadMarkdownDialo
             )}
 
             {isS3Configured() && (
-              <label className="flex items-center gap-2 text-sm text-muted-foreground">
+              <label className="flex items-center gap-2 text-xs text-muted-foreground">
                 <input
                   type="checkbox"
                   checked={storeOriginal}
@@ -235,12 +237,12 @@ export function UploadMarkdownDialog({ open, onOpenChange }: UploadMarkdownDialo
             <Button
               onClick={importFiles}
               disabled={importing || files.length === 0}
-              className="w-full rounded-xl h-10"
+              className="w-full"
             >
               {importing ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <IconLoader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <FileUp className="h-4 w-4 mr-2" />
+                <IconFileUpload className="h-4 w-4 mr-2" />
               )}
               Import {files.length > 0 ? `${files.length} file(s)` : ''}
             </Button>
@@ -248,43 +250,39 @@ export function UploadMarkdownDialog({ open, onOpenChange }: UploadMarkdownDialo
         ) : (
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Title (optional)
-              </label>
+              <label className="text-xs font-medium text-muted-foreground">Title (optional)</label>
               <Input
                 value={pasteTitle}
                 onChange={(e) => setPasteTitle(e.target.value)}
                 placeholder="Defaults to first # heading or Untitled"
-                className="mt-1 rounded-xl"
+                className="mt-1"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Markdown
-              </label>
+              <label className="text-xs font-medium text-muted-foreground">Markdown</label>
               <Textarea
                 value={pasteContent}
                 onChange={(e) => setPasteContent(e.target.value)}
                 placeholder={'# My note\n\nPaste your markdown here…'}
-                className="mt-1 min-h-[200px] font-mono rounded-xl"
+                className="mt-1 min-h-[200px] font-mono text-xs"
               />
             </div>
             <Button
               onClick={importPaste}
               disabled={importing || !pasteContent.trim()}
-              className="w-full rounded-xl h-10"
+              className="w-full"
             >
               {importing ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <IconLoader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <ClipboardPaste className="h-4 w-4 mr-2" />
+                <IconClipboardText className="h-4 w-4 mr-2" />
               )}
               Create document
             </Button>
           </div>
         )}
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-xs text-destructive">{error}</p>}
       </DialogContent>
     </Dialog>
   )

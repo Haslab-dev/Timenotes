@@ -1,8 +1,9 @@
-import { FilePlus2, Search, Upload } from 'lucide-react'
+import { IconFilePlus, IconSearch, IconUpload } from '@tabler/icons-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PageHeader } from '@/components/ui/page-header'
 import { VaultDashboard } from '../components/vault-dashboard'
 import { UploadMarkdownDialog } from '../components/upload-markdown-dialog'
 import { useCreateVaultDoc, useDeleteVaultDoc, useVaultDocs } from '../hooks/use-vault'
@@ -52,50 +53,41 @@ export function VaultPage() {
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-black tracking-tight">Vault</h1>
-          <p className="text-muted-foreground">
-            Your markdown library — upload, paste, edit and read.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="rounded-2xl h-11"
-            onClick={() => setDialogOpen(true)}
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Upload
-          </Button>
-          <Button
-            onClick={handleNew}
-            className="rounded-2xl h-11 px-6 font-bold shadow-lg shadow-primary/20"
-          >
-            <FilePlus2 className="mr-2 h-4 w-4" />
-            New
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Vault"
+        description="Your markdown knowledge base — upload, paste, edit, and read."
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={() => setDialogOpen(true)}>
+              <IconUpload className="mr-1.5 h-4 w-4" />
+              Upload
+            </Button>
+            <Button size="sm" onClick={handleNew}>
+              <IconFilePlus className="mr-1.5 h-4 w-4" />
+              New Document
+            </Button>
+          </>
+        }
+      />
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search documents…"
-          className="pl-9 rounded-xl"
+          className="pl-9"
         />
       </div>
 
       {dragging && (
-        <div className="rounded-2xl border-2 border-dashed border-primary bg-primary/5 p-8 text-center text-sm font-medium text-primary">
+        <div className="rounded-xl border border-dashed border-primary bg-tertiary/40 p-8 text-center text-sm font-medium text-tertiary-foreground">
           Drop .md files to import into your vault
         </div>
       )}
 
       {isLoading ? (
-        <div className="text-center py-20 text-muted-foreground">Loading vault…</div>
+        <div className="text-center py-20 text-sm text-muted-foreground">Loading vault…</div>
       ) : (
         <VaultDashboard docs={docs} onDelete={(id) => deleteDoc.mutate(id)} />
       )}

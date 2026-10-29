@@ -2,7 +2,8 @@ import { useLocation, useNavigate } from 'react-router'
 import { useCreateTimeEntry } from '../hooks/use-timesheet'
 import { TimeEntryForm } from '../components/time-entry-form'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { IconArrowLeft } from '@tabler/icons-react'
 
 export function NewTimeEntryPage() {
   const navigate = useNavigate()
@@ -21,23 +22,25 @@ export function NewTimeEntryPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center gap-4">
+    <div className="space-y-6 max-w-2xl mx-auto">
+      <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <IconArrowLeft className="h-4 w-4 mr-1.5" />
           Back
         </Button>
-        <h1 className="text-2xl font-bold">New Time Entry</h1>
+        <h1 className="text-xl font-semibold tracking-tight">New Time Entry</h1>
       </div>
 
-      <div className="bg-card rounded-2xl border p-6 shadow-sm">
-        <TimeEntryForm
-          onSubmit={handleCreate}
-          onCancel={() => navigate(-1)}
-          isLoading={createMutation.isPending}
-          defaultProjectId={defaultProjectId}
-        />
-      </div>
+      <Card>
+        <CardContent className="p-6">
+          <TimeEntryForm
+            onSubmit={handleCreate}
+            onCancel={() => navigate(-1)}
+            isLoading={createMutation.isPending}
+            defaultProjectId={defaultProjectId}
+          />
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -2,7 +2,8 @@ import { useLocation, useNavigate } from 'react-router'
 import { useCreateNote } from '../hooks/use-notes'
 import { NoteForm } from '../components/note-form'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { IconArrowLeft, IconNotes } from '@tabler/icons-react'
 
 export function NewNotePage() {
   const navigate = useNavigate()
@@ -23,25 +24,31 @@ export function NewNotePage() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+    <div className="space-y-4 max-w-3xl mx-auto">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => navigate(-1)}>
+          <IconArrowLeft className="h-3.5 w-3.5 mr-1" />
+          Notes
         </Button>
-        <h1 className="text-2xl font-bold">New Note</h1>
+        <span>/</span>
+        <span className="inline-flex items-center gap-1.5 text-foreground font-medium">
+          <IconNotes className="h-3.5 w-3.5 text-primary" />
+          New Note
+        </span>
       </div>
 
-      <div className="bg-card rounded-2xl border p-6 shadow-sm">
-        <NoteForm
-          onSubmit={handleCreate}
-          onCancel={() => navigate(-1)}
-          isLoading={createMutation.isPending}
-          defaultProjectId={defaultProjectId}
-          defaultTitle={defaultTitle}
-          defaultTimeEntryId={defaultTimeEntryId}
-        />
-      </div>
+      <Card>
+        <CardContent className="p-6 sm:p-8">
+          <NoteForm
+            onSubmit={handleCreate}
+            onCancel={() => navigate(-1)}
+            isLoading={createMutation.isPending}
+            defaultProjectId={defaultProjectId}
+            defaultTitle={defaultTitle}
+            defaultTimeEntryId={defaultTimeEntryId}
+          />
+        </CardContent>
+      </Card>
     </div>
   )
 }

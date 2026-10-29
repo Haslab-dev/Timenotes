@@ -1,12 +1,29 @@
 import { useParams, useNavigate } from 'react-router'
-import { ArrowLeft, Plus, Download, FileText, Share, Check, BookOpen } from 'lucide-react'
+import {
+  IconArrowLeft,
+  IconPlus,
+  IconDownload,
+  IconFileText,
+  IconShare,
+  IconCheck,
+  IconBook,
+  IconPhoto,
+} from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
-import { useBook, useBookPages, useUpdatePage, useCreatePage } from '../hooks/use-books'
+import { Badge } from '@/components/ui/badge'
+import { useEffect, useState } from 'react'
+import {
+  useBook,
+  useBookPages,
+  useUpdateBook,
+  useUpdatePage,
+  useCreatePage,
+} from '../hooks/use-books'
 import { BookViewer } from '../components/book-viewer'
 import { ShareableBookContent } from '../components/shareable-book-content'
 import { exportBookToPDF } from '../utils/pdf-export'
 import { Input } from '@/components/ui/input'
+import { ImageUploadPopover } from '@/components/ui/image-upload'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,14 +37,31 @@ export function BookDetailPage() {
   const navigate = useNavigate()
   const { data: book, isLoading: isLoadingBook } = useBook(id!)
   const { data: pages = [], isLoading: isLoadingPages } = useBookPages(id!)
+  const updateBook = useUpdateBook()
   const updatePage = useUpdatePage()
   const createPage = useCreatePage()
   const [copied, setCopied] = useState(false)
   const [currentPageIndex, setCurrentPageIndex] = useState(0)
   const [sharePageInput, setSharePageInput] = useState('1')
+  const [bookTitle, setBookTitle] = useState('')
+
+  useEffect(() => {
+    if (book) {
+      setBookTitle(book.title)
+    }
+  }, [book])
 
   const sortedPages = [...pages].sort((a, b) => a.pageNumber - b.pageNumber)
   const currentPageNumber = sortedPages[currentPageIndex]?.pageNumber ?? 1
+
+  const handleBookTitleBlur = () => {
+    if (!book) return
+    const trimmed = bookTitle.trim() || 'Untitled Book'
+    setBookTitle(trimmed)
+    if (trimmed !== book.title) {
+      updateBook.mutate({ id: book.id, data: { title: trimmed } })
+    }
+  }
 
   const handleShare = (pageNum?: number) => {
     let url = `${window.location.origin}/shared/books/${id}`
@@ -51,10 +85,11 @@ export function BookDetailPage() {
   const handleAddPage = async () => {
     await createPage.mutateAsync({
       bookId: id!,
-      title: `Page ${pages.length + 1}`,
+      title: `Chapter ${pages.length + 1}`,
       content: '[]',
       pageNumber: pages.length + 1,
     })
+    setCurrentPageIndex(pages.length)
   }
 
   const handleExportPDF = async () => {
@@ -64,13 +99,13 @@ export function BookDetailPage() {
   }
 
   if (isLoadingBook || isLoadingPages) {
-    return <div className="text-center py-20 text-muted-foreground">Loading book...</div>
+    return <div className="text-center py-20 text-sm text-muted-foreground">Loading book...</div>
   }
 
   if (!book) {
     return (
       <div className="text-center py-20 space-y-4">
-        <div className="text-destructive font-bold">Book not found</div>
+        <div className="text-destructive font-semibold">Book not found</div>
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
           If you just created this book, please ensure you have applied the database schema to your
           Turso database.
@@ -83,74 +118,90 @@ export function BookDetailPage() {
   }
 
   return (
-    <div className="flex flex-col flex-1 h-full min-h-0 -mx-2 sm:mx-0 bg-card">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border-b bg-card gap-4">
-        <div className="flex items-center gap-3">
+    <div className="flex flex-col flex-1 h-full min-h-0 bg-card border rounded-xl overflow-hidden">
+      {/* Notion-style Breadcrumb & Action Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-2.5 border-b bg-card gap-3">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={() => navigate('/books')}
-            className="rounded-full shrink-0"
+            className="h-7 px-2 text-xs text-muted-foreground shrink-0"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <IconArrowLeft className="h-3.5 w-3.5 mr-1" />
+            Books
           </Button>
-          <div className="min-w-0">
-            <h1 className="text-lg sm:text-xl font-bold leading-tight truncate">{book.title}</h1>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5 font-black">
-              {pages.length} Pages
-            </p>
+          <span className="text-muted-foreground text-xs">/</span>
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <IconBook className="h-4 w-4 text-primary shrink-0" />
+            <input
+              type="text"
+              value={bookTitle}
+              onChange={(e) => setBookTitle(e.target.value)}
+              onBlur={handleBookTitleBlur}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') e.currentTarget.blur()
+              }}
+              placeholder="Untitled Book"
+              className="text-sm sm:text-base font-semibold text-foreground bg-transparent border-0 rounded px-1.5 py-0.5 hover:bg-secondary/60 focus:bg-secondary/60 focus:outline-none min-w-[120px] max-w-xs truncate transition-colors"
+            />
+            <Badge variant="secondary" className="text-[11px] shrink-0">
+              {pages.length} {pages.length === 1 ? 'Page' : 'Pages'}
+            </Badge>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 justify-end">
+        <div className="flex items-center gap-1.5 justify-end">
+          <ImageUploadPopover
+            trigger={
+              <Button variant="ghost" size="sm" className="h-8 text-xs">
+                <IconPhoto className="h-3.5 w-3.5 sm:mr-1.5" />
+                <span className="hidden md:inline">Cover</span>
+              </Button>
+            }
+            onUploaded={(url) => updateBook.mutate({ id: book.id, data: { thumbnail: url } })}
+          />
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`rounded-full h-9 transition-all ${copied ? 'text-emerald-500' : 'text-muted-foreground'}`}
-              >
-                {copied ? <Check className="h-4 w-4 mr-2" /> : <Share className="h-4 w-4 mr-2" />}
-                <span className="hidden sm:inline">{copied ? 'Copied!' : 'Share'}</span>
+              <Button variant="outline" size="sm" className="h-8 text-xs">
+                {copied ? (
+                  <IconCheck className="h-3.5 w-3.5 mr-1.5 text-primary" />
+                ) : (
+                  <IconShare className="h-3.5 w-3.5 mr-1.5" />
+                )}
+                <span>{copied ? 'Copied!' : 'Share'}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-2xl">
-              <div className="px-2 py-1.5 text-xs font-black uppercase tracking-widest text-muted-foreground opacity-50">
+            <DropdownMenuContent align="end" className="w-60 p-2">
+              <div className="px-2 py-1 text-xs font-medium text-muted-foreground">
                 Sharing Options
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => handleShare()}
-                className="rounded-xl cursor-pointer py-3"
-              >
-                <BookOpen className="mr-2 h-4 w-4" />
+              <DropdownMenuItem onClick={() => handleShare()} className="cursor-pointer py-2">
+                <IconBook className="mr-2 h-4 w-4 text-primary" />
                 <div className="flex flex-col">
-                  <span className="font-bold">Full Book</span>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="font-medium text-sm">Full Book</span>
+                  <span className="text-xs text-muted-foreground">
                     Share all chapters in blog mode
                   </span>
                 </div>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => {
-                  handleShare(currentPageNumber)
-                }}
-                className="rounded-xl cursor-pointer py-3"
+                onClick={() => handleShare(currentPageNumber)}
+                className="cursor-pointer py-2"
               >
-                <FileText className="mr-2 h-4 w-4" />
+                <IconFileText className="mr-2 h-4 w-4 text-primary" />
                 <div className="flex flex-col">
-                  <span className="font-bold">Current Page Only</span>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="font-medium text-sm">Current Page Only</span>
+                  <span className="text-xs text-muted-foreground">
                     Share page {currentPageNumber} as a single post
                   </span>
                 </div>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <div className="px-2 py-2 space-y-2">
-                <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">
-                  Share Specific Page
-                </div>
+                <div className="text-xs font-medium text-muted-foreground">Share Specific Page</div>
                 <div className="flex items-center gap-2">
                   <Input
                     type="number"
@@ -158,40 +209,35 @@ export function BookDetailPage() {
                     max={Math.max(pages.length, 1)}
                     value={sharePageInput}
                     onChange={(event) => setSharePageInput(event.target.value)}
-                    className="h-9 rounded-xl"
-                    placeholder="Page number"
+                    className="h-8 text-xs"
+                    placeholder="Page #"
                   />
                   <Button
                     type="button"
                     size="sm"
-                    className="rounded-xl shrink-0"
+                    className="h-8 shrink-0"
                     onClick={handleShareSpecificPage}
                     disabled={
                       Number.isNaN(Number.parseInt(sharePageInput, 10)) ||
                       Number.parseInt(sharePageInput, 10) < 1
                     }
                   >
-                    Copy Link
+                    Copy
                   </Button>
                 </div>
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground">
                   Available pages: 1 to {Math.max(pages.length, 1)}
                 </p>
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button variant="outline" size="sm" onClick={handleAddPage} className="rounded-full h-9">
-            <Plus className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Add Page</span>
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={handleAddPage}>
+            <IconPlus className="h-3.5 w-3.5 sm:mr-1" />
+            <span className="hidden sm:inline">New Page</span>
           </Button>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleExportPDF}
-            className="rounded-full h-9 shadow-lg shadow-primary/20"
-          >
-            <Download className="h-4 w-4 sm:mr-2" />
+          <Button variant="default" size="sm" className="h-8 text-xs" onClick={handleExportPDF}>
+            <IconDownload className="h-3.5 w-3.5 sm:mr-1" />
             <span className="hidden sm:inline">Export PDF</span>
           </Button>
         </div>
@@ -202,6 +248,8 @@ export function BookDetailPage() {
         <BookViewer
           pages={pages}
           onUpdatePage={(pageId, content) => updatePage.mutate({ id: pageId, data: { content } })}
+          onUpdatePageTitle={(pageId, title) => updatePage.mutate({ id: pageId, data: { title } })}
+          onAddPage={handleAddPage}
           onPageChange={setCurrentPageIndex}
         />
       </div>

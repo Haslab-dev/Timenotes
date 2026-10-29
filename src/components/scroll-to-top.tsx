@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowUp } from 'lucide-react'
+import { IconArrowUp } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 
@@ -33,10 +33,10 @@ export function ScrollToTop() {
     <Button
       variant="default"
       size="icon"
-      className="fixed bottom-20 right-6 h-12 w-12 rounded-full shadow-2xl shadow-primary/40 z-[100] animate-in fade-in zoom-in slide-in-from-bottom-4 duration-300 ring-2 ring-white dark:ring-zinc-900 cursor-pointer"
+      className="fixed bottom-20 right-5 h-10 w-10 rounded-full shadow-md z-[100] animate-in fade-in zoom-in duration-200 cursor-pointer"
       onClick={scrollToTop}
     >
-      <ArrowUp className="h-6 w-6" />
+      <IconArrowUp className="h-5 w-5" />
     </Button>
   )
 }

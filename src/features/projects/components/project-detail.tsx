@@ -1,19 +1,20 @@
 import { useState } from 'react'
 import {
-  ArrowLeft,
-  Clock,
-  FileText,
-  Files,
-  Plus,
-  Edit2,
-  Trash2,
-  Download,
-  LayoutList,
-  Calendar as CalendarIcon,
-} from 'lucide-react'
+  IconArrowLeft,
+  IconClock,
+  IconNotes,
+  IconPlus,
+  IconPencil,
+  IconTrash,
+  IconDownload,
+  IconUpload,
+  IconLayoutList,
+  IconCalendarMonth,
+} from '@tabler/icons-react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -28,7 +29,7 @@ import {
   useDeleteTimeEntry,
 } from '@/features/timesheet/hooks/use-timesheet'
 import { useNotes } from '@/features/notes/hooks/use-notes'
-import { useCreateVaultDoc, useVaultDocsByProject } from '@/features/vault/hooks/use-vault'
+import { ImportMarkdownDialog } from '@/features/notes/components/import-markdown-dialog'
 import { ProjectForm } from './project-form'
 import { CompactTimesheetTable } from '@/features/timesheet/components/compact-timesheet-table'
 import { TimesheetCalendar } from '@/features/timesheet/components/timesheet-calendar'
@@ -47,36 +48,33 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
   const [, setSearchParams] = useSearchParams()
-  const [activeTab, setActiveTab] = useState<'overview' | 'timesheet' | 'notes' | 'vault'>(
-    'overview'
-  )
+  const [activeTab, setActiveTab] = useState<'overview' | 'timesheet' | 'notes'>('overview')
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isTimeEntryDialogOpen, setIsTimeEntryDialogOpen] = useState(false)
+  const [isImportMdOpen, setIsImportMdOpen] = useState(false)
   const [timesheetView, setTimesheetView] = useState<'list' | 'calendar'>('list')
 
   const { data: projects } = useProjects()
   const { data: timeEntries = [] } = useTimeEntries()
   const { data: notes = [] } = useNotes()
-  const projectVaultDocs = useVaultDocsByProject(projectId)
-  const createVaultDoc = useCreateVaultDoc()
 
   const updateMutation = useUpdateProject()
   const deleteMutation = useDeleteProject()
   const createTimeEntryMutation = useCreateTimeEntry()
-
   const deleteTimeEntryMutation = useDeleteTimeEntry()
 
   const project = projects?.find((p) => p.id === projectId)
   const projectTimeEntries = timeEntries.filter((entry) => entry.projectId === projectId)
   const projectNotes = notes.filter((note) => note.projectId === projectId)
+
   if (!project) {
     return (
       <div className="text-center py-12">
-        <div className="text-muted-foreground">
-          <div className="text-lg mb-2">Project not found</div>
+        <div className="text-muted-foreground space-y-3">
+          <div className="text-base font-medium">Project not found</div>
           <Link to="/projects">
-            <Button variant="outline">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm">
+              <IconArrowLeft className="h-4 w-4 mr-1.5" />
               Back to Projects
             </Button>
           </Link>
@@ -85,7 +83,6 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
     )
   }
 
-  // Calculate project statistics
   const totalMinutes = projectTimeEntries.reduce(
     (sum, entry) => sum + (Number(entry.duration) || 0),
     0
@@ -145,61 +142,43 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
     exportNotesToCsv(projectNotes, [project], `${project.name}-notes-export.csv`)
   }
 
-  const handleCreateVaultDoc = async () => {
-    try {
-      const doc = await createVaultDoc.mutateAsync({
-        title: 'Untitled',
-        content: '',
-        source: 'manual',
-        projectId: project.id,
-      })
-      navigate(`/vault/${doc.id}`)
-    } catch (error) {
-      console.error('Failed to create vault document:', error)
-    }
-  }
-
   const tabs = [
-    { key: 'overview' as const, label: 'Overview', icon: FileText },
-    { key: 'timesheet' as const, label: 'Time Entries', icon: Clock, count: totalEntries },
-    { key: 'notes' as const, label: 'Notes', icon: FileText, count: totalNotes },
-    { key: 'vault' as const, label: 'Vault', icon: Files, count: projectVaultDocs.length },
+    { key: 'overview' as const, label: 'Overview', icon: IconNotes },
+    { key: 'timesheet' as const, label: 'Time Entries', icon: IconClock, count: totalEntries },
+    { key: 'notes' as const, label: 'Notes', icon: IconNotes, count: totalNotes },
   ]
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-5">
+        <div className="flex items-center gap-3 min-w-0">
           <Link to="/projects">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+              <IconArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <div className="flex items-center gap-3 min-w-0">
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm text-white font-bold text-xl shrink-0"
-              style={{ backgroundColor: project.color }}
-            >
-              {project.name.substring(0, 2).toUpperCase()}
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-bold text-left break-words">
-                {project.name}
-              </h1>
-              {project.description && (
-                <p className="text-muted-foreground break-words">{project.description}</p>
-              )}
-            </div>
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-semibold text-sm shrink-0"
+            style={{ backgroundColor: project.color }}
+          >
+            {project.name.substring(0, 2).toUpperCase()}
+          </div>
+          <div className="min-w-0 text-left">
+            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground truncate">
+              {project.name}
+            </h1>
+            {project.description && (
+              <p className="text-xs text-muted-foreground truncate mt-0.5">{project.description}</p>
+            )}
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 shrink-0">
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="flex-1 sm:flex-none h-9">
-                <Edit2 className="h-4 w-4 mr-2" />
+              <Button variant="outline" size="sm">
+                <IconPencil className="h-4 w-4 mr-1.5" />
                 Edit
               </Button>
             </DialogTrigger>
@@ -221,52 +200,57 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
             size="sm"
             onClick={handleDeleteProject}
             disabled={deleteMutation.isPending}
-            className="text-destructive hover:text-destructive flex-1 sm:flex-none h-9"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
+            <IconTrash className="h-4 w-4 mr-1.5" />
             Delete
           </Button>
         </div>
       </div>
 
-      {/* Stats Cards - More compact on mobile */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
-        <div className="bg-card rounded-xl border p-3 sm:p-6 space-y-1 sm:space-y-2">
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-            Hours
+      {/* Stats Cards */}
+      <div className="grid grid-cols-3 gap-4">
+        <Card className="p-4 text-left">
+          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <span>Total Hours</span>
+            <IconClock className="h-4 w-4 text-primary" />
           </div>
-          <div className="text-sm sm:text-2xl font-bold text-left">
+          <div className="text-xl sm:text-2xl font-semibold tabular-nums mt-2 text-foreground">
             {formatDuration(totalMinutes)}
           </div>
-        </div>
+        </Card>
 
-        <div className="bg-card rounded-xl border p-3 sm:p-6 space-y-1 sm:space-y-2">
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-            Entries
+        <Card className="p-4 text-left">
+          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <span>Time Entries</span>
+            <IconClock className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="text-sm sm:text-2xl font-bold text-left">{totalEntries}</div>
-        </div>
+          <div className="text-xl sm:text-2xl font-semibold tabular-nums mt-2 text-foreground">
+            {totalEntries}
+          </div>
+        </Card>
 
-        <div className="bg-card rounded-xl border p-3 sm:p-6 space-y-1 sm:space-y-2">
-          <div className="flex items-center gap-1.5 text-[10px] sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
-            Notes
+        <Card className="p-4 text-left">
+          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <span>Notes</span>
+            <IconNotes className="h-4 w-4 text-tertiary-foreground" />
           </div>
-          <div className="text-sm sm:text-2xl font-bold text-left">{totalNotes}</div>
-        </div>
+          <div className="text-xl sm:text-2xl font-semibold tabular-nums mt-2 text-foreground">
+            {totalNotes}
+          </div>
+        </Card>
       </div>
 
-      {/* Tabs - Horizontal scroll on mobile */}
-      <div className="border-b overflow-x-auto no-scrollbar">
-        <div className="flex min-w-max sm:space-x-8 px-1">
+      {/* Tabs */}
+      <div className="border-b border-border overflow-x-auto no-scrollbar">
+        <div className="flex min-w-max gap-6">
           {tabs.map(({ key, label, icon: Icon, count }) => (
             <button
               key={key}
+              type="button"
               onClick={() => setActiveTab(key)}
               className={[
-                'flex items-center gap-2 py-4 px-4 sm:px-1 text-sm font-medium border-b-2 transition-all whitespace-nowrap',
+                'flex items-center gap-2 py-3 text-xs font-medium border-b-2 transition-colors whitespace-nowrap cursor-pointer',
                 activeTab === key
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground',
@@ -277,7 +261,7 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
               {count !== undefined && (
                 <Badge
                   variant={activeTab === key ? 'default' : 'secondary'}
-                  className="ml-1 text-[10px] h-4.5 px-1.5"
+                  className="text-[10px] h-4 px-1.5"
                 >
                   {count}
                 </Badge>
@@ -288,241 +272,192 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
       </div>
 
       {/* Tab Content */}
-      <div className="animate-slide-up">
+      <div className="animate-fade-in">
         {activeTab === 'overview' && (
-          <div className="space-y-4 sm:space-y-6">
-            <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-              {/* Recent Time Entries */}
-              <div className="bg-gradient-to-br from-card to-muted/10 rounded-xl border p-4 sm:p-6 space-y-4 sm:space-y-6 min-w-0">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-lg bg-primary/10">
-                      <Clock className="h-4 w-4 text-primary" />
-                    </div>
-                    <h3 className="font-semibold text-sm sm:text-base">Recent Time Entries</h3>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Recent Time Entries */}
+            <Card className="p-5 space-y-4 min-w-0 text-left">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-md bg-primary/10">
+                    <IconClock className="h-4 w-4 text-primary" />
                   </div>
-                  <div className="flex items-center gap-2">
-                    {isMobile ? (
-                      <Button
-                        size="sm"
-                        variant="default"
-                        className="w-full h-9 shadow-sm bg-primary hover:bg-primary/90"
-                        onClick={() =>
-                          navigate('/timesheet/new', { state: { projectId: project.id } })
-                        }
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
+                  <h3 className="font-semibold text-sm">Recent Time Entries</h3>
+                </div>
+                {isMobile ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate('/timesheet/new', { state: { projectId: project.id } })}
+                  >
+                    <IconPlus className="h-3.5 w-3.5 mr-1" />
+                    Add Entry
+                  </Button>
+                ) : (
+                  <Dialog open={isTimeEntryDialogOpen} onOpenChange={setIsTimeEntryDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" variant="outline">
+                        <IconPlus className="h-3.5 w-3.5 mr-1" />
                         Add Entry
                       </Button>
-                    ) : (
-                      <Dialog open={isTimeEntryDialogOpen} onOpenChange={setIsTimeEntryDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button size="sm" variant="outline" className="w-auto h-9">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Entry
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl max-h-[90vh]">
-                          <DialogHeader>
-                            <DialogTitle>Add Time Entry for {project.name}</DialogTitle>
-                          </DialogHeader>
-                          <TimeEntryForm
-                            onSubmit={handleCreateTimeEntry}
-                            onCancel={() => setIsTimeEntryDialogOpen(false)}
-                            isLoading={createTimeEntryMutation.isPending}
-                            defaultProjectId={project.id}
-                          />
-                        </DialogContent>
-                      </Dialog>
-                    )}
-                  </div>
-                </div>
-
-                {projectTimeEntries.length === 0 ? (
-                  <div className="text-center py-8 sm:py-12">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-muted/50 flex items-center justify-center">
-                      <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">No time entries yet</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3 sm:space-y-4">
-                    {projectTimeEntries.slice(0, 3).map((entry) => (
-                      <div key={entry.id} className="group">
-                        {/* Mobile Card Layout */}
-                        <div
-                          className="sm:hidden bg-background/50 rounded-lg border p-3 space-y-2.5 hover:shadow-md transition-all duration-200 cursor-pointer"
-                          onClick={() => {
-                            if (isMobile) {
-                              navigate(`/timesheet/${entry.id}/edit`)
-                            } else {
-                              setSearchParams({ timeEntryId: entry.id })
-                            }
-                          }}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium break-words line-clamp-2 mb-1">
-                                {entry.description || 'No description'}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {format(entry.startTime, 'MMM dd, yyyy')}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1.5 bg-primary/10 rounded-full px-2.5 py-1">
-                              <Clock className="h-3 w-3 text-primary" />
-                              <span className="text-xs font-medium text-primary whitespace-nowrap">
-                                {Math.floor(entry.duration / 60)}h {entry.duration % 60}m
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Desktop Layout */}
-                        <div
-                          className="hidden sm:flex items-start justify-between py-2 border-b last:border-b-0 gap-3 hover:bg-muted/30 transition-colors duration-200 rounded-md px-2 cursor-pointer"
-                          onClick={() => {
-                            if (isMobile) {
-                              navigate(`/timesheet/${entry.id}/edit`)
-                            } else {
-                              setSearchParams({ timeEntryId: entry.id })
-                            }
-                          }}
-                        >
-                          <div className="flex-1 min-w-0 space-y-1">
-                            <div className="text-sm font-medium break-words line-clamp-2">
-                              {entry.description || 'No description'}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {format(entry.startTime, 'MMM dd, yyyy')}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1 bg-secondary/50 rounded-full px-2.5 py-1">
-                            <Clock className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
-                              {Math.floor(entry.duration / 60)}h {entry.duration % 60}m
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh]">
+                      <DialogHeader>
+                        <DialogTitle>Add Time Entry for {project.name}</DialogTitle>
+                      </DialogHeader>
+                      <TimeEntryForm
+                        onSubmit={handleCreateTimeEntry}
+                        onCancel={() => setIsTimeEntryDialogOpen(false)}
+                        isLoading={createTimeEntryMutation.isPending}
+                        defaultProjectId={project.id}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 )}
               </div>
 
-              {/* Recent Notes */}
-              <div className="bg-gradient-to-br from-card to-muted/10 rounded-xl border p-4 sm:p-6 space-y-4 sm:space-y-6 min-w-0">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-lg bg-primary/10">
-                      <FileText className="h-4 w-4 text-primary" />
-                    </div>
-                    <h3 className="font-semibold text-sm sm:text-base">Recent Notes</h3>
-                  </div>
-                  <Button
-                    onClick={() => navigate('/notes/new', { state: { projectId: project.id } })}
-                    size="sm"
-                    variant={isMobile ? 'default' : 'outline'}
-                    className="w-full sm:w-auto h-9 shadow-sm"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Note
-                  </Button>
+              {projectTimeEntries.length === 0 ? (
+                <div className="text-center py-8 border border-dashed rounded-lg">
+                  <IconClock className="h-6 w-6 mx-auto text-muted-foreground/40 mb-2" />
+                  <p className="text-xs text-muted-foreground">No time entries yet</p>
                 </div>
-
-                {projectNotes.length === 0 ? (
-                  <div className="text-center py-8 sm:py-12">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-muted/50 flex items-center justify-center">
-                      <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">No notes yet</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3 sm:space-y-4">
-                    {projectNotes.slice(0, 3).map((note) => (
-                      <div key={note.id} className="group">
-                        {/* Mobile Card Layout */}
-                        <div
-                          className="sm:hidden bg-background/50 rounded-lg border p-3 space-y-2.5 hover:shadow-md transition-all duration-200 cursor-pointer"
-                          onClick={() => {
-                            if (isMobile) {
-                              navigate(`/notes/${note.id}/edit`)
-                            } else {
-                              setSearchParams({ noteId: note.id })
-                            }
-                          }}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium truncate mb-1">{note.title}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {format(note.createdAt, 'MMM dd, yyyy')}
-                              </div>
-                            </div>
-                          </div>
-                          {note.content && (
-                            <div className="bg-muted/30 rounded-md p-2 ml-1">
-                              <div className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                                {note.content}
-                              </div>
-                            </div>
-                          )}
+              ) : (
+                <div className="divide-y divide-border">
+                  {projectTimeEntries.slice(0, 5).map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="flex items-start justify-between py-2.5 gap-3 hover:bg-secondary/30 transition-colors rounded-md px-2 cursor-pointer"
+                      onClick={() => {
+                        if (isMobile) {
+                          navigate(`/timesheet/${entry.id}/edit`)
+                        } else {
+                          setSearchParams({ timeEntryId: entry.id })
+                        }
+                      }}
+                    >
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        <div className="text-xs font-medium text-foreground line-clamp-1">
+                          {entry.description?.replace(/<[^>]*>/g, ' ').trim() || 'No description'}
                         </div>
-
-                        {/* Desktop Layout */}
-                        <div
-                          className="hidden sm:block py-2 border-b last:border-b-0 hover:bg-muted/30 transition-colors duration-200 rounded-md px-2 cursor-pointer"
-                          onClick={() => {
-                            if (isMobile) {
-                              navigate(`/notes/${note.id}/edit`)
-                            } else {
-                              setSearchParams({ noteId: note.id })
-                            }
-                          }}
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="text-sm font-medium truncate flex-1 min-w-0">
-                                {note.title}
-                              </div>
-                              <span className="text-xs text-muted-foreground bg-secondary/30 rounded-full px-2 py-0.5 whitespace-nowrap">
-                                {format(note.createdAt, 'MMM dd, yyyy')}
-                              </span>
-                            </div>
-                            {note.content && (
-                              <div className="text-xs text-muted-foreground line-clamp-2 leading-relaxed bg-muted/20 rounded-md p-2">
-                                {note.content}
-                              </div>
-                            )}
-                          </div>
+                        <div className="text-[11px] text-muted-foreground">
+                          {format(entry.startTime, 'MMM dd, yyyy')}
                         </div>
                       </div>
-                    ))}
+                      <Badge variant="secondary" className="tabular-nums text-[11px]">
+                        {Math.floor(entry.duration / 60)}h {entry.duration % 60}m
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+
+            {/* Recent Notes */}
+            <Card className="p-5 space-y-4 min-w-0 text-left">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-md bg-tertiary">
+                    <IconNotes className="h-4 w-4 text-tertiary-foreground" />
                   </div>
-                )}
+                  <h3 className="font-semibold text-sm">Recent Notes</h3>
+                </div>
+                <Button
+                  onClick={() => navigate('/notes/new', { state: { projectId: project.id } })}
+                  size="sm"
+                  variant="outline"
+                >
+                  <IconPlus className="h-3.5 w-3.5 mr-1" />
+                  Add Note
+                </Button>
               </div>
-            </div>
+
+              {projectNotes.length === 0 ? (
+                <div className="text-center py-8 border border-dashed rounded-lg">
+                  <IconNotes className="h-6 w-6 mx-auto text-muted-foreground/40 mb-2" />
+                  <p className="text-xs text-muted-foreground">No notes yet</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-border">
+                  {projectNotes.slice(0, 5).map((note) => (
+                    <div
+                      key={note.id}
+                      className="py-2.5 hover:bg-secondary/30 transition-colors rounded-md px-2 cursor-pointer space-y-1"
+                      onClick={() => {
+                        if (isMobile) {
+                          navigate(`/notes/${note.id}/edit`)
+                        } else {
+                          setSearchParams({ noteId: note.id })
+                        }
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-xs font-medium text-foreground truncate">
+                          {note.title}
+                        </div>
+                        <span className="text-[11px] text-muted-foreground shrink-0">
+                          {format(note.createdAt, 'MMM dd')}
+                        </span>
+                      </div>
+                      {note.content && (
+                        <div className="text-xs text-muted-foreground line-clamp-1">
+                          {note.content.replace(/<[^>]*>/g, ' ').trim()}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
           </div>
         )}
 
         {activeTab === 'timesheet' && (
           <div className="space-y-4">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Time Entries</h3>
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="inline-flex bg-secondary/70 p-0.5 rounded-lg border border-border">
+                <Button
+                  variant={timesheetView === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-7 px-3 rounded-md text-xs"
+                  onClick={() => setTimesheetView('list')}
+                >
+                  <IconLayoutList className="h-3.5 w-3.5 mr-1.5" />
+                  List
+                </Button>
+                <Button
+                  variant={timesheetView === 'calendar' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-7 px-3 rounded-md text-xs"
+                  onClick={() => setTimesheetView('calendar')}
+                >
+                  <IconCalendarMonth className="h-3.5 w-3.5 mr-1.5" />
+                  Calendar
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportTimesheet}
+                  disabled={projectTimeEntries.length === 0}
+                >
+                  <IconDownload className="h-4 w-4 mr-1.5" />
+                  Export CSV
+                </Button>
                 {isMobile ? (
                   <Button
-                    className="w-full h-9 shadow-sm"
+                    size="sm"
                     onClick={() => navigate('/timesheet/new', { state: { projectId: project.id } })}
                   >
-                    <Plus className="h-4 w-4 mr-2" />
+                    <IconPlus className="h-4 w-4 mr-1.5" />
                     Add Time Entry
                   </Button>
                 ) : (
                   <Dialog open={isTimeEntryDialogOpen} onOpenChange={setIsTimeEntryDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button className="w-full sm:w-auto h-9">
-                        <Plus className="h-4 w-4 mr-2" />
+                      <Button size="sm">
+                        <IconPlus className="h-4 w-4 mr-1.5" />
                         Add Time Entry
                       </Button>
                     </DialogTrigger>
@@ -539,43 +474,6 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
                     </DialogContent>
                   </Dialog>
                 )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleExportTimesheet}
-                  disabled={projectTimeEntries.length === 0}
-                  className="w-full sm:w-auto h-9"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Export CSV
-                </Button>
-
-                <div className="flex bg-muted p-1 rounded-lg self-start border shadow-sm">
-                  <Button
-                    variant={timesheetView === 'list' ? 'default' : 'ghost'}
-                    size="sm"
-                    className={[
-                      'h-8 px-4 rounded-md text-xs font-bold transition-all duration-200 cursor-pointer',
-                      timesheetView === 'list' ? 'shadow-sm' : 'hover:bg-muted-foreground/10',
-                    ].join(' ')}
-                    onClick={() => setTimesheetView('list')}
-                  >
-                    <LayoutList className="h-3.5 w-3.5 mr-1.5" />
-                    List
-                  </Button>
-                  <Button
-                    variant={timesheetView === 'calendar' ? 'default' : 'ghost'}
-                    size="sm"
-                    className={[
-                      'h-8 px-4 rounded-md text-xs font-bold transition-all duration-200 cursor-pointer',
-                      timesheetView === 'calendar' ? 'shadow-sm' : 'hover:bg-muted-foreground/10',
-                    ].join(' ')}
-                    onClick={() => setTimesheetView('calendar')}
-                  >
-                    <CalendarIcon className="h-3.5 w-3.5 mr-1.5" />
-                    Calendar
-                  </Button>
-                </div>
               </div>
             </div>
 
@@ -608,33 +506,33 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
 
         {activeTab === 'notes' && (
           <div className="space-y-4">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Notes</h3>
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <Button
-                  onClick={() => navigate('/notes/new', { state: { projectId: project.id } })}
-                  className="w-full sm:w-auto"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Note
-                </Button>
-                <Button
-                  variant="outline"
-                  size="default"
-                  onClick={handleExportNotes}
-                  disabled={projectNotes.length === 0}
-                  className="w-full sm:w-auto"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Export CSV
-                </Button>
-              </div>
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportNotes}
+                disabled={projectNotes.length === 0}
+              >
+                <IconDownload className="h-4 w-4 mr-1.5" />
+                Export CSV
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setIsImportMdOpen(true)}>
+                <IconUpload className="h-4 w-4 mr-1.5" />
+                Import .md
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => navigate('/notes/new', { state: { projectId: project.id } })}
+              >
+                <IconPlus className="h-4 w-4 mr-1.5" />
+                New Note
+              </Button>
             </div>
-            <div className="grid gap-4">
+            <div className="grid gap-3">
               {projectNotes.map((note) => (
-                <div
+                <Card
                   key={note.id}
-                  className="bg-card rounded-lg border p-4 sm:p-6 cursor-pointer hover:shadow-md transition-all"
+                  className="p-4 cursor-pointer hover:border-primary/40 transition-colors text-left"
                   onClick={() => {
                     if (isMobile) {
                       navigate(`/notes/${note.id}/edit`)
@@ -643,87 +541,38 @@ export function ProjectDetail({ projectId }: ProjectDetailProps) {
                     }
                   }}
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <h4 className="font-semibold">{note.title}</h4>
+                  <div className="flex items-start justify-between mb-1.5">
+                    <h4 className="font-semibold text-sm">{note.title}</h4>
                     <div className="text-xs text-muted-foreground">
                       {format(note.createdAt, 'MMM dd, yyyy')}
                     </div>
                   </div>
-                  <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {note.content}
+                  <div className="text-xs text-muted-foreground line-clamp-2">
+                    {note.content.replace(/<[^>]*>/g, ' ').trim()}
                   </div>
                   {note.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-3">
+                    <div className="flex flex-wrap gap-1.5 mt-3">
                       {note.tags.map((tag, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
+                        <Badge key={index} variant="secondary" className="text-[11px]">
                           {tag}
                         </Badge>
                       ))}
                     </div>
                   )}
-                </div>
+                </Card>
               ))}
               {projectNotes.length === 0 && (
-                <div className="text-center py-12">
-                  <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No notes for this project yet</p>
-                </div>
+                <Card className="p-12 text-center">
+                  <IconNotes className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+                  <p className="text-sm text-muted-foreground">No notes for this project yet</p>
+                </Card>
               )}
             </div>
-          </div>
-        )}
-
-        {activeTab === 'vault' && (
-          <div className="space-y-4">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Vault Documents</h3>
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <Button
-                  onClick={handleCreateVaultDoc}
-                  className="w-full sm:w-auto"
-                  disabled={createVaultDoc.isPending}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Vault Document
-                </Button>
-              </div>
-            </div>
-            <div className="grid gap-4">
-              {projectVaultDocs.map((doc) => (
-                <div
-                  key={doc.id}
-                  className="bg-card rounded-lg border p-4 sm:p-6 cursor-pointer hover:shadow-md transition-all"
-                  onClick={() => navigate(`/vault/${doc.id}`)}
-                >
-                  <div className="flex items-start justify-between mb-2 gap-3">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Files className="h-4 w-4 text-primary shrink-0" />
-                      <h4 className="font-semibold truncate">{doc.title}</h4>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Badge variant="outline" className="text-[10px] uppercase">
-                        {doc.source}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">
-                        {format(doc.updatedAt, 'MMM dd, yyyy')}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground line-clamp-2">
-                    {doc.content
-                      .replace(/[#>*`_~\-[\]()!]/g, ' ')
-                      .replace(/\s+/g, ' ')
-                      .trim() || 'Empty document'}
-                  </div>
-                </div>
-              ))}
-              {projectVaultDocs.length === 0 && (
-                <div className="text-center py-12">
-                  <Files className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No vault documents for this project yet</p>
-                </div>
-              )}
-            </div>
+            <ImportMarkdownDialog
+              open={isImportMdOpen}
+              onOpenChange={setIsImportMdOpen}
+              defaultProjectId={project.id}
+            />
           </div>
         )}
       </div>

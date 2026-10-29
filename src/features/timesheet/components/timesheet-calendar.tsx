@@ -12,8 +12,10 @@ import {
   endOfWeek,
   isToday,
 } from 'date-fns'
-import { ChevronLeft, ChevronRight, Clock } from 'lucide-react'
+import { IconChevronLeft, IconChevronRight, IconClock } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import type { TimeEntry } from '@/lib/types'
 import { CompactTimesheetTable } from './compact-timesheet-table'
@@ -77,32 +79,31 @@ export function TimesheetCalendar({ timeEntries, onSelectEntry }: TimesheetCalen
       projectId,
       duration,
       projectName: projects.find((p) => p.id === projectId)?.name || 'Unknown',
-      color: projects.find((p) => p.id === projectId)?.color || '#6b7280',
+      color: projects.find((p) => p.id === projectId)?.color || '#64748b',
     }))
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="bg-card border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-        {/* Google Style Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center gap-4">
-            <h3 className="text-xl font-medium text-foreground min-w-[150px]">
+    <div className="space-y-6 animate-fade-in">
+      <div className="bg-card border border-border rounded-xl shadow-xs overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <div className="flex items-center gap-3">
+            <h3 className="text-base font-semibold text-foreground min-w-[140px] text-left">
               {format(currentMonth, 'MMMM yyyy')}
             </h3>
-            <div className="flex items-center bg-muted/50 rounded-lg p-1">
+            <div className="flex items-center bg-secondary/50 rounded-md p-0.5 border border-border">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-md"
+                className="h-7 w-7 rounded-sm"
                 onClick={prevMonth}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <IconChevronLeft className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 px-3 rounded-md text-xs font-medium"
+                className="h-7 px-2.5 rounded-sm text-xs font-medium"
                 onClick={() => setCurrentMonth(new Date())}
               >
                 Today
@@ -110,35 +111,31 @@ export function TimesheetCalendar({ timeEntries, onSelectEntry }: TimesheetCalen
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-md"
+                className="h-7 w-7 rounded-sm"
                 onClick={nextMonth}
               >
-                <ChevronRight className="h-4 w-4" />
+                <IconChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-medium">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-primary" />
-              <span>Today</span>
-            </div>
+          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="w-2 h-2 rounded-full bg-primary" />
+            <span>Today</span>
           </div>
         </div>
 
-        {/* Day Headers */}
-        <div className="grid grid-cols-7 bg-muted/5 border-b">
+        <div className="grid grid-cols-7 bg-secondary/30 border-b border-border">
           {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((day) => (
             <div
               key={day}
-              className="py-2 text-center text-[10px] font-bold text-muted-foreground tracking-widest border-r last:border-r-0"
+              className="py-2 text-center text-[10px] font-semibold text-muted-foreground tracking-wider border-r border-border last:border-r-0"
             >
               {day}
             </div>
           ))}
         </div>
 
-        {/* Calendar Grid */}
         <div className="grid grid-cols-7 flex-1">
           {calendarDays.map((day) => {
             const isSelected = selectedDate && isSameDay(day, selectedDate)
@@ -153,45 +150,44 @@ export function TimesheetCalendar({ timeEntries, onSelectEntry }: TimesheetCalen
               <div
                 key={day.toString()}
                 className={[
-                  'min-h-[100px] sm:min-h-[140px] border-r border-b relative cursor-pointer transition-colors hover:bg-muted/10 last:border-r-0',
-                  !isCurrentMonth ? 'bg-muted/5 opacity-40' : 'bg-card',
-                  isSelected ? 'bg-primary/[0.03]' : '',
+                  'min-h-[96px] sm:min-h-[120px] border-r border-b border-border relative cursor-pointer transition-colors hover:bg-secondary/30 last:border-r-0',
+                  !isCurrentMonth ? 'bg-muted/20 opacity-45' : 'bg-card',
+                  isSelected ? 'bg-primary/[0.04] ring-1 ring-inset ring-primary/30' : '',
                 ].join(' ')}
                 onClick={() => setSelectedDate(day)}
               >
-                <div className="p-2 flex flex-col h-full">
-                  <div className="flex justify-center mb-2">
+                <div className="p-1.5 flex flex-col h-full">
+                  <div className="flex justify-start mb-1.5">
                     <span
                       className={[
-                        'flex items-center justify-center w-7 h-7 text-xs font-medium rounded-full',
+                        'flex items-center justify-center w-6 h-6 text-xs font-medium rounded-md',
                         isToday(day)
-                          ? 'bg-primary text-primary-foreground font-bold shadow-md'
+                          ? 'bg-primary text-primary-foreground font-semibold'
                           : isSelected
-                            ? 'bg-secondary text-foreground font-bold'
-                            : 'text-muted-foreground hover:bg-muted/50',
+                            ? 'bg-secondary text-secondary-foreground font-semibold'
+                            : 'text-muted-foreground',
                       ].join(' ')}
                     >
                       {format(day, 'd')}
                     </span>
                   </div>
 
-                  {/* Project Pills (Google Style) */}
                   <div className="space-y-1 overflow-hidden">
                     {displaySummaries.map((summary) => (
                       <div
                         key={summary.projectId}
-                        className="group flex items-center justify-between px-1.5 py-0.5 rounded text-[10px] font-bold text-white truncate shadow-sm transition-transform hover:scale-[1.02]"
+                        className="flex items-center justify-between px-1.5 py-0.5 rounded text-[10px] font-medium text-white truncate"
                         style={{ backgroundColor: summary.color }}
                         title={`${summary.projectName}: ${formatDuration(summary.duration)}`}
                       >
                         <span className="truncate">{summary.projectName}</span>
-                        <span className="ml-1 opacity-80 shrink-0">
+                        <span className="ml-1 opacity-85 shrink-0">
                           {formatDuration(summary.duration)}
                         </span>
                       </div>
                     ))}
                     {remainingCount > 0 && (
-                      <div className="text-[10px] font-bold text-muted-foreground px-1.5 py-0.5">
+                      <div className="text-[10px] font-medium text-muted-foreground px-1">
                         + {remainingCount} more
                       </div>
                     )}
@@ -203,30 +199,28 @@ export function TimesheetCalendar({ timeEntries, onSelectEntry }: TimesheetCalen
         </div>
       </div>
 
-      {/* Selected Day Details (Below Calendar) */}
+      {/* Selected Day Details */}
       {selectedDate && (
-        <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-center justify-between border-b pb-3">
-            <div className="flex items-center gap-3 text-left">
-              <div className="p-2 rounded-xl bg-primary/10">
-                <Clock className="h-5 w-5 text-primary" />
+        <div className="space-y-4 animate-fade-in">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <div className="flex items-center gap-2.5 text-left">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <IconClock className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <h4 className="font-bold text-lg">{format(selectedDate, 'EEEE, MMMM d')}</h4>
-                <p className="text-xs text-muted-foreground font-medium">Daily Timeline</p>
+                <h4 className="font-semibold text-sm text-foreground">
+                  {format(selectedDate, 'EEEE, MMMM d')}
+                </h4>
+                <p className="text-xs text-muted-foreground">Daily Timeline</p>
               </div>
             </div>
             {selectedDayEntries.length > 0 && (
-              <div className="flex flex-col items-end">
-                <span className="text-sm font-bold text-primary">
-                  {formatDuration(
-                    selectedDayEntries.reduce((acc, e) => acc + (Number(e.duration) || 0), 0)
-                  )}
-                </span>
-                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-                  Total Tracked
-                </span>
-              </div>
+              <Badge variant="tertiary" className="text-xs font-mono tabular-nums">
+                Total:{' '}
+                {formatDuration(
+                  selectedDayEntries.reduce((acc, e) => acc + (Number(e.duration) || 0), 0)
+                )}
+              </Badge>
             )}
           </div>
 
@@ -237,14 +231,10 @@ export function TimesheetCalendar({ timeEntries, onSelectEntry }: TimesheetCalen
               onDelete={() => {}}
             />
           ) : (
-            <div className="text-center py-16 bg-muted/10 rounded-2xl border-2 border-dashed border-muted/50">
-              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/30 flex items-center justify-center">
-                <Clock className="h-6 w-6 text-muted-foreground/50" />
-              </div>
-              <p className="text-sm text-muted-foreground font-medium italic">
-                Nothing tracked on this day
-              </p>
-            </div>
+            <Card className="text-center py-12 border-dashed">
+              <IconClock className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+              <p className="text-xs text-muted-foreground">Nothing tracked on this day</p>
+            </Card>
           )}
         </div>
       )}

@@ -6,7 +6,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronsLeft,
+  IconChevronsRight,
+} from '@tabler/icons-react'
 
 interface PaginationProps {
   page: number
@@ -35,22 +40,23 @@ export function Pagination({
   const endIndex = Math.min(page * pageSize, total)
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-3 border-t border-border">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span>
-          Showing {startIndex} to {endIndex} of {total} entries
+          Showing <strong className="font-medium text-foreground">{startIndex}</strong>–
+          <strong className="font-medium text-foreground">{endIndex}</strong> of{' '}
+          <strong className="font-medium text-foreground">{total}</strong> entries
         </span>
       </div>
 
-      <div className="flex items-center gap-2">
-        {/* Page Size Selector */}
+      <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <span className="hidden sm:inline text-sm text-muted-foreground">Show</span>
+          <span className="hidden sm:inline text-xs text-muted-foreground">Rows</span>
           <Select
             value={pageSize.toString()}
             onValueChange={(value) => onPageSizeChange(Number(value))}
           >
-            <SelectTrigger className="w-16 sm:w-20">
+            <SelectTrigger className="h-8 w-16 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -61,10 +67,8 @@ export function Pagination({
               ))}
             </SelectContent>
           </Select>
-          <span className="hidden sm:inline text-sm text-muted-foreground">per page</span>
         </div>
 
-        {/* Navigation */}
         <div className="flex items-center gap-1">
           <Button
             variant="outline"
@@ -73,7 +77,7 @@ export function Pagination({
             disabled={!hasPrevious}
             className="h-8 w-8 p-0"
           >
-            <ChevronsLeft className="h-4 w-4" />
+            <IconChevronsLeft className="h-4 w-4" />
           </Button>
 
           <Button
@@ -83,12 +87,12 @@ export function Pagination({
             disabled={!hasPrevious}
             className="h-8 w-8 p-0"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <IconChevronLeft className="h-4 w-4" />
           </Button>
 
-          <div className="flex items-center gap-1 px-2">
-            <span className="text-sm">
-              Page {page} of {totalPages || 1}
+          <div className="flex items-center gap-1 px-2.5">
+            <span className="text-xs font-medium text-muted-foreground tabular-nums">
+              {page} / {totalPages || 1}
             </span>
           </div>
 
@@ -99,7 +103,7 @@ export function Pagination({
             disabled={!hasNext}
             className="h-8 w-8 p-0"
           >
-            <ChevronRight className="h-4 w-4" />
+            <IconChevronRight className="h-4 w-4" />
           </Button>
 
           <Button
@@ -109,7 +113,7 @@ export function Pagination({
             disabled={!hasNext}
             className="h-8 w-8 p-0"
           >
-            <ChevronsRight className="h-4 w-4" />
+            <IconChevronsRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

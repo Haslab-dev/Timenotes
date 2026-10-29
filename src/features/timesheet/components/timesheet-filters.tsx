@@ -12,7 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Search, Filter, X, Calendar as CalendarIcon, Tags } from 'lucide-react'
+import { IconSearch, IconFilter, IconX, IconCalendar, IconTags } from '@tabler/icons-react'
 import { format } from 'date-fns'
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import type { TimesheetFilters } from '@/lib/hooks/use-filters'
@@ -56,7 +56,7 @@ export function TimesheetFiltersComponent({
       {/* Search and Toggle */}
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <IconSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search time entries..."
             value={filters.search}
@@ -70,7 +70,7 @@ export function TimesheetFiltersComponent({
           onClick={() => setShowFilters(!showFilters)}
           className="flex items-center gap-2"
         >
-          <Filter className="h-4 w-4" />
+          <IconFilter className="h-4 w-4" />
           Filters
           {hasActiveFilters && (
             <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
@@ -87,7 +87,7 @@ export function TimesheetFiltersComponent({
 
         {hasActiveFilters && (
           <Button variant="ghost" size="sm" onClick={onClearFilters}>
-            <X className="h-4 w-4 mr-1" />
+            <IconX className="h-4 w-4 mr-1" />
             Clear
           </Button>
         )}
@@ -108,7 +108,7 @@ export function TimesheetFiltersComponent({
                       variant="outline"
                       className="w-full justify-start text-left font-normal h-9"
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
+                      <IconCalendar className="mr-2 h-4 w-4 opacity-50" />
                       <span className="text-sm">
                         {filters.dateRange.start
                           ? format(filters.dateRange.start, 'MMM dd, yyyy')
@@ -135,7 +135,7 @@ export function TimesheetFiltersComponent({
                       variant="outline"
                       className="w-full justify-start text-left font-normal h-9"
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
+                      <IconCalendar className="mr-2 h-4 w-4 opacity-50" />
                       <span className="text-sm">
                         {filters.dateRange.end
                           ? format(filters.dateRange.end, 'MMM dd, yyyy')
@@ -190,7 +190,7 @@ export function TimesheetFiltersComponent({
             {/* Tags Filter */}
             <div className="space-y-2">
               <Label className="text-sm font-medium flex items-center gap-2">
-                <Tags className="h-4 w-4" />
+                <IconTags className="h-4 w-4" />
                 Tags
               </Label>
               <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[36px] bg-background">
@@ -220,7 +220,7 @@ export function TimesheetFiltersComponent({
           {filters.dateRange.start && (
             <Badge variant="secondary" className="gap-1">
               From: {format(filters.dateRange.start, 'MMM dd')}
-              <X
+              <IconX
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => handleDateRangeChange('start', undefined)}
               />
@@ -229,7 +229,7 @@ export function TimesheetFiltersComponent({
           {filters.dateRange.end && (
             <Badge variant="secondary" className="gap-1">
               To: {format(filters.dateRange.end, 'MMM dd')}
-              <X
+              <IconX
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => handleDateRangeChange('end', undefined)}
               />
@@ -238,7 +238,7 @@ export function TimesheetFiltersComponent({
           {filters.projectId && (
             <Badge variant="secondary" className="gap-1">
               Project: {projects?.find((p) => p.id === filters.projectId)?.name}
-              <X
+              <IconX
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => onFiltersChange({ projectId: undefined })}
               />
@@ -247,7 +247,7 @@ export function TimesheetFiltersComponent({
           {filters.tags.map((tag) => (
             <Badge key={tag} variant="secondary" className="gap-1">
               Tag: {tag}
-              <X className="h-3 w-3 cursor-pointer" onClick={() => handleTagToggle(tag)} />
+              <IconX className="h-3 w-3 cursor-pointer" onClick={() => handleTagToggle(tag)} />
             </Badge>
           ))}
         </div>

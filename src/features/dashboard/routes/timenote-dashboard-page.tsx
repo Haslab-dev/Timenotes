@@ -1,18 +1,25 @@
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { PageHeader } from '@/components/ui/page-header'
 import { useNotes } from '@/features/notes/hooks/use-notes'
 import { useTimeEntries } from '@/features/timesheet/hooks/use-timesheet'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 import {
-  Calendar as CalendarIcon,
-  FileText,
-  LayoutList,
-  Play,
-  Plus,
-  RotateCcw,
-  Volume2,
-  VolumeX,
-  X,
-} from 'lucide-react'
+  IconCalendarMonth,
+  IconNotes,
+  IconLayoutList,
+  IconPlayerPlay,
+  IconPlayerPause,
+  IconPlus,
+  IconRotateClockwise,
+  IconVolume,
+  IconVolumeOff,
+  IconX,
+  IconAdjustmentsHorizontal,
+} from '@tabler/icons-react'
 import { useState, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { DashboardCalendar } from '../components/dashboard-calendar'
@@ -48,12 +55,12 @@ export function TimeNoteDashboardPage() {
     stopTimer,
     switchMode,
     resetTimer,
+    startTimer,
   } = useActiveTimer()
   const { elapsedSeconds, remainingSeconds } = useTimerTicker()
   const { data: projects = [] } = useProjects()
   const [view, setView] = useState<'overview' | 'calendar'>('overview')
   const [isStartingFocus, setIsStartingFocus] = useState(false)
-  const { startTimer } = useActiveTimer()
   const { data: booksData = [] } = useBooks()
   const deleteBook = useDeleteBook()
 
@@ -112,11 +119,8 @@ export function TimeNoteDashboardPage() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-left">Dashboard</h1>
-          <p className="text-muted-foreground text-left">Welcome to TimeNotes</p>
-        </div>
-        <div className="text-center py-8 text-muted-foreground">Loading dashboard...</div>
+        <PageHeader title="Dashboard" description="Welcome back to your workspace" />
+        <div className="text-center py-12 text-sm text-muted-foreground">Loading dashboard...</div>
       </div>
     )
   }
@@ -124,11 +128,10 @@ export function TimeNoteDashboardPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-left">Dashboard</h1>
-          <p className="text-muted-foreground text-left">Welcome to TimeNotes</p>
+        <PageHeader title="Dashboard" description="Welcome back to your workspace" />
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive text-left">
+          Error loading dashboard data.
         </div>
-        <div className="text-center py-8 text-destructive text-left">Error loading dashboard</div>
       </div>
     )
   }
@@ -137,53 +140,53 @@ export function TimeNoteDashboardPage() {
     return null
   }
 
-  // Focus Starter Mode
+  // Focus Configuration View
   if (isStartingFocus) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-140px)] animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <div className="max-w-xl w-full p-8 sm:p-12 rounded-[40px] bg-card border shadow-2xl shadow-primary/5 relative overflow-hidden">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)] animate-fade-in">
+        <Card className="max-w-lg w-full p-6 sm:p-8 relative">
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-6 right-6 rounded-full h-10 w-10"
+            className="absolute top-4 right-4 h-8 w-8"
             onClick={() => setIsStartingFocus(false)}
           >
-            <X className="h-5 w-5" />
+            <IconX className="h-4 w-4" />
           </Button>
 
-          <div className="text-center space-y-8">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-black tracking-[0.2em] uppercase">
-                {activeTimer ? 'Configure Session' : 'Prepare Focus Session'}
-              </div>
-              <h2 className="text-4xl font-black tracking-tight">
-                {activeTimer ? 'Update durations?' : 'Ready to focus?'}
+          <div className="space-y-6 text-left">
+            <div className="space-y-1.5">
+              <Badge variant="tertiary">{activeTimer ? 'Session Settings' : 'Focus Session'}</Badge>
+              <h2 className="text-xl font-semibold tracking-tight text-foreground">
+                {activeTimer ? 'Update timer durations' : 'Configure focus session'}
               </h2>
+              <p className="text-xs text-muted-foreground">
+                Set your target project, task objective, and Pomodoro intervals.
+              </p>
             </div>
 
-            <div className="space-y-6 text-left">
+            <div className="space-y-5">
               {!activeTimer && (
                 <>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">
-                      Select Project
-                    </label>
+                    <label className="text-xs font-medium text-foreground">Project</label>
                     <div className="grid grid-cols-2 gap-2">
                       {projects.map((project) => (
                         <button
                           key={project.id}
+                          type="button"
                           onClick={() =>
                             setFocusDetails((prev) => ({ ...prev, projectId: project.id }))
                           }
                           className={[
-                            'flex items-center gap-2 p-3 rounded-2xl border transition-all text-sm font-bold',
+                            'flex items-center gap-2 px-3 py-2 rounded-md border transition-colors text-xs font-medium cursor-pointer',
                             focusDetails.projectId === project.id
-                              ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                              : 'border-muted-foreground/10 bg-muted/10 hover:bg-muted/20 text-muted-foreground',
+                              ? 'border-primary bg-primary/10 text-primary'
+                              : 'border-border bg-background hover:bg-secondary/60 text-foreground',
                           ].join(' ')}
                         >
-                          <div
-                            className="w-2.5 h-2.5 rounded-full"
+                          <span
+                            className="w-2 h-2 rounded-full shrink-0"
                             style={{ backgroundColor: project.color }}
                           />
                           <span className="truncate">{project.name}</span>
@@ -193,12 +196,10 @@ export function TimeNoteDashboardPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">
-                      What are you working on?
-                    </label>
-                    <textarea
-                      placeholder="E.g. Designing mobile interface, Writing documentation..."
-                      className="w-full h-24 p-4 rounded-2xl bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background transition-all outline-none text-sm font-medium resize-none"
+                    <label className="text-xs font-medium text-foreground">Session Objective</label>
+                    <Textarea
+                      placeholder="What are you focusing on?"
+                      className="min-h-[76px] text-sm resize-none"
                       value={focusDetails.description}
                       onChange={(e) =>
                         setFocusDetails((prev) => ({ ...prev, description: e.target.value }))
@@ -208,16 +209,12 @@ export function TimeNoteDashboardPage() {
                 </>
               )}
 
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-end px-1">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                      Pomodoro
-                    </label>
-                  </div>
-                  <input
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Focus (min)</label>
+                  <Input
                     type="number"
-                    className="w-full h-10 px-3 rounded-xl bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background transition-all outline-none text-sm font-black"
+                    className="h-9 text-sm tabular-nums"
                     value={focusDetails.workDurationMinutes}
                     onChange={(e) =>
                       setFocusDetails((prev) => ({
@@ -227,15 +224,11 @@ export function TimeNoteDashboardPage() {
                     }
                   />
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-end px-1">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                      Short Break
-                    </label>
-                  </div>
-                  <input
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Short Break</label>
+                  <Input
                     type="number"
-                    className="w-full h-10 px-3 rounded-xl bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background transition-all outline-none text-sm font-black"
+                    className="h-9 text-sm tabular-nums"
                     value={focusDetails.shortBreakDurationMinutes}
                     onChange={(e) =>
                       setFocusDetails((prev) => ({
@@ -245,15 +238,11 @@ export function TimeNoteDashboardPage() {
                     }
                   />
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-end px-1">
-                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                      Long Break
-                    </label>
-                  </div>
-                  <input
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Long Break</label>
+                  <Input
                     type="number"
-                    className="w-full h-10 px-3 rounded-xl bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background transition-all outline-none text-sm font-black"
+                    className="h-9 text-sm tabular-nums"
                     value={focusDetails.longBreakDurationMinutes}
                     onChange={(e) =>
                       setFocusDetails((prev) => ({
@@ -265,15 +254,13 @@ export function TimeNoteDashboardPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">
-                  Alert Volume
-                </label>
-                <div className="flex items-center gap-4 px-4 h-12 rounded-2xl bg-muted/20 border border-muted-foreground/10">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Alert Volume</label>
+                <div className="flex items-center gap-3 px-3 h-10 rounded-md bg-secondary/50 border border-border">
                   {timerSettings.volume === 0 ? (
-                    <VolumeX className="h-4 w-4 text-muted-foreground" />
+                    <IconVolumeOff className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <Volume2 className="h-4 w-4 text-muted-foreground" />
+                    <IconVolume className="h-4 w-4 text-muted-foreground" />
                   )}
                   <input
                     type="range"
@@ -284,41 +271,46 @@ export function TimeNoteDashboardPage() {
                     onChange={(e) => updateSettings({ volume: parseFloat(e.target.value) })}
                     className="flex-1 accent-primary"
                   />
-                  <span className="text-[10px] font-black w-8">
+                  <span className="text-xs font-mono text-muted-foreground w-9 text-right">
                     {Math.round(timerSettings.volume * 100)}%
                   </span>
                 </div>
               </div>
 
-              <Button
-                className="w-full h-14 rounded-2xl text-lg font-black shadow-xl shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all"
-                onClick={() => {
-                  if (activeTimer) {
-                    updateSettings({
-                      workDurationMinutes: focusDetails.workDurationMinutes,
-                      shortBreakDurationMinutes: focusDetails.shortBreakDurationMinutes,
-                      longBreakDurationMinutes: focusDetails.longBreakDurationMinutes,
-                    })
-                  } else {
-                    startTimer(focusDetails.projectId || undefined, focusDetails.description, {
-                      workDurationMinutes: focusDetails.workDurationMinutes,
-                      shortBreakDurationMinutes: focusDetails.shortBreakDurationMinutes,
-                      longBreakDurationMinutes: focusDetails.longBreakDurationMinutes,
-                    })
-                  }
-                  setIsStartingFocus(false)
-                }}
-              >
-                {activeTimer ? 'Save Settings' : 'Start Session'}
-              </Button>
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button variant="ghost" onClick={() => setIsStartingFocus(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (activeTimer) {
+                      updateSettings({
+                        workDurationMinutes: focusDetails.workDurationMinutes,
+                        shortBreakDurationMinutes: focusDetails.shortBreakDurationMinutes,
+                        longBreakDurationMinutes: focusDetails.longBreakDurationMinutes,
+                      })
+                    } else {
+                      startTimer(focusDetails.projectId || undefined, focusDetails.description, {
+                        workDurationMinutes: focusDetails.workDurationMinutes,
+                        shortBreakDurationMinutes: focusDetails.shortBreakDurationMinutes,
+                        longBreakDurationMinutes: focusDetails.longBreakDurationMinutes,
+                      })
+                    }
+                    setIsStartingFocus(false)
+                  }}
+                >
+                  <IconPlayerPlay className="h-4 w-4 mr-1.5" />
+                  {activeTimer ? 'Save Settings' : 'Start Session'}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     )
   }
 
-  // Focus Mode
+  // Active Focus Mode
   if (activeTimer) {
     const activeProject = projects.find((p) => p.id === activeTimer.projectId)
     const formatTime = (totalSeconds: number) => {
@@ -335,13 +327,6 @@ export function TimeNoteDashboardPage() {
 
     const countdownTime =
       remainingSeconds !== null ? formatTime(remainingSeconds) : formatTime(elapsedSeconds)
-    // const sessionTime = formatTime(totalWorkSeconds)
-
-    // const modeColors = {
-    //   work: 'primary',
-    //   shortBreak: 'teal-500',
-    //   longBreak: 'blue-500',
-    // }
 
     const modeLabels = {
       work: 'Pomodoro',
@@ -350,104 +335,110 @@ export function TimeNoteDashboardPage() {
     }
 
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-140px)] animate-in fade-in zoom-in-95 duration-500">
-        <div className="text-center space-y-8 max-w-xl w-full p-8 sm:p-12 rounded-[40px] bg-card border shadow-2xl shadow-primary/5 relative overflow-hidden transition-all duration-500">
-          {/* Dynamic background glow based on mode */}
-          <div
-            className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-20 transition-colors duration-700 ${activeTimer.mode === 'work' ? 'bg-primary' : activeTimer.mode === 'shortBreak' ? 'bg-teal-500' : 'bg-blue-500'}`}
-          />
-          <div
-            className={`absolute -bottom-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-10 transition-colors duration-700 ${activeTimer.mode === 'work' ? 'bg-primary' : activeTimer.mode === 'shortBreak' ? 'bg-teal-500' : 'bg-blue-500'}`}
-          />
-
-          <div className="space-y-6 relative z-10">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-160px)] animate-fade-in">
+        <Card className="text-center space-y-8 max-w-lg w-full p-6 sm:p-10">
+          <div className="space-y-6">
             {/* Mode Tabs */}
-            <div className="flex items-center justify-center p-1.5 rounded-2xl bg-muted/30 border border-muted-foreground/5 w-fit mx-auto">
+            <div className="inline-flex items-center p-1 rounded-lg bg-secondary border border-border">
               {(['work', 'shortBreak', 'longBreak'] as const).map((m) => (
                 <button
                   key={m}
+                  type="button"
                   onClick={() => switchMode(m)}
-                  className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTimer.mode === m ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:bg-muted'}`}
+                  className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                    activeTimer.mode === m
+                      ? m === 'work'
+                        ? 'bg-primary text-primary-foreground shadow-2xs'
+                        : 'bg-tertiary text-tertiary-foreground shadow-2xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
                 >
                   {modeLabels[m]}
                 </button>
               ))}
             </div>
 
-            <div className="space-y-2">
+            <div className="py-2">
               <div
-                className={`text-[100px] sm:text-[120px] font-mono font-bold tracking-tighter tabular-nums leading-none select-none transition-all duration-500 ${activeTimer.isPaused ? 'opacity-30 scale-95' : 'opacity-100 scale-100 text-foreground'}`}
+                className={`text-7xl sm:text-8xl font-mono font-semibold tracking-tight tabular-nums leading-none select-none transition-opacity ${
+                  activeTimer.isPaused ? 'opacity-40' : 'opacity-100 text-foreground'
+                }`}
               >
                 {countdownTime.minutes}:{countdownTime.seconds}
               </div>
             </div>
 
-            <div className="flex flex-col items-center gap-6">
+            <div className="flex items-center justify-center gap-3">
               <Button
                 size="lg"
-                className="w-48 h-16 bg-primary text-primary-foreground hover:bg-primary/90 text-2xl font-black rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 active:shadow-none border-b-4 border-primary-foreground/20"
+                variant={activeTimer.isPaused ? 'default' : 'secondary'}
+                className="w-40 h-11 font-medium"
                 onClick={() => (activeTimer.isPaused ? resumeTimer() : pauseTimer())}
               >
-                {activeTimer.isPaused ? 'START' : 'PAUSE'}
+                {activeTimer.isPaused ? (
+                  <>
+                    <IconPlayerPlay className="h-4 w-4 mr-1.5" />
+                    Resume
+                  </>
+                ) : (
+                  <>
+                    <IconPlayerPause className="h-4 w-4 mr-1.5" />
+                    Pause
+                  </>
+                )}
               </Button>
 
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={`rounded-full h-10 w-10 ${activeTimer.isPaused ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                  onClick={() => setIsStartingFocus(true)}
-                  title="Configure durations"
-                >
-                  <Plus className="h-6 w-6" />
-                </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-11 w-11"
+                onClick={() => setIsStartingFocus(true)}
+                title="Configure durations"
+              >
+                <IconAdjustmentsHorizontal className="h-4 w-4" />
+              </Button>
 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={`rounded-full h-10 w-10 ${activeTimer.isPaused ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                  onClick={() => {
-                    if (confirm('Reset timer for this mode?')) {
-                      resetTimer()
-                    }
-                  }}
-                  title="Reset timer"
-                >
-                  <RotateCcw className="h-5 w-5" />
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-11 w-11"
+                onClick={() => {
+                  if (confirm('Reset timer for this mode?')) {
+                    resetTimer()
+                  }
+                }}
+                title="Reset timer"
+              >
+                <IconRotateClockwise className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
-          <div className="pt-8 border-t border-muted/50 space-y-6 relative z-10">
+          <div className="pt-6 border-t border-border space-y-4">
             <div className="flex flex-col items-center gap-2">
-              <h2 className="text-xl font-black tracking-tight text-foreground">
-                {activeTimer.mode === 'work' ? 'Time to focus!' : 'Break Time'}
-              </h2>
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                {activeTimer.mode === 'work' ? 'Current Focus' : 'Recovery Interval'}
+              </span>
               {activeProject ? (
-                <div className="flex items-center gap-3 px-4 py-1.5 rounded-xl bg-muted/50 border border-muted-foreground/10">
-                  <div
-                    className="w-2.5 h-2.5 rounded-full shadow-sm"
+                <Badge variant="secondary" className="gap-2 px-3 py-1 text-xs">
+                  <span
+                    className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: activeProject.color }}
                   />
-                  <span className="text-sm font-bold tracking-tight">{activeProject.name}</span>
-                </div>
+                  {activeProject.name}
+                </Badge>
               ) : (
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest opacity-50">
-                  General Session
-                </p>
+                <Badge variant="outline">General Session</Badge>
               )}
               {activeTimer.description && (
-                <p className="text-sm font-medium text-muted-foreground italic">
-                  "{activeTimer.description}"
-                </p>
+                <p className="text-sm text-muted-foreground max-w-sm">{activeTimer.description}</p>
               )}
             </div>
 
             <Button
               variant="ghost"
               size="sm"
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 font-bold text-[10px] uppercase tracking-widest"
+              className="text-xs text-muted-foreground hover:text-destructive"
               onClick={() => {
                 if (confirm('Finish this session?')) {
                   const timer = stopTimer()
@@ -464,115 +455,99 @@ export function TimeNoteDashboardPage() {
                 }
               }}
             >
-              Finish Session
+              End Session
             </Button>
           </div>
-        </div>
+        </Card>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8 pb-24 sm:pb-12 animate-in fade-in duration-700">
-      {/* Refined Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 px-1">
-        <div className="space-y-1 text-left">
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground">
-            {activeTimer ? 'Focusing...' : 'Overview'}
-          </h1>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-60">
-            {activeTimer ? 'Session in progress' : 'Welcome back to your workspace'}
-          </p>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Overview"
+        description="Track your hours, active projects, and recent notes."
+        actions={
+          <div className="flex items-center gap-2">
+            <div className="inline-flex bg-secondary/70 p-0.5 rounded-lg border border-border">
+              <Button
+                variant={view === 'overview' ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 px-3 rounded-md text-xs"
+                onClick={() => setView('overview')}
+              >
+                <IconLayoutList className="h-3.5 w-3.5 sm:mr-1.5" />
+                <span className="hidden sm:inline">Overview</span>
+              </Button>
+              <Button
+                variant={view === 'calendar' ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 px-3 rounded-md text-xs"
+                onClick={() => setView('calendar')}
+              >
+                <IconCalendarMonth className="h-3.5 w-3.5 sm:mr-1.5" />
+                <span className="hidden sm:inline">Calendar</span>
+              </Button>
+            </div>
 
-      <div className="flex items-center justify-between gap-4 px-1">
-        <div className="flex bg-muted/50 p-1 rounded-xl border shadow-inner overflow-hidden">
-          <Button
-            variant={view === 'overview' ? 'default' : 'ghost'}
-            size="sm"
-            className={[
-              'h-8 px-3 sm:px-4 rounded-lg text-[10px] font-bold transition-all duration-200 cursor-pointer',
-              view === 'overview' ? 'shadow-md' : 'text-muted-foreground hover:bg-muted',
-            ].join(' ')}
-            onClick={() => setView('overview')}
-          >
-            <LayoutList className="h-3.5 w-3.5 sm:mr-1.5" />
-            <span className="hidden sm:inline">Overview</span>
-          </Button>
-          <Button
-            variant={view === 'calendar' ? 'default' : 'ghost'}
-            size="sm"
-            className={[
-              'h-8 px-3 sm:px-4 rounded-lg text-[10px] font-bold transition-all duration-200 cursor-pointer',
-              view === 'calendar' ? 'shadow-md' : 'text-muted-foreground hover:bg-muted',
-            ].join(' ')}
-            onClick={() => setView('calendar')}
-          >
-            <CalendarIcon className="h-3.5 w-3.5 sm:mr-1.5" />
-            <span className="hidden sm:inline">Calendar</span>
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-1 sm:gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 rounded-full border-primary/20 hover:border-primary/50 hover:bg-primary/5 text-xs font-bold transition-all active:scale-95 group"
-            onClick={() => setIsStartingFocus(true)}
-          >
-            <Play className="h-3 w-3 mr-2 text-primary fill-none group-hover:fill-primary/10 transition-all" />
-            Start timer
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
-            onClick={() => navigate('/notes/new')}
-            title="New Note"
-          >
-            <FileText className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-all active:scale-90"
-            onClick={() => navigate('/timesheet/new')}
-            title="New Time Entry"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+            <Button variant="tertiary" size="sm" onClick={() => setIsStartingFocus(true)}>
+              <IconPlayerPlay className="h-3.5 w-3.5 mr-1.5" />
+              Focus
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => navigate('/notes/new')}
+              title="New Note"
+            >
+              <IconNotes className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => navigate('/timesheet/new')}
+              title="New Time Entry"
+            >
+              <IconPlus className="h-4 w-4" />
+            </Button>
+          </div>
+        }
+      />
 
       {view === 'overview' ? (
-        <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500">
-          {/* Stats Cards */}
+        <div className="space-y-6 animate-fade-in">
           <StatsCards stats={stats} />
 
-          {/* Charts */}
-          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
             <ProjectHoursChart stats={stats} />
             <TagHoursChart stats={stats} />
           </div>
 
-          {/* Books Section */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-black tracking-tight">Your Books</h2>
+              <div>
+                <h2 className="text-base font-semibold tracking-tight text-foreground text-left">
+                  Books & Collections
+                </h2>
+                <p className="text-xs text-muted-foreground text-left">
+                  Long-form documentation and notebooks
+                </p>
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/books')}
-                className="text-primary font-bold"
+                className="text-xs"
               >
                 View All
               </Button>
             </div>
-            <BookDashboard books={booksData.slice(0, 5)} onDelete={(id) => deleteBook.mutate(id)} />
+            <BookDashboard books={booksData.slice(0, 6)} onDelete={(id) => deleteBook.mutate(id)} />
           </div>
 
-          {/* Recent Activity */}
           <RecentActivity
             stats={stats}
             onViewNote={(note) => {
@@ -625,7 +600,6 @@ export function TimeNoteDashboardPage() {
         isSaving={createTask.isPending || updateTask.isPending}
       />
 
-      {/* Detail Side Panels (Desktop only, mobile uses full-page navigation) */}
       {!isMobile && (
         <>
           <TimesheetSidePanel />

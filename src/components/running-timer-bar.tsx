@@ -10,7 +10,7 @@ import {
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import { useActiveTimer, useTimerTicker } from '@/features/timesheet/hooks/use-active-timer'
 import { useCreateTimeEntry } from '@/features/timesheet/hooks/use-timesheet'
-import { Plus, Square, X } from 'lucide-react'
+import { IconPlus, IconPlayerStopFilled, IconX } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 
@@ -68,19 +68,18 @@ export function RunningTimerBar() {
   }
 
   return (
-    <div className="sticky top-[73px] sm:top-[76px] left-0 right-0 z-30 bg-zinc-900 dark:bg-zinc-950 text-zinc-100 border-b border-zinc-800 shadow-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 gap-4">
-        <div className="flex items-center gap-3 sm:gap-4 flex-1 overflow-hidden">
-          {/* TRACKING Indicator */}
-          <div className="hidden sm:flex items-center gap-2 pr-4 border-r border-zinc-700/50 shrink-0">
-            <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-[10px] font-bold tracking-widest text-zinc-400 uppercase">
-              Tracking
+    <div className="sticky top-14 left-0 right-0 z-20 bg-tertiary/80 backdrop-blur-sm text-tertiary-foreground border-b border-border">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-8 py-2 gap-4">
+        <div className="flex items-center gap-3 flex-1 overflow-hidden">
+          <div className="hidden sm:flex items-center gap-2 pr-3 border-r border-border shrink-0">
+            <span className="h-2 w-2 rounded-full bg-tertiary-foreground animate-pulse" />
+            <span className="text-[11px] font-semibold tracking-wider uppercase">
+              Active Session
             </span>
           </div>
 
           <Select value={activeTimer.projectId || undefined} onValueChange={handleProjectChange}>
-            <SelectTrigger className="w-[140px] sm:w-[200px] h-8 text-sm bg-zinc-800/50 hover:bg-zinc-800 border-zinc-700 text-zinc-100 shrink-0 transition-colors">
+            <SelectTrigger className="w-[140px] sm:w-[190px] h-8 text-xs bg-card border-border text-foreground shrink-0">
               <SelectValue placeholder="Select Project" />
             </SelectTrigger>
             <SelectContent>
@@ -99,23 +98,23 @@ export function RunningTimerBar() {
           </Select>
 
           <Input
-            className="h-8 bg-transparent border-transparent hover:bg-zinc-800/30 focus-visible:bg-zinc-800/50 focus-visible:ring-1 focus-visible:ring-zinc-600 text-sm hidden sm:block flex-1 text-zinc-300 placeholder:text-zinc-600 transition-colors"
+            className="h-8 bg-card/70 border-border text-xs hidden sm:block flex-1 text-foreground placeholder:text-muted-foreground"
             placeholder="What are you working on?"
             value={description}
             onChange={handleDescriptionChange}
           />
         </div>
 
-        <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-          <div className="text-base sm:text-lg font-mono font-medium text-zinc-100 tabular-nums tracking-wide">
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+          <div className="text-sm sm:text-base font-mono font-semibold text-foreground tabular-nums">
             {formatTime(totalWorkSeconds)}
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-1.5">
             <Button
               variant="outline"
               size="sm"
-              className="h-8 px-2 sm:px-3 text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700 transition-colors"
+              className="h-8 px-2.5 text-xs bg-card"
               onClick={() => {
                 navigate('/notes/new', {
                   state: {
@@ -126,29 +125,29 @@ export function RunningTimerBar() {
                 })
               }}
             >
-              <Plus className="h-3.5 w-3.5 sm:mr-1" />
+              <IconPlus className="h-3.5 w-3.5 sm:mr-1" />
               <span className="hidden sm:inline">Add Note</span>
             </Button>
 
             <Button
-              variant="destructive"
+              variant="default"
               size="sm"
-              className="h-8 px-2 sm:px-4 text-xs bg-red-600/90 hover:bg-red-600 shadow-sm border-0 font-medium"
+              className="h-8 px-3 text-xs"
               onClick={handleStop}
               disabled={!activeTimer.projectId}
             >
-              <Square className="h-3.5 w-3.5 sm:mr-1.5 fill-current" />
-              <span className="hidden sm:inline">Stop</span>
+              <IconPlayerStopFilled className="h-3.5 w-3.5 sm:mr-1" />
+              <span className="hidden sm:inline">Finish</span>
             </Button>
 
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors ml-1"
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
               onClick={handleCancel}
               title="Discard timer"
             >
-              <X className="h-4 w-4" />
+              <IconX className="h-4 w-4" />
             </Button>
           </div>
         </div>

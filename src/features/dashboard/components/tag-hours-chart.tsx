@@ -9,6 +9,7 @@ import {
   LabelList,
 } from 'recharts'
 import type { DashboardStats } from '@/lib/types'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 
 interface TagHoursChartProps {
   stats: DashboardStats
@@ -17,12 +18,17 @@ interface TagHoursChartProps {
 export function TagHoursChart({ stats }: TagHoursChartProps) {
   if (stats.hoursPerTag.length === 0) {
     return (
-      <div className="border rounded-xl p-4 sm:p-6 bg-card shadow-sm text-left">
-        <h3 className="font-semibold mb-4 text-muted-foreground uppercase tracking-wider text-xs">
-          Hours by Tag
-        </h3>
-        <div className="text-center py-8 text-muted-foreground">No tagged time entries yet</div>
-      </div>
+      <Card className="text-left">
+        <CardHeader>
+          <CardTitle>Hours by Tag</CardTitle>
+          <CardDescription>Time breakdown by activity tag</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-12 text-sm text-muted-foreground border border-dashed rounded-lg">
+            No tagged time entries yet
+          </div>
+        </CardContent>
+      </Card>
     )
   }
 
@@ -32,37 +38,51 @@ export function TagHoursChart({ stats }: TagHoursChartProps) {
   }))
 
   return (
-    <div className="relative overflow-hidden group bg-card border rounded-[32px] p-6 sm:p-8 shadow-xl shadow-primary/5 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 text-left">
-      <div className="absolute bottom-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mb-16" />
-
-      <div className="relative z-10">
-        <h3 className="font-black mb-8 text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
-          Hours by Tag
-        </h3>
+    <Card className="text-left">
+      <CardHeader className="pb-4">
+        <CardTitle>Hours by Tag</CardTitle>
+        <CardDescription>Time categorized by entry tags</CardDescription>
+      </CardHeader>
+      <CardContent>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                vertical={false}
-                stroke="color-mix(in srgb, var(--muted-foreground), transparent 80%)"
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+              <XAxis
+                dataKey="tag"
+                axisLine={false}
+                tickLine={false}
+                dy={8}
+                tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
               />
-              <XAxis dataKey="tag" axisLine={false} tickLine={false} dy={10} />
-              <YAxis axisLine={false} tickLine={false} />
-              <Tooltip formatter={(value: number) => [`${value}h`, 'Hours']} />
-              <Bar dataKey="hours" fill="var(--primary)" radius={[4, 4, 0, 0]} barSize={32}>
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+              />
+              <Tooltip
+                cursor={{ fill: 'var(--secondary)', opacity: 0.4 }}
+                contentStyle={{
+                  backgroundColor: 'var(--card)',
+                  borderColor: 'var(--border)',
+                  borderRadius: '0.5rem',
+                  fontSize: '12px',
+                }}
+                formatter={(value: number) => [`${value}h`, 'Hours']}
+              />
+              <Bar dataKey="hours" fill="var(--chart-2)" radius={[4, 4, 0, 0]} barSize={28}>
                 <LabelList
                   dataKey="hours"
                   position="top"
-                  fill="currentColor"
-                  fontSize={12}
+                  fill="var(--foreground)"
+                  fontSize={11}
                   formatter={(v: any) => `${v}h`}
                 />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

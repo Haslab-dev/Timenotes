@@ -3,7 +3,8 @@ import { Navigate } from 'react-router'
 import { LoginForm } from '../components/login-form'
 import { SignupForm } from '../components/signup-form'
 import { useAuthContext } from '../hooks/use-auth-context'
-import { Clock } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { IconClock } from '@tabler/icons-react'
 
 type AuthMode = 'login' | 'signup'
 
@@ -14,10 +15,10 @@ export function AuthPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Loading...</p>
+          <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-primary mx-auto" />
+          <p className="mt-2 text-xs text-muted-foreground">Loading workspace...</p>
         </div>
       </div>
     )
@@ -28,48 +29,48 @@ export function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30 flex flex-col items-center justify-center px-6">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Clock className="h-6 w-6" />
+    <div className="min-h-screen bg-secondary/30 flex flex-col items-center justify-center px-6 py-12">
+      <div className="w-full max-w-md space-y-6">
+        <div className="flex items-center justify-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <IconClock className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">TimeNotes</h1>
-            <p className="text-sm text-muted-foreground">Track time, manage projects</p>
+            <h1 className="text-xl font-semibold tracking-tight leading-none">TimeNotes</h1>
+            <p className="text-xs text-muted-foreground mt-1">Track time & organize knowledge</p>
           </div>
         </div>
 
-        {/* Auth Form */}
-        <div className="bg-background border rounded-lg p-6">
-          {showSuccessMessage && (
-            <div className="mb-4 p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
-              Account created successfully! Please login with your credentials.
-            </div>
-          )}
+        <Card>
+          <CardContent className="p-6">
+            {showSuccessMessage && (
+              <div className="mb-4 p-3 text-xs font-medium text-tertiary-foreground bg-tertiary border border-border rounded-md">
+                Account created successfully! Please sign in with your credentials.
+              </div>
+            )}
 
-          {mode === 'login' ? (
-            <LoginForm
-              onSuccess={() => {}}
-              onSwitchToSignup={() => {
-                setShowSuccessMessage(false)
-                setMode('signup')
-              }}
-            />
-          ) : (
-            <SignupForm
-              onSuccess={() => {
-                setShowSuccessMessage(true)
-                setMode('login')
-              }}
-              onSwitchToLogin={() => {
-                setShowSuccessMessage(false)
-                setMode('login')
-              }}
-            />
-          )}
-        </div>
+            {mode === 'login' ? (
+              <LoginForm
+                onSuccess={() => {}}
+                onSwitchToSignup={() => {
+                  setShowSuccessMessage(false)
+                  setMode('signup')
+                }}
+              />
+            ) : (
+              <SignupForm
+                onSuccess={() => {
+                  setShowSuccessMessage(true)
+                  setMode('login')
+                }}
+                onSwitchToLogin={() => {
+                  setShowSuccessMessage(false)
+                  setMode('login')
+                }}
+              />
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

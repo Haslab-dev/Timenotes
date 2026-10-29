@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Download, X } from 'lucide-react'
+import { IconDownload, IconX } from '@tabler/icons-react'
+import { Button } from '@/components/ui/button'
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[]
@@ -16,11 +17,8 @@ export function PWAInstallPrompt() {
 
   useEffect(() => {
     const handler = (e: Event) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault()
-      // Stash the event so it can be triggered later.
       setDeferredPrompt(e as BeforeInstallPromptEvent)
-      // Update UI notify the user they can install the PWA
       setIsVisible(true)
     }
 
@@ -34,19 +32,9 @@ export function PWAInstallPrompt() {
   const handleInstallClick = async () => {
     if (!deferredPrompt) return
 
-    // Show the install prompt
     deferredPrompt.prompt()
+    await deferredPrompt.userChoice
 
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice
-
-    if (outcome === 'accepted') {
-      console.log('User accepted the install prompt')
-    } else {
-      console.log('User dismissed the install prompt')
-    }
-
-    // We've used the prompt, and can't use it again, throw it away
     setDeferredPrompt(null)
     setIsVisible(false)
   }
@@ -58,40 +46,34 @@ export function PWAInstallPrompt() {
   if (!isVisible) return null
 
   return (
-    <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-8 md:w-96 z-50 animate-in fade-in slide-in-from-bottom-10 duration-500">
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 p-5 flex flex-col gap-4">
-        <div className="flex items-start justify-between">
+    <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-8 md:w-80 z-50 animate-in fade-in slide-in-from-bottom-6 duration-300">
+      <div className="bg-card rounded-xl shadow-lg border border-border p-4 flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-              <Download size={24} />
+            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center text-primary-foreground shrink-0">
+              <IconDownload className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="font-bold text-zinc-900 dark:text-zinc-100">Install Timenotes</h3>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Add to your home screen for a better experience.
+              <h3 className="text-sm font-semibold text-foreground">Install TimeNotes</h3>
+              <p className="text-xs text-muted-foreground">
+                Add to your home screen for quick access.
               </p>
             </div>
           </div>
           <button
             onClick={handleDismiss}
-            className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors p-1"
+            className="text-muted-foreground hover:text-foreground transition-colors p-1 cursor-pointer"
           >
-            <X size={20} />
+            <IconX className="h-4 w-4" />
           </button>
         </div>
-        <div className="flex gap-3">
-          <button
-            onClick={handleInstallClick}
-            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
-          >
-            Install Now
-          </button>
-          <button
-            onClick={handleDismiss}
-            className="px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-          >
-            Not now
-          </button>
+        <div className="flex gap-2">
+          <Button size="sm" onClick={handleInstallClick} className="flex-1">
+            Install
+          </Button>
+          <Button size="sm" variant="outline" onClick={handleDismiss}>
+            Later
+          </Button>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { Image as ImageIcon, Loader2, Upload } from 'lucide-react'
+import { IconPhoto, IconLoader2, IconUpload } from '@tabler/icons-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -96,25 +96,25 @@ export function ImageUploadPopover({
     >
       <PopoverTrigger asChild>
         {trigger ?? (
-          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
-            <ImageIcon className="h-4 w-4" />
+          <Button type="button" variant="ghost" size="icon" className="h-8 w-8 rounded-md">
+            <IconPhoto className="h-4 w-4" />
           </Button>
         )}
       </PopoverTrigger>
       <PopoverContent align={align} className="w-72 rounded-xl p-4 space-y-3">
         <div className="flex items-center gap-2">
-          <ImageIcon className="h-4 w-4 text-primary" />
-          <span className="text-sm font-bold">Upload image</span>
+          <IconPhoto className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold">Upload image</span>
         </div>
 
         {!configured && (
-          <p className="text-[11px] text-amber-600 dark:text-amber-500 leading-snug">
+          <p className="text-xs text-tertiary-foreground bg-tertiary/60 px-2.5 py-1.5 rounded-md leading-snug">
             S3/R2 not configured — uploads are disabled.
           </p>
         )}
 
-        <label className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed p-4 cursor-pointer hover:bg-accent/40 transition-colors text-center">
-          <Upload className="h-5 w-5 text-muted-foreground" />
+        <label className="flex flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed p-4 cursor-pointer hover:bg-secondary/40 transition-colors text-center">
+          <IconUpload className="h-5 w-5 text-muted-foreground" />
           <span className="text-xs font-medium">
             {file ? 'Choose another image' : 'Click to choose an image'}
           </span>
@@ -135,37 +135,35 @@ export function ImageUploadPopover({
             <img
               src={previewUrl}
               alt={file.name}
-              className="h-14 w-14 rounded-lg object-cover border"
+              className="h-12 w-12 rounded-md object-cover border"
             />
             <div className="min-w-0 flex-1">
               <p className="text-xs font-medium truncate">{file.name}</p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 Original: {formatBytes(file.size)}
               </p>
               {quality < 100 && compressed ? (
-                <p className="text-[10px] text-emerald-600 dark:text-emerald-500 font-medium">
+                <p className="text-[11px] text-primary font-medium">
                   Compressed: {formatBytes(compressed.size)}
                   {reduction > 0 ? ` (−${reduction}%)` : ''}
                 </p>
               ) : (
-                <p className="text-[10px] text-muted-foreground">No compression</p>
+                <p className="text-[11px] text-muted-foreground">No compression</p>
               )}
             </div>
           </div>
         )}
 
-        <div className="space-y-1">
-          <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Compression
-          </label>
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground">Compression</label>
           <Select
             value={String(quality)}
             onValueChange={(value) => setQuality(Number(value) as ImageQuality)}
           >
-            <SelectTrigger className="h-9 rounded-lg text-xs">
+            <SelectTrigger className="h-9 rounded-md text-xs">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="rounded-lg">
+            <SelectContent className="rounded-md">
               {IMAGE_QUALITY_OPTIONS.map((option) => (
                 <SelectItem key={option} value={String(option)}>
                   {option}%{option === 100 ? ' (original)' : ' quality'}
@@ -177,19 +175,19 @@ export function ImageUploadPopover({
 
         <Button
           type="button"
-          className="w-full rounded-lg h-9"
+          className="w-full h-9"
           disabled={!file || uploading || !configured}
           onClick={handleUpload}
         >
           {uploading ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <IconLoader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
-            <Upload className="h-4 w-4 mr-2" />
+            <IconUpload className="h-4 w-4 mr-2" />
           )}
           Upload
         </Button>
 
-        {error && <p className="text-[11px] text-destructive">{error}</p>}
+        {error && <p className="text-xs text-destructive">{error}</p>}
       </PopoverContent>
     </Popover>
   )

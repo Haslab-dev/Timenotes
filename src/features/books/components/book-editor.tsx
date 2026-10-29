@@ -13,7 +13,7 @@ import {
   useCreateBlockNote,
 } from '@blocknote/react'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { Calendar, Clock3 } from 'lucide-react'
+import { IconCalendar, IconClock } from '@tabler/icons-react'
 import { useImageUpload } from '@/components/ui/use-image-upload'
 
 const DateTimeBlock = createReactBlockSpec(
@@ -34,16 +34,16 @@ const DateTimeBlock = createReactBlockSpec(
   },
   {
     render: ({ block }) => (
-      <div className="rounded-2xl border border-amber-200 bg-linear-to-r from-amber-50 to-orange-50 px-4 py-3 shadow-sm">
-        <div className="flex items-center gap-3 text-slate-900">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 text-amber-600 shadow-sm">
-            <Clock3 className="h-5 w-5" />
+      <div className="rounded-lg border border-border bg-tertiary/60 px-4 py-2.5">
+        <div className="flex items-center gap-3 text-tertiary-foreground">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-background/80 text-primary border border-border/60">
+            <IconClock className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               {block.props.label}
             </div>
-            <div className="truncate text-sm font-medium text-slate-800">
+            <div className="truncate text-sm font-medium text-foreground">
               {block.props.display || 'Untitled timestamp'}
             </div>
           </div>
@@ -190,7 +190,7 @@ export const BookEditor = forwardRef<BookEditorHandle, BookEditorProps>(function
         title: 'Insert Date & Time',
         aliases: ['date', 'time', 'timestamp', 'now'],
         group: 'Widgets',
-        icon: <Calendar size={18} />,
+        icon: <IconCalendar size={18} />,
         onItemClick: () => {
           const currentBlock = editor.getTextCursorPosition().block
           const { iso, display } = getCurrentDateTime()

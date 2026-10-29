@@ -1,9 +1,18 @@
-import { Clock, FileText, Activity } from 'lucide-react'
+import {
+  IconClock,
+  IconNotes,
+  IconActivity,
+  IconChevronDown,
+  IconChevronRight,
+  IconTag,
+} from '@tabler/icons-react'
 import type { DashboardStats } from '@/lib/types'
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import { useMemo, useState } from 'react'
-import { ChevronDown, ChevronRight, Tag } from 'lucide-react'
 import { isToday, isYesterday, format } from 'date-fns'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 interface RecentActivityProps {
   stats: DashboardStats
@@ -27,7 +36,7 @@ export function RecentActivity({ stats, onViewNote, onEditEntry }: RecentActivit
 
   const formatTemporalDate = (date: Date) => {
     if (isToday(date)) {
-      return format(date, 'HH:mm')
+      return `Today, ${format(date, 'HH:mm')}`
     } else if (isYesterday(date)) {
       return 'Yesterday'
     } else {
@@ -60,128 +69,147 @@ export function RecentActivity({ stats, onViewNote, onEditEntry }: RecentActivit
   }, [stats])
 
   return (
-    <div className="border rounded-xl p-4 sm:p-6 bg-card shadow-sm text-left col-span-full">
-      <div className="flex items-center gap-2 mb-6 border-b pb-4">
-        <Activity className="h-5 w-5 text-muted-foreground" />
-        <h3 className="font-semibold text-lg">Activity Feed</h3>
-      </div>
-
-      {timelineItems.length === 0 ? (
-        <div className="text-center py-8">
-          <Activity className="h-8 w-8 mx-auto text-muted-foreground/30 mb-3" />
-          <p className="text-muted-foreground text-sm">No recent activity</p>
+    <Card className="text-left col-span-full">
+      <CardHeader className="pb-4 border-b border-border">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <IconActivity className="h-4 w-4 text-primary" />
+              Recent Activity
+            </CardTitle>
+            <CardDescription className="mt-1">
+              Latest logged time entries and workspace notes
+            </CardDescription>
+          </div>
+          <Badge variant="secondary">{timelineItems.length} events</Badge>
         </div>
-      ) : (
-        <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
-          {timelineItems.map((item) => {
-            const isTime = item.type === 'time'
-            const data = item.data
-            const project = data.projectId ? getProjectById(data.projectId) : null
-            const Icon = isTime ? Clock : FileText
+      </CardHeader>
 
-            return (
-              <div
-                key={item.id}
-                className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group"
-              >
-                <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-card bg-muted shadow shrink-0 md:order-1 md:group-odd:-ml-5 md:group-even:-mr-5 z-10 transition-transform group-hover:scale-110">
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </div>
+      <CardContent className="p-0">
+        {timelineItems.length === 0 ? (
+          <div className="text-center py-12">
+            <IconActivity className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+            <p className="text-muted-foreground text-sm">No recent activity</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
+            {timelineItems.map((item) => {
+              const isTime = item.type === 'time'
+              const data = item.data
+              const project = data.projectId ? getProjectById(data.projectId) : null
+              const Icon = isTime ? IconClock : IconNotes
+              const isExpanded = expandedId === item.id
 
+              return (
                 <div
-                  className={[
-                    'w-[calc(100%-3rem)] md:w-[calc(50%-2rem)] p-4 rounded-xl border bg-card/50 hover:bg-card shadow-sm hover:shadow-md transition-all cursor-pointer',
-                    expandedId === item.id ? 'ring-2 ring-primary/20 bg-card' : '',
-                  ].join(' ')}
-                  onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                  key={item.id}
+                  className="p-4 hover:bg-secondary/30 transition-colors cursor-pointer"
+                  onClick={() => setExpandedId(isExpanded ? null : item.id)}
                 >
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-xs font-bold text-muted-foreground tracking-wider uppercase">
-                      {formatTemporalDate(item.timestamp)}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {project && (
-                        <span
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
-                          style={{ backgroundColor: project.color }}
-                        >
-                          {project.name}
-                        </span>
-                      )}
-                      {expandedId === item.id ? (
-                        <ChevronDown className="h-3 w-3" />
-                      ) : (
-                        <ChevronRight className="h-3 w-3" />
-                      )}
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${
+                        isTime
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-tertiary text-tertiary-foreground'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" stroke={1.75} />
                     </div>
-                  </div>
 
-                  <div className="text-sm font-medium text-foreground">
-                    {isTime ? (
-                      <>
-                        Logged{' '}
-                        <span className="font-bold text-primary">
-                          {formatDuration(data.duration)}
-                        </span>
-                        {project ? ` to ${project.name}` : ''}
-                      </>
-                    ) : (
-                      <>
-                        Added note <span className="font-bold text-primary">"{data.title}"</span>
-                        {project ? ` to ${project.name}` : ''}
-                      </>
-                    )}
-                  </div>
-
-                  {expandedId === item.id ? (
-                    <div className="mt-4 pt-3 border-t border-muted/50 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
-                      {(data.description || data.content) && (
-                        <div className="text-sm text-muted-foreground whitespace-pre-wrap leading-snug italic">
-                          {isTime ? data.description : data.content}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="text-sm text-foreground">
+                          {isTime ? (
+                            <>
+                              Logged{' '}
+                              <span className="font-semibold text-primary tabular-nums">
+                                {formatDuration(data.duration)}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              Note{' '}
+                              <span className="font-semibold text-foreground">"{data.title}"</span>
+                            </>
+                          )}
                         </div>
-                      )}
 
-                      <div className="flex flex-wrap items-center justify-between gap-4">
-                        {data.tags && data.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {data.tags.map((tag: string) => (
-                              <div
-                                key={tag}
-                                className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-muted-foreground"
-                              >
-                                <Tag className="h-2.5 w-2.5" />
-                                {tag}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        <div className="flex gap-2">
-                          <button
-                            className="text-xs font-bold text-primary hover:underline"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              isTime ? onEditEntry(data) : onViewNote(data)
-                            }}
-                          >
-                            Edit
-                          </button>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {project && (
+                            <Badge variant="secondary" className="gap-1.5 font-medium">
+                              <span
+                                className="w-1.5 h-1.5 rounded-full"
+                                style={{ backgroundColor: project.color }}
+                              />
+                              {project.name}
+                            </Badge>
+                          )}
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            {formatTemporalDate(item.timestamp)}
+                          </span>
+                          {isExpanded ? (
+                            <IconChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                          ) : (
+                            <IconChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                          )}
                         </div>
                       </div>
+
+                      {!isExpanded && (data.description || data.content) && (
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                          {(isTime ? data.description : data.content)
+                            ?.replace(/<[^>]*>/g, ' ')
+                            .trim()}
+                        </p>
+                      )}
+
+                      {isExpanded && (
+                        <div className="mt-3 pt-3 border-t border-border space-y-3 animate-in fade-in duration-150">
+                          {(data.description || data.content) && (
+                            <div className="text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                              {(isTime ? data.description : data.content)
+                                ?.replace(/<[^>]*>/g, ' ')
+                                .trim()}
+                            </div>
+                          )}
+
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            {data.tags && data.tags.length > 0 ? (
+                              <div className="flex flex-wrap gap-1.5">
+                                {data.tags.map((tag: string) => (
+                                  <Badge key={tag} variant="outline" className="text-[11px]">
+                                    <IconTag className="h-2.5 w-2.5 mr-1" />
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : (
+                              <div />
+                            )}
+
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                isTime ? onEditEntry(data) : onViewNote(data)
+                              }}
+                            >
+                              {isTime ? 'Edit Entry' : 'Open Note'}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    (data.description || data.content) && (
-                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2 italic">
-                        {isTime ? data.description : data.content}
-                      </p>
-                    )
-                  )}
+                  </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
+              )
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }

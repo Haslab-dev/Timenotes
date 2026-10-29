@@ -174,10 +174,10 @@ export interface UpdateTaskRequest {
 }
 
 export const PRIORITY_COLORS = {
-  low: '#6b7280',
-  medium: '#3b82f6',
-  high: '#f59e0b',
-  urgent: '#ef4444',
+  low: '#64748b', // Secondary slate
+  medium: '#334e8c', // Primary navy-indigo
+  high: '#b45309', // Tertiary amber-bronze
+  urgent: '#dc2626', // Destructive crimson
 } as const
 
 export const PRIORITY_LABELS = {
@@ -194,16 +194,16 @@ export const STATUS_LABELS = {
   cancelled: 'Cancelled',
 } as const
 
-// Color options for projects and tags
+// Harmonized Primary, Secondary, Tertiary palette for projects and tags
 export const PROJECT_COLORS = [
-  '#3b82f6', // blue
-  '#ef4444', // red
-  '#10b981', // green
-  '#f59e0b', // yellow
-  '#8b5cf6', // purple
-  '#ec4899', // pink
-  '#6b7280', // gray
-  '#14b8a6', // teal
+  '#1e3a8a', // Primary deep indigo
+  '#334155', // Secondary slate
+  '#b45309', // Tertiary warm bronze
+  '#2563eb', // Primary royal
+  '#475569', // Secondary cool gray
+  '#d97706', // Tertiary amber
+  '#0f172a', // Deep ink
+  '#64748b', // Muted slate
 ] as const
 
 export type ProjectColor = (typeof PROJECT_COLORS)[number]

@@ -1,7 +1,15 @@
-import { ArrowLeft, Download, Eye, Loader2, Pencil, Trash2 } from 'lucide-react'
+import {
+  IconArrowLeft,
+  IconDownload,
+  IconEye,
+  IconLoader2,
+  IconPencil,
+  IconTrash,
+} from '@tabler/icons-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -33,7 +41,6 @@ export function VaultDetailPage() {
   const [mode, setMode] = useState<'edit' | 'view'>('view')
   const initializedFor = useRef<string | null>(null)
 
-  // Keep latest doc + save fn in refs so the autosave effect can stay lean.
   const docRef = useRef(doc)
   docRef.current = doc
   const saveRef = useRef(updateDoc.mutate)
@@ -104,13 +111,13 @@ export function VaultDetailPage() {
   }
 
   if (isLoading) {
-    return <div className="text-center py-20 text-muted-foreground">Loading document…</div>
+    return <div className="text-center py-20 text-sm text-muted-foreground">Loading document…</div>
   }
 
   if (!doc) {
     return (
       <div className="text-center py-20 space-y-4">
-        <div className="text-destructive font-bold">Document not found</div>
+        <div className="text-destructive font-semibold">Document not found</div>
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
           Make sure you have applied the database schema (including the markdown_docs table) to your
           Turso database.
@@ -123,60 +130,56 @@ export function VaultDetailPage() {
   }
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 min-w-0 px-2 sm:px-0">
+    <div className="flex flex-col flex-1 min-h-0 min-w-0">
       {/* Header */}
-      <div className="flex flex-col gap-3 pb-4 border-b">
+      <div className="flex flex-col gap-3 pb-4 border-b border-border">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/vault')}
-            className="rounded-full shrink-0"
-          >
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="sm" onClick={() => navigate('/vault')}>
+            <IconArrowLeft className="h-4 w-4 mr-1.5" />
+            Vault
           </Button>
 
           <div className="flex items-center gap-2">
             <span className="hidden sm:inline text-xs text-muted-foreground">
               {updateDoc.isPending ? 'Saving…' : 'Saved'}
             </span>
-            <div className="flex items-center gap-1 rounded-full bg-muted/60 p-1">
+            <div className="inline-flex items-center rounded-lg border border-border bg-secondary/40 p-0.5">
               <Button
                 variant={mode === 'view' ? 'default' : 'ghost'}
                 size="sm"
-                className="rounded-full h-8"
+                className="h-7 px-2.5 text-xs"
                 onClick={() => setMode('view')}
               >
-                <Eye className="h-4 w-4 mr-1" />
+                <IconEye className="h-3.5 w-3.5 mr-1" />
                 Read
               </Button>
               <Button
                 variant={mode === 'edit' ? 'default' : 'ghost'}
                 size="sm"
-                className="rounded-full h-8"
+                className="h-7 px-2.5 text-xs"
                 onClick={() => setMode('edit')}
               >
-                <Pencil className="h-4 w-4 mr-1" />
+                <IconPencil className="h-3.5 w-3.5 mr-1" />
                 Edit
               </Button>
             </div>
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full h-9 w-9"
+              className="h-8 w-8"
               onClick={handleDownload}
               title="Download .md"
             >
-              <Download className="h-4 w-4" />
+              <IconDownload className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full h-9 w-9 hover:bg-destructive hover:text-white"
+              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
               onClick={handleDelete}
               title="Delete"
             >
-              <Trash2 className="h-4 w-4" />
+              <IconTrash className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -185,14 +188,14 @@ export function VaultDetailPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Document title"
-          className="text-xl sm:text-2xl font-black border-0 px-0 focus-visible:ring-0 bg-transparent h-auto shadow-none"
+          className="text-xl sm:text-2xl font-semibold border-0 px-0 focus-visible:ring-0 bg-transparent h-auto shadow-none"
         />
         <div className="flex flex-wrap items-center gap-2">
           <Select value={projectId} onValueChange={setProjectId}>
-            <SelectTrigger className="h-8 w-auto min-w-[150px] max-w-[60vw] rounded-full border-dashed text-xs gap-1.5 px-3">
+            <SelectTrigger className="h-8 w-auto min-w-[150px] max-w-[60vw] text-xs gap-1.5 px-3">
               <SelectValue placeholder="No project" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl">
+            <SelectContent>
               <SelectItem value="__none__">No project</SelectItem>
               {projects.map((project) => (
                 <SelectItem key={project.id} value={project.id}>
@@ -207,21 +210,20 @@ export function VaultDetailPage() {
               ))}
             </SelectContent>
           </Select>
-          <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-            <span>{doc.source}</span>
-            <span>·</span>
-            <span>{content.length} chars</span>
-            {updateDoc.isPending && (
-              <span className="flex items-center gap-1 normal-case tracking-normal">
-                <Loader2 className="h-3 w-3 animate-spin" /> saving
-              </span>
-            )}
-          </div>
+          <Badge variant="secondary" className="text-[11px] uppercase">
+            {doc.source}
+          </Badge>
+          <span className="text-xs text-muted-foreground tabular-nums">{content.length} chars</span>
+          {updateDoc.isPending && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <IconLoader2 className="h-3 w-3 animate-spin" /> saving
+            </span>
+          )}
         </div>
       </div>
 
       {/* Body */}
-      <div className="flex-1 overflow-auto py-5 max-w-3xl w-full mx-auto min-w-0">
+      <div className="flex-1 overflow-auto py-5 max-w-4xl w-full mx-auto min-w-0">
         {mode === 'edit' ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-w-0">
             <MarkdownSourceEditor
@@ -229,8 +231,8 @@ export function VaultDetailPage() {
               onChange={setContent}
               onUploadImage={isS3Configured() ? handleUploadImage : undefined}
             />
-            <div className="rounded-xl border bg-card p-4 overflow-auto min-w-0">
-              <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">
+            <div className="rounded-lg border bg-card p-4 overflow-auto min-w-0">
+              <div className="text-xs font-medium text-muted-foreground mb-3 pb-2 border-b">
                 Preview
               </div>
               <MarkdownReader content={content} docs={allDocs} />

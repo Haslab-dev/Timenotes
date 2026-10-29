@@ -34,9 +34,9 @@
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -48,6 +48,8 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
@@ -72,99 +74,113 @@
 }
 
 :root {
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 
-  --background: hsl(220 10% 97%);
-  --foreground: hsl(255 15% 13%);
+  /* Neutral surface & ink */
+  --background: hsl(210 20% 98%);
+  --foreground: hsl(222 47% 11%);
 
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(255 15% 13%);
+  --card-foreground: hsl(222 47% 11%);
 
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(255 15% 13%);
+  --popover-foreground: hsl(222 47% 11%);
 
-  --primary: hsl(252 80% 57%);
-  --primary-foreground: hsl(0 0% 98%);
+  /* 1. Primary: Deep Architectural Indigo-Slate */
+  --primary: hsl(224 64% 33%);
+  --primary-foreground: hsl(210 40% 98%);
 
-  --secondary: hsl(240 12% 94%);
-  --secondary-foreground: hsl(255 15% 18%);
+  /* 2. Secondary: Cool Structured Slate */
+  --secondary: hsl(214 22% 93%);
+  --secondary-foreground: hsl(222 35% 20%);
 
-  --muted: hsl(240 10% 95%);
-  --muted-foreground: hsl(255 8% 42%);
+  /* 3. Tertiary: Warm Amber-Stone Accent */
+  --tertiary: hsl(36 45% 91%);
+  --tertiary-foreground: hsl(32 68% 28%);
 
-  --accent: hsl(240 12% 94%);
-  --accent-foreground: hsl(255 15% 18%);
+  --muted: hsl(214 20% 95%);
+  --muted-foreground: hsl(215 16% 45%);
 
-  --destructive: hsl(10 75% 55%);
+  --accent: hsl(214 22% 93%);
+  --accent-foreground: hsl(222 47% 11%);
 
-  --border: hsl(240 8% 88%);
-  --input: hsl(240 8% 88%);
-  --ring: hsl(252 80% 57%);
+  --destructive: hsl(0 72% 51%);
 
-  --chart-1: hsl(15 75% 58%);
-  --chart-2: hsl(180 45% 55%);
-  --chart-3: hsl(252 55% 50%);
-  --chart-4: hsl(27 70% 58%);
-  --chart-5: hsl(315 55% 60%);
+  --border: hsl(214 18% 89%);
+  --input: hsl(214 18% 89%);
+  --ring: hsl(224 64% 33%);
 
-  --sidebar: hsl(240 10% 95%);
-  --sidebar-foreground: hsl(255 15% 18%);
+  /* Charts strictly mapped to Primary, Secondary, Tertiary */
+  --chart-1: hsl(224 64% 33%);
+  --chart-2: hsl(215 28% 45%);
+  --chart-3: hsl(32 68% 38%);
+  --chart-4: hsl(224 40% 55%);
+  --chart-5: hsl(215 18% 65%);
 
-  --sidebar-primary: hsl(252 80% 57%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar: hsl(0 0% 100%);
+  --sidebar-foreground: hsl(222 47% 11%);
 
-  --sidebar-accent: hsl(240 10% 91%);
-  --sidebar-accent-foreground: hsl(255 15% 18%);
+  --sidebar-primary: hsl(224 64% 33%);
+  --sidebar-primary-foreground: hsl(210 40% 98%);
 
-  --sidebar-border: hsl(240 8% 88%);
-  --sidebar-ring: hsl(252 80% 57%);
+  --sidebar-accent: hsl(214 22% 94%);
+  --sidebar-accent-foreground: hsl(222 47% 11%);
+
+  --sidebar-border: hsl(214 18% 89%);
+  --sidebar-ring: hsl(224 64% 33%);
 }
 
 .dark {
-  --background: hsl(255 15% 8%);
-  --foreground: hsl(0 0% 98%);
+  --background: hsl(224 25% 7%);
+  --foreground: hsl(210 25% 96%);
 
-  --card: hsl(255 14% 11%);
-  --card-foreground: hsl(0 0% 98%);
+  --card: hsl(224 22% 10%);
+  --card-foreground: hsl(210 25% 96%);
 
-  --popover: hsl(255 14% 11%);
-  --popover-foreground: hsl(0 0% 98%);
+  --popover: hsl(224 22% 10%);
+  --popover-foreground: hsl(210 25% 96%);
 
-  --primary: hsl(252 85% 70%);
-  --primary-foreground: hsl(255 15% 8%);
+  /* 1. Primary */
+  --primary: hsl(220 75% 62%);
+  --primary-foreground: hsl(224 25% 7%);
 
-  --secondary: hsl(255 10% 15%);
-  --secondary-foreground: hsl(0 0% 98%);
+  /* 2. Secondary */
+  --secondary: hsl(222 18% 16%);
+  --secondary-foreground: hsl(210 20% 90%);
 
-  --muted: hsl(255 10% 15%);
-  --muted-foreground: hsl(255 8% 65%);
+  /* 3. Tertiary */
+  --tertiary: hsl(34 32% 16%);
+  --tertiary-foreground: hsl(36 70% 66%);
 
-  --accent: hsl(255 10% 15%);
-  --accent-foreground: hsl(0 0% 98%);
+  --muted: hsl(222 18% 14%);
+  --muted-foreground: hsl(215 15% 60%);
 
-  --destructive: hsl(10 80% 65%);
+  --accent: hsl(222 18% 16%);
+  --accent-foreground: hsl(210 25% 96%);
 
-  --border: hsl(255 10% 22%);
-  --input: hsl(255 10% 22%);
-  --ring: hsl(252 85% 70%);
+  --destructive: hsl(0 70% 60%);
 
-  --chart-1: hsl(15 75% 60%);
-  --chart-2: hsl(180 45% 55%);
-  --chart-3: hsl(252 85% 70%);
-  --chart-4: hsl(27 70% 58%);
-  --chart-5: hsl(315 55% 60%);
+  --border: hsl(222 16% 18%);
+  --input: hsl(222 16% 18%);
+  --ring: hsl(220 75% 62%);
 
-  --sidebar: hsl(255 14% 11%);
-  --sidebar-foreground: hsl(0 0% 98%);
+  --chart-1: hsl(220 75% 62%);
+  --chart-2: hsl(215 25% 52%);
+  --chart-3: hsl(36 70% 62%);
+  --chart-4: hsl(220 45% 48%);
+  --chart-5: hsl(215 16% 40%);
 
-  --sidebar-primary: hsl(252 85% 70%);
-  --sidebar-primary-foreground: hsl(255 15% 8%);
+  --sidebar: hsl(224 22% 10%);
+  --sidebar-foreground: hsl(210 25% 96%);
 
-  --sidebar-accent: hsl(255 10% 15%);
-  --sidebar-accent-foreground: hsl(0 0% 98%);
+  --sidebar-primary: hsl(220 75% 62%);
+  --sidebar-primary-foreground: hsl(224 25% 7%);
 
-  --sidebar-border: hsl(255 10% 22%);
-  --sidebar-ring: hsl(252 85% 70%);
+  --sidebar-accent: hsl(222 18% 16%);
+  --sidebar-accent-foreground: hsl(210 25% 96%);
+
+  --sidebar-border: hsl(222 16% 18%);
+  --sidebar-ring: hsl(220 75% 62%);
 }
 
 @layer base {
@@ -172,45 +188,21 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary/15 selection:text-primary;
   }
 }
 
-/* Enhanced animations and transitions */
 @layer utilities {
   .animate-fade-in {
-    animation: fade-in 0.3s ease-out forwards;
+    animation: fade-in 0.2s ease-out forwards;
   }
 
   .animate-slide-up {
-    animation: slide-up 0.3s ease-out forwards;
+    animation: slide-up 0.2s ease-out forwards;
   }
 
   .animate-scale-in {
-    animation: scale-in 0.2s ease-out forwards;
-  }
-
-  .glass-effect {
-    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border border-white/20 dark:border-gray-800/20;
-  }
-
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    background: linear-gradient(
-      135deg,
-      var(--primary),
-      color-mix(in srgb, var(--primary), transparent 50%),
-      transparent
-    );
-    border-radius: inherit;
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask-composite: xor;
-    -webkit-mask-composite: xor;
+    animation: scale-in 0.15s ease-out forwards;
   }
 
   .prose-xs {
@@ -237,7 +229,7 @@
 
   /* TipTap specific styles */
   .tiptap {
-    line-height: 1.2 !important;
+    line-height: 1.35 !important;
   }
 
   .tiptap p:empty {
@@ -273,7 +265,6 @@
     user-select: none;
     display: flex;
     align-items: center;
-    /* This centers the checkbox with the first line of text (approx 24px line height) */
     height: 1.5rem;
   }
 
@@ -291,12 +282,11 @@
 
   .tiptap input[type='checkbox'] {
     cursor: pointer;
-    width: 1.1rem;
-    height: 1.1rem;
+    width: 1.05rem;
+    height: 1.05rem;
     margin: 0;
     accent-color: var(--primary);
     border-radius: 4px;
-    /* Reset any browser defaults */
     -webkit-appearance: checkbox;
     appearance: checkbox;
   }
@@ -304,13 +294,13 @@
   .tiptap p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);
     float: left;
-    color: #adb5bd;
+    color: var(--muted-foreground);
+    opacity: 0.6;
     pointer-events: none;
     height: 0;
   }
 
-  /* Aggressive Checklist & Task List Reset */
-  /* Targets both Markdown-rendered and Editor-rendered lists */
+  /* Checklist & Task List Reset */
   li.task-list-item,
   li[data-content-type='check_list_item'] {
     list-style-type: none !important;
@@ -322,18 +312,16 @@
     padding-top: 0.375rem !important;
     padding-bottom: 0.375rem !important;
     margin-left: -0.5rem !important;
-    border-radius: 0.5rem !important;
-    transition: background-color 0.2s !important;
+    border-radius: 0.375rem !important;
+    transition: background-color 0.15s !important;
   }
 
-  /* Highlight checked items */
   li.task-list-item:has(input[type='checkbox']:checked),
   li[data-content-type='check_list_item']:has(input[type='checkbox']:checked),
   li:has(button[role='checkbox'][data-state='checked']) {
     background-color: color-mix(in srgb, var(--primary), transparent 95%) !important;
   }
 
-  /* Kill all bullets/pseudo-elements from Tailwind Typography */
   .prose ul > li.task-list-item::before,
   .prose ul > li:has(input[type='checkbox'])::before,
   .prose ul > li:has(button[role='checkbox'])::before,
@@ -343,7 +331,6 @@
     content: none !important;
   }
 
-  /* Alignment for the text container */
   .prose li > div,
   .prose li > p,
   li.task-list-item > div {
@@ -353,14 +340,11 @@
     display: inline-block !important;
   }
 
-  /* Handle the checkboxes themselves */
-  /* If we have a custom button, hide the native input */
   li:has(button[role='checkbox']) input[type='checkbox'],
   .task-list-item:has(button[role='checkbox']) input[type='checkbox'] {
     display: none !important;
   }
 
-  /* Style native checkboxes if they are the only ones there */
   .prose li input[type='checkbox'] {
     width: 1rem !important;
     height: 1rem !important;
@@ -387,7 +371,7 @@
   .prose a,
   .tiptap a,
   .bn-container a {
-    @apply text-indigo-600 dark:text-indigo-400 font-bold underline decoration-indigo-600/30 underline-offset-4 hover:decoration-indigo-600 transition-all;
+    @apply text-primary font-medium underline decoration-primary/30 underline-offset-4 hover:decoration-primary transition-all;
   }
 }
 
@@ -403,7 +387,7 @@
 @keyframes slide-up {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -414,7 +398,7 @@
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.97);
   }
   to {
     opacity: 1;

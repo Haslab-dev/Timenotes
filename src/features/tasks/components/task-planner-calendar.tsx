@@ -12,7 +12,14 @@ import {
   endOfWeek,
   isToday,
 } from 'date-fns'
-import { ChevronLeft, ChevronRight, Plus, AlertCircle, CalendarDays, List } from 'lucide-react'
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconPlus,
+  IconAlertCircle,
+  IconCalendarMonth,
+  IconList,
+} from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { TaskList } from './task-list'
@@ -147,26 +154,26 @@ export function TaskPlannerCalendar({
   }, [tasks])
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 min-h-[600px]">
-      <div className="flex-1 bg-card border rounded-2xl shadow-sm overflow-hidden flex flex-col">
-        <div className="flex flex-wrap items-center justify-between gap-2 p-3 sm:p-4 border-b">
-          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-            <h3 className="text-base sm:text-xl font-medium text-foreground min-w-0 sm:min-w-[150px] text-left">
+    <div className="flex flex-col lg:flex-row gap-6 min-h-[600px]">
+      <div className="flex-1 bg-card border border-border rounded-xl shadow-xs overflow-hidden flex flex-col">
+        <div className="flex flex-wrap items-center justify-between gap-2 p-4 border-b border-border">
+          <div className="flex items-center gap-3 min-w-0">
+            <h3 className="text-base font-semibold text-foreground min-w-[140px] text-left">
               {format(currentMonth, 'MMMM yyyy')}
             </h3>
-            <div className="flex items-center bg-muted/50 rounded-lg p-1 border">
+            <div className="flex items-center bg-secondary/50 rounded-md p-0.5 border border-border">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 sm:h-8 sm:w-8 rounded-md cursor-pointer"
+                className="h-7 w-7 rounded-sm"
                 onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
               >
-                <ChevronLeft className="h-3.5 w-3.5" />
+                <IconChevronLeft className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 sm:h-8 px-2 sm:px-3 rounded-md text-[10px] sm:text-xs font-bold cursor-pointer"
+                className="h-7 px-2.5 rounded-sm text-xs font-medium"
                 onClick={() => setCurrentMonth(new Date())}
               >
                 Today
@@ -174,39 +181,35 @@ export function TaskPlannerCalendar({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 sm:h-8 sm:w-8 rounded-md cursor-pointer"
+                className="h-7 w-7 rounded-sm"
                 onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
               >
-                <ChevronRight className="h-3.5 w-3.5" />
+                <IconChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <div className="flex bg-muted/50 p-0.5 rounded-lg border">
+            <div className="flex bg-secondary/50 p-0.5 rounded-md border border-border">
               <Button
                 variant={viewMode === 'calendar' ? 'default' : 'ghost'}
                 size="icon"
-                className={`h-7 w-7 sm:h-8 sm:w-8 rounded-md ${viewMode === 'calendar' ? 'shadow-sm' : ''}`}
+                className="h-7 w-7 rounded-sm"
                 onClick={() => setViewMode('calendar')}
               >
-                <CalendarDays className="h-3.5 w-3.5" />
+                <IconCalendarMonth className="h-3.5 w-3.5" />
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
                 size="icon"
-                className={`h-7 w-7 sm:h-8 sm:w-8 rounded-md ${viewMode === 'list' ? 'shadow-sm' : ''}`}
+                className="h-7 w-7 rounded-sm"
                 onClick={() => setViewMode('list')}
               >
-                <List className="h-3.5 w-3.5" />
+                <IconList className="h-3.5 w-3.5" />
               </Button>
             </div>
-            <Button
-              size="sm"
-              className="h-7 sm:h-8 px-2 sm:px-3 text-xs font-bold rounded-lg"
-              onClick={() => onAddTask(selectedDate)}
-            >
-              <Plus className="h-3.5 w-3.5 sm:mr-1" />
+            <Button size="sm" className="h-8 text-xs" onClick={() => onAddTask(selectedDate)}>
+              <IconPlus className="h-3.5 w-3.5 sm:mr-1" />
               <span className="hidden sm:inline">Add Task</span>
             </Button>
           </div>
@@ -214,11 +217,11 @@ export function TaskPlannerCalendar({
 
         {viewMode === 'calendar' ? (
           <>
-            <div className="grid grid-cols-7 bg-muted/5 border-b">
+            <div className="grid grid-cols-7 bg-secondary/30 border-b border-border">
               {WEEKDAYS.map((day) => (
                 <div
                   key={day}
-                  className="py-2 text-center text-[9px] sm:text-[10px] font-bold text-muted-foreground tracking-widest border-r last:border-r-0"
+                  className="py-2 text-center text-[10px] font-semibold text-muted-foreground tracking-wider border-r border-border last:border-r-0"
                 >
                   <span className="hidden sm:inline">{day}</span>
                   <span className="sm:hidden">{day.charAt(0)}</span>
@@ -242,54 +245,55 @@ export function TaskPlannerCalendar({
                   <div
                     key={day.toString()}
                     className={[
-                      'min-h-[80px] sm:min-h-[100px] border-r border-b relative cursor-pointer transition-colors last:border-r-0',
-                      !isCurrentMonth ? 'bg-muted/5 opacity-40' : 'bg-card',
+                      'min-h-[84px] sm:min-h-[100px] border-r border-b border-border relative cursor-pointer transition-colors last:border-r-0',
+                      !isCurrentMonth ? 'bg-muted/20 opacity-45' : 'bg-card',
                       isSelected
-                        ? 'bg-primary/[0.05] ring-2 ring-inset ring-primary/20 z-10'
-                        : 'hover:bg-muted/10',
+                        ? 'bg-primary/[0.04] ring-1 ring-inset ring-primary/30 z-10'
+                        : 'hover:bg-secondary/30',
                     ].join(' ')}
                     onClick={() => setSelectedDate(day)}
                   >
-                    <div className="p-1 sm:p-1.5 flex flex-col h-full text-left">
+                    <div className="p-1.5 flex flex-col h-full text-left">
                       <div className="flex justify-between items-start mb-1">
                         <span
                           className={[
-                            'flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-[10px] sm:text-[11px] font-bold rounded-full',
+                            'flex items-center justify-center w-6 h-6 text-xs font-medium rounded-md',
                             isToday(day)
-                              ? 'bg-primary text-primary-foreground shadow-sm'
+                              ? 'bg-primary text-primary-foreground font-semibold'
                               : isSelected
-                                ? 'bg-primary/20 text-primary'
+                                ? 'bg-secondary text-secondary-foreground font-semibold'
                                 : 'text-muted-foreground',
                           ].join(' ')}
                         >
                           {format(day, 'd')}
                         </span>
-                        {overdueCount > 0 && <AlertCircle className="h-3 w-3 text-destructive" />}
+                        {overdueCount > 0 && (
+                          <IconAlertCircle className="h-3.5 w-3.5 text-destructive" />
+                        )}
                       </div>
 
                       {hasTasks && (
-                        <div className="space-y-0.5 sm:space-y-1 overflow-hidden">
+                        <div className="space-y-1 overflow-hidden">
                           {activeTasks.slice(0, 2).map((task) => (
                             <div
                               key={task.id}
-                              className="flex items-center gap-1 px-1 py-0.5 rounded-[3px]"
+                              className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-secondary/70"
                               style={{
-                                backgroundColor: `${PRIORITY_COLORS[task.priority]}15`,
                                 borderLeft: `2px solid ${PRIORITY_COLORS[task.priority]}`,
                               }}
                             >
-                              <span className="text-[8px] sm:text-[9px] font-semibold truncate text-foreground/80">
+                              <span className="text-[10px] font-medium truncate text-foreground">
                                 {task.title}
                               </span>
                             </div>
                           ))}
                           {activeTasks.length > 2 && (
-                            <div className="text-[8px] sm:text-[9px] font-bold text-muted-foreground px-1">
+                            <div className="text-[10px] font-medium text-muted-foreground px-1">
                               +{activeTasks.length - 2} more
                             </div>
                           )}
                           {completedTasks.length > 0 && (
-                            <div className="text-[8px] sm:text-[9px] text-muted-foreground/60 px-1">
+                            <div className="text-[10px] text-muted-foreground px-1">
                               {completedTasks.length} done
                             </div>
                           )}
@@ -305,9 +309,9 @@ export function TaskPlannerCalendar({
           <div className="p-4 overflow-y-auto max-h-[500px] sm:max-h-none">
             {sortedTasksByDate.size === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <CalendarDays className="h-12 w-12 text-muted-foreground/30 mb-3" />
+                <IconCalendarMonth className="h-10 w-10 text-muted-foreground/30 mb-2" />
                 <p className="text-sm font-medium text-muted-foreground">No tasks planned</p>
-                <p className="text-xs text-muted-foreground/60">Create a task to see it here</p>
+                <p className="text-xs text-muted-foreground/70">Create a task to see it here</p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -326,7 +330,7 @@ export function TaskPlannerCalendar({
                         <div className="flex items-center gap-2">
                           {date ? (
                             <span
-                              className={`text-xs font-bold uppercase tracking-wider ${
+                              className={`text-xs font-semibold uppercase tracking-wider ${
                                 isOverdue
                                   ? 'text-destructive'
                                   : isSameDay(date, new Date())
@@ -341,20 +345,17 @@ export function TaskPlannerCalendar({
                                   : format(date, 'EEEE, MMM d')}
                             </span>
                           ) : (
-                            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                               No Due Date
                             </span>
                           )}
                           {isOverdue && (
-                            <Badge
-                              variant="destructive"
-                              className="text-[8px] h-4 px-1.5 font-bold"
-                            >
+                            <Badge variant="destructive" className="text-[10px] h-4 px-1.5">
                               Overdue
                             </Badge>
                           )}
                         </div>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {todayTasks.length} active
                           {doneTasks.length > 0 && `, ${doneTasks.length} done`}
                         </span>
@@ -374,26 +375,28 @@ export function TaskPlannerCalendar({
         )}
       </div>
 
-      <div className="lg:w-80 border rounded-2xl bg-card shadow-sm flex flex-col transition-all overflow-hidden">
-        <div className="p-3 sm:p-4 border-b bg-muted/20 flex items-center justify-between">
+      <div className="lg:w-80 border border-border rounded-xl bg-card shadow-xs flex flex-col transition-all overflow-hidden">
+        <div className="p-4 border-b border-border bg-secondary/30 flex items-center justify-between">
           <div className="text-left">
-            <h4 className="font-bold text-xs sm:text-sm">{format(selectedDate, 'EEEE, MMM d')}</h4>
-            <p className="text-[9px] sm:text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+            <h4 className="font-semibold text-sm text-foreground">
+              {format(selectedDate, 'EEEE, MMM d')}
+            </h4>
+            <p className="text-xs text-muted-foreground">
               {sortedDayTasks.length} task{sortedDayTasks.length !== 1 ? 's' : ''}
             </p>
           </div>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="h-7 sm:h-8 px-2 sm:px-3 rounded-lg text-xs font-bold"
+            className="h-7 px-2.5 text-xs"
             onClick={() => onAddTask(selectedDate)}
           >
-            <Plus className="h-3.5 w-3.5 mr-1" />
+            <IconPlus className="h-3.5 w-3.5 mr-1" />
             Add
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {sortedDayTasks.length > 0 ? (
             <TaskList
               tasks={sortedDayTasks}
@@ -404,7 +407,7 @@ export function TaskPlannerCalendar({
             />
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <CalendarDays className="h-10 w-10 text-muted-foreground/20 mb-2" />
+              <IconCalendarMonth className="h-8 w-8 text-muted-foreground/30 mb-2" />
               <p className="text-xs font-medium text-muted-foreground">No tasks for this day</p>
               <Button
                 variant="link"
@@ -418,8 +421,8 @@ export function TaskPlannerCalendar({
           )}
 
           {noDateTasks.length > 0 && (
-            <div className="pt-4 border-t">
-              <h5 className="text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
+            <div className="pt-4 border-t border-border">
+              <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 text-left">
                 Unscheduled ({noDateTasks.length})
               </h5>
               <TaskList

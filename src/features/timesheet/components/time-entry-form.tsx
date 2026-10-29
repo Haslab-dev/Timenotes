@@ -126,6 +126,7 @@ export function TimeEntryForm({
           content={description}
           onChange={setDescription}
           placeholder="What did you work on?"
+          variant="boxed"
         />
       </div>
 
@@ -167,7 +168,7 @@ export function TimeEntryForm({
       </div>
 
       {error && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
+        <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md p-3">
           {error}
         </div>
       )}

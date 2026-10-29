@@ -1,5 +1,5 @@
 import { useNotesByTimeEntry } from '../../notes/hooks/use-notes'
-import { FileText, Loader2 } from 'lucide-react'
+import { IconNotes, IconLoader2 } from '@tabler/icons-react'
 import { format } from 'date-fns'
 import { useNavigate, useSearchParams } from 'react-router'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
@@ -17,7 +17,7 @@ export function LinkedNotes({ timeEntryId }: LinkedNotesProps) {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 text-xs text-muted-foreground pt-4">
-        <Loader2 className="h-3 w-3 animate-spin" />
+        <IconLoader2 className="h-3.5 w-3.5 animate-spin" />
         Loading linked notes...
       </div>
     )
@@ -28,16 +28,16 @@ export function LinkedNotes({ timeEntryId }: LinkedNotesProps) {
   }
 
   return (
-    <div className="space-y-3 pt-4 border-t border-muted/50 mt-4">
-      <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary uppercase tracking-wider">
-        <FileText className="h-3 w-3" />
+    <div className="space-y-2.5 pt-3 border-t border-border/60 mt-3">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+        <IconNotes className="h-3.5 w-3.5 text-primary" />
         Linked Notes ({notes.length})
       </div>
       <div className="grid gap-2">
         {notes.map((note) => (
           <div
             key={note.id}
-            className="group relative flex flex-col p-3 rounded-xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors cursor-pointer"
+            className="group relative flex flex-col p-3 rounded-lg bg-secondary/40 border border-border/60 hover:bg-secondary/70 hover:border-border transition-colors cursor-pointer"
             onClick={() => {
               if (isMobile) {
                 navigate(`/notes/${note.id}/edit`)
@@ -54,8 +54,10 @@ export function LinkedNotes({ timeEntryId }: LinkedNotesProps) {
             }}
           >
             <div className="flex items-center justify-between gap-2 mb-1">
-              <span className="text-sm font-bold text-primary truncate">{note.title}</span>
-              <span className="text-[10px] text-primary/40 font-mono shrink-0">
+              <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                {note.title}
+              </span>
+              <span className="text-[11px] text-muted-foreground font-mono tabular-nums shrink-0">
                 {format(note.createdAt, 'HH:mm')}
               </span>
             </div>

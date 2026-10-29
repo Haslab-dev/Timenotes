@@ -1,7 +1,6 @@
-import { RefreshCw } from 'lucide-react'
-
+import { IconRefresh } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
-
+import { PageHeader } from '@/components/ui/page-header'
 import { SummaryCard } from '../components/summary-card'
 import { useDashboardSummary } from '../hooks/use-dashboard-summary'
 
@@ -10,20 +9,18 @@ export function DashboardPage() {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Welcome back 👋</h2>
-          <p className="text-sm text-muted-foreground">
-            Here is a quick snapshot of your product workstream.
-          </p>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isRefetching}>
-          <RefreshCw
-            className={`mr-2 h-4 w-4 ${isRefetching || isLoading ? 'animate-spin' : ''}`}
-          />
-          {isRefetching || isLoading ? 'Refreshing' : 'Refresh data'}
-        </Button>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        description="Snapshot of your workspace activity and time allocation."
+        actions={
+          <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isRefetching}>
+            <IconRefresh
+              className={`mr-1.5 h-4 w-4 ${isRefetching || isLoading ? 'animate-spin' : ''}`}
+            />
+            {isRefetching || isLoading ? 'Refreshing' : 'Refresh'}
+          </Button>
+        }
+      />
 
       {isError ? (
         <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">

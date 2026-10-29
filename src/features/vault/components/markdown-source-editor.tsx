@@ -1,15 +1,15 @@
 import {
-  Bold,
-  Code2,
-  Heading,
-  Image as ImageIcon,
-  Italic,
-  Link as LinkIcon,
-  List,
-  ListOrdered,
-  Quote,
-  Strikethrough,
-} from 'lucide-react'
+  IconBold,
+  IconCode,
+  IconHeading,
+  IconPhoto,
+  IconItalic,
+  IconLink,
+  IconList,
+  IconListNumbers,
+  IconQuote,
+  IconStrikethrough,
+} from '@tabler/icons-react'
 import { useRef, type ClipboardEvent, type KeyboardEvent } from 'react'
 import { Button } from '@/components/ui/button'
 
@@ -129,110 +129,110 @@ export function MarkdownSourceEditor({
 
   return (
     <div
-      className={`flex flex-col w-full border rounded-xl overflow-hidden bg-card shadow-sm ${className ?? ''}`}
+      className={`flex flex-col w-full border rounded-lg overflow-hidden bg-card ${className ?? ''}`}
     >
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-muted/30">
+      <div className="flex flex-wrap items-center gap-0.5 p-1.5 border-b bg-secondary/40">
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-lg"
+          className="h-7 w-7 rounded-md"
           onClick={() => prefixLines('# ')}
           title="Heading"
         >
-          <Heading className="h-4 w-4" />
+          <IconHeading className="h-4 w-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-lg"
+          className="h-7 w-7 rounded-md"
           onClick={() => wrapSelection('**', '**', 'bold')}
           title="Bold"
         >
-          <Bold className="h-4 w-4" />
+          <IconBold className="h-4 w-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-lg"
+          className="h-7 w-7 rounded-md"
           onClick={() => wrapSelection('*', '*', 'italic')}
           title="Italic"
         >
-          <Italic className="h-4 w-4" />
+          <IconItalic className="h-4 w-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-lg"
+          className="h-7 w-7 rounded-md"
           onClick={() => wrapSelection('~~', '~~', 'strikethrough')}
           title="Strikethrough"
         >
-          <Strikethrough className="h-4 w-4" />
+          <IconStrikethrough className="h-4 w-4" />
         </Button>
         <div className="w-px h-4 bg-border mx-1" />
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-lg"
+          className="h-7 w-7 rounded-md"
           onClick={() => prefixLines('- ')}
           title="Bullet list"
         >
-          <List className="h-4 w-4" />
+          <IconList className="h-4 w-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-lg"
+          className="h-7 w-7 rounded-md"
           onClick={() => prefixLines('1. ')}
           title="Numbered list"
         >
-          <ListOrdered className="h-4 w-4" />
+          <IconListNumbers className="h-4 w-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-lg"
+          className="h-7 w-7 rounded-md"
           onClick={() => prefixLines('> ')}
           title="Quote"
         >
-          <Quote className="h-4 w-4" />
+          <IconQuote className="h-4 w-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-lg"
+          className="h-7 w-7 rounded-md"
           onClick={() => wrapSelection('`', '`', 'code')}
           title="Inline code"
         >
-          <Code2 className="h-4 w-4" />
+          <IconCode className="h-4 w-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-lg"
+          className="h-7 w-7 rounded-md"
           onClick={() => wrapSelection('[', '](https://)', 'link text')}
           title="Link"
         >
-          <LinkIcon className="h-4 w-4" />
+          <IconLink className="h-4 w-4" />
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-lg"
+          className="h-7 w-7 rounded-md"
           disabled={!onUploadImage}
           onClick={() => document.getElementById('vault-image-input')?.click()}
           title={onUploadImage ? 'Insert image' : 'Attachments require S3/R2 config'}
         >
-          <ImageIcon className="h-4 w-4" />
+          <IconPhoto className="h-4 w-4" />
         </Button>
         <input
           id="vault-image-input"

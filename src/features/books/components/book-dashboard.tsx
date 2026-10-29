@@ -1,27 +1,37 @@
 import { type Book } from '../types'
 import { Button } from '@/components/ui/button'
-import { BookOpen as BookIcon, Trash } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { IconBook, IconPlus, IconTrash } from '@tabler/icons-react'
 import { useNavigate } from 'react-router'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 
 interface BookDashboardProps {
   books: Book[]
   onDelete: (id: string) => void
+  onCreateNew?: () => void
 }
 
-export function BookDashboard({ books, onDelete }: BookDashboardProps) {
+export function BookDashboard({ books, onDelete, onCreateNew }: BookDashboardProps) {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
 
   if (books.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed rounded-3xl bg-muted/20">
-        <BookIcon className="h-12 w-12 text-muted-foreground mb-4 opacity-20" />
-        <p className="text-muted-foreground font-medium">No books yet</p>
-        <Button variant="outline" className="mt-4 rounded-xl" onClick={() => navigate('/books')}>
-          Create your first book
-        </Button>
-      </div>
+      <Card className="flex flex-col items-center justify-center py-12 border-dashed text-center">
+        <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center mb-3">
+          <IconBook className="h-5 w-5 text-muted-foreground" />
+        </div>
+        <p className="text-sm font-medium text-foreground">No books yet</p>
+        <p className="text-xs text-muted-foreground mt-1 mb-4">
+          Start a new book to organize multi-page notes and chapters.
+        </p>
+        {onCreateNew && (
+          <Button size="sm" onClick={onCreateNew}>
+            <IconPlus className="h-4 w-4 mr-1.5" />
+            Create First Book
+          </Button>
+        )}
+      </Card>
     )
   }
 
@@ -29,76 +39,73 @@ export function BookDashboard({ books, onDelete }: BookDashboardProps) {
     return (
       <div className="flex flex-col gap-3">
         {books.map((book) => (
-          <div
+          <Card
             key={book.id}
             onClick={() => navigate(`/books/${book.id}`)}
-            className="flex items-center gap-4 p-4 bg-card border rounded-2xl active:scale-[0.98] transition-all"
+            className="flex items-center gap-4 p-4 hover:border-primary/40 transition-colors cursor-pointer"
           >
-            <div className="w-12 h-16 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+            <div className="w-11 h-14 bg-tertiary text-tertiary-foreground rounded-md flex items-center justify-center shrink-0 border border-border/60">
               {book.thumbnail ? (
                 <img
                   src={book.thumbnail}
                   alt={book.title}
-                  className="w-full h-full object-cover rounded-lg"
+                  className="w-full h-full object-cover rounded-md"
                 />
               ) : (
-                <BookIcon className="h-6 w-6 text-primary" />
+                <IconBook className="h-5 w-5" />
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold truncate">{book.title}</h3>
-              <p className="text-xs text-muted-foreground">
+              <h3 className="font-semibold text-sm truncate">{book.title}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Updated {new Date(book.updatedAt).toLocaleDateString()}
               </p>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-5">
       {books.map((book) => (
         <div
           key={book.id}
-          className="group relative flex flex-col cursor-pointer transition-all duration-500 hover:-translate-y-1.5"
+          className="group relative flex flex-col cursor-pointer"
           onClick={() => navigate(`/books/${book.id}`)}
         >
-          <div className="aspect-[3/4] bg-muted/30 relative rounded-xl overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-500 border border-zinc-100 dark:border-zinc-800">
+          <div className="aspect-[3/4] bg-secondary/50 relative rounded-xl overflow-hidden border border-border group-hover:border-primary/50 transition-colors">
             {book.thumbnail ? (
-              <img
-                src={book.thumbnail}
-                alt={book.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+              <img src={book.thumbnail} alt={book.title} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900">
-                <BookIcon className="h-8 w-8 text-zinc-400 group-hover:scale-110 transition-transform duration-500" />
+              <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-secondary/40">
+                <div className="h-12 w-12 rounded-xl bg-tertiary text-tertiary-foreground flex items-center justify-center border border-border/60">
+                  <IconBook className="h-6 w-6" />
+                </div>
               </div>
             )}
 
-            {/* Actions */}
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-7 w-7 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:bg-destructive hover:text-white transition-colors"
+                className="h-7 w-7 rounded-md bg-background/90 backdrop-blur-sm border border-border hover:bg-destructive hover:text-destructive-foreground transition-colors"
                 onClick={(e) => {
                   e.stopPropagation()
                   if (confirm('Delete this book?')) onDelete(book.id)
                 }}
               >
-                <Trash className="h-3.5 w-3.5" />
+                <IconTrash className="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
 
-          <div className="pt-3 px-1 text-left">
-            <h3 className="font-bold text-sm leading-tight group-hover:text-primary transition-colors line-clamp-2">
+          <div className="pt-2.5 px-0.5 text-left">
+            <h3 className="font-semibold text-sm leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2">
               {book.title}
             </h3>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1 font-bold">
+            <p className="text-xs text-muted-foreground mt-0.5 tabular-nums">
               {new Date(book.updatedAt).toLocaleDateString()}
             </p>
           </div>

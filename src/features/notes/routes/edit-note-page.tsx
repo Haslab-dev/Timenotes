@@ -1,12 +1,20 @@
 import { useNavigate, useParams } from 'react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useIsMobile } from '@/lib/hooks/use-mobile'
 import { useNote, useUpdateNote } from '../hooks/use-notes'
 import { NoteForm } from '../components/note-form'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Check, Clock, Share } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  IconArrowLeft,
+  IconCheck,
+  IconClock,
+  IconDownload,
+  IconNotes,
+  IconShare,
+} from '@tabler/icons-react'
 import { useTimeEntriesByProject } from '@/features/timesheet/hooks/use-timesheet'
-import { useMemo } from 'react'
 
 export function EditNotePage() {
   const { id } = useParams<{ id: string }>()
@@ -22,7 +30,6 @@ export function EditNotePage() {
     }
   }, [isMobile, id, navigate])
 
-  // Fetch time entries for the project if note has one
   const { data: timeEntries = [] } = useTimeEntriesByProject(note?.projectId || '')
 
   const timeTrackedToday = useMemo(() => {
@@ -45,15 +52,15 @@ export function EditNotePage() {
   }, [timeEntries, note?.projectId])
 
   if (isLoading) {
-    return <div className="p-8 text-center text-muted-foreground">Loading note...</div>
+    return <div className="p-8 text-center text-sm text-muted-foreground">Loading note...</div>
   }
 
   if (!note) {
     return (
       <div className="p-8 text-center space-y-4">
-        <p className="text-muted-foreground">Note not found</p>
+        <p className="text-sm text-muted-foreground">Note not found</p>
         <Button variant="outline" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <IconArrowLeft className="h-4 w-4 mr-1.5" />
           Go Back
         </Button>
       </div>
@@ -67,6 +74,17 @@ export function EditNotePage() {
     window.setTimeout(() => setCopied(false), 2000)
   }
 
+  const handleDownloadMd = () => {
+    const safeName = (note.title || 'untitled').replace(/[^a-z0-9-_ ]/gi, '').trim() || 'untitled'
+    const blob = new Blob([note.content], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `${safeName}.md`
+    anchor.click()
+    URL.revokeObjectURL(url)
+  }
+
   const handleUpdate = async (data: any) => {
     try {
       await updateMutation.mutateAsync({ id: note.id, data })
@@ -77,75 +95,60 @@ export function EditNotePage() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between gap-4 border-b pb-4 border-zinc-100 dark:border-zinc-800">
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="sm:hidden h-9 w-9 shrink-0"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft className="h-5 w-5" />
+    <div className="space-y-4 max-w-3xl mx-auto">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
+          <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => navigate(-1)}>
+            <IconArrowLeft className="h-3.5 w-3.5 mr-1" />
+            Notes
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="hidden sm:flex rounded-xl shrink-0"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <div className="flex flex-col gap-0.5">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
-              Note Detail
-            </p>
-            {timeTrackedToday && (
-              <div className="flex sm:hidden items-center gap-1 px-1.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[9px] font-bold uppercase tracking-wider border border-indigo-100 dark:border-indigo-800/50">
-                <Clock className="h-3 w-3" />
-                {timeTrackedToday}
-              </div>
-            )}
-          </div>
+          <span>/</span>
+          <span className="inline-flex items-center gap-1.5 text-foreground font-medium truncate">
+            <IconNotes className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span className="truncate">{note.title || 'Untitled'}</span>
+          </span>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           {timeTrackedToday && (
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider border border-indigo-100 dark:border-indigo-800/50">
-              <Clock className="h-3.5 w-3.5" />
-              <span>Worked today: {timeTrackedToday}</span>
-            </div>
+            <Badge variant="tertiary" className="gap-1.5">
+              <IconClock className="h-3.5 w-3.5" />
+              <span>Today: {timeTrackedToday}</span>
+            </Badge>
           )}
 
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="hidden sm:flex rounded-xl border-zinc-200 dark:border-zinc-800"
-            onClick={handleShare}
+            className="h-7 px-2 text-xs"
+            onClick={handleDownloadMd}
+            title="Download .md"
           >
-            {copied ? <Check className="h-4 w-4 mr-2" /> : <Share className="h-4 w-4 mr-2" />}
-            {copied ? 'Copied!' : 'Share'}
+            <IconDownload className="h-3.5 w-3.5 mr-1" />
+            .md
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="sm:hidden h-9 w-9 rounded-xl border-zinc-200 dark:border-zinc-800"
-            onClick={handleShare}
-          >
-            {copied ? <Check className="h-4 w-4" /> : <Share className="h-4 w-4" />}
+
+          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={handleShare}>
+            {copied ? (
+              <IconCheck className="h-3.5 w-3.5 mr-1" />
+            ) : (
+              <IconShare className="h-3.5 w-3.5 mr-1" />
+            )}
+            {copied ? 'Copied!' : 'Share'}
           </Button>
         </div>
       </div>
 
-      <div className="bg-card rounded-3xl border border-zinc-100 dark:border-zinc-800 p-4 sm:p-8 shadow-sm">
-        <NoteForm
-          note={note}
-          onSubmit={handleUpdate}
-          onCancel={() => navigate(-1)}
-          isLoading={updateMutation.isPending}
-        />
-      </div>
+      <Card>
+        <CardContent className="p-6 sm:p-8">
+          <NoteForm
+            note={note}
+            onSubmit={handleUpdate}
+            onCancel={() => navigate(-1)}
+            isLoading={updateMutation.isPending}
+          />
+        </CardContent>
+      </Card>
     </div>
   )
 }

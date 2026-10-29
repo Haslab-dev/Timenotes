@@ -4,7 +4,8 @@ import { useIsMobile } from '@/lib/hooks/use-mobile'
 import { useTimeEntry, useUpdateTimeEntry } from '../hooks/use-timesheet'
 import { TimeEntryForm } from '../components/time-entry-form'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { IconArrowLeft } from '@tabler/icons-react'
 
 export function EditTimeEntryPage() {
   const { id } = useParams<{ id: string }>()
@@ -20,15 +21,17 @@ export function EditTimeEntryPage() {
   }, [isMobile, id, navigate])
 
   if (isLoading) {
-    return <div className="p-8 text-center text-muted-foreground">Loading time entry...</div>
+    return (
+      <div className="p-8 text-center text-sm text-muted-foreground">Loading time entry...</div>
+    )
   }
 
   if (!timeEntry) {
     return (
       <div className="p-8 text-center space-y-4">
-        <p className="text-muted-foreground">Time entry not found</p>
+        <p className="text-sm text-muted-foreground">Time entry not found</p>
         <Button variant="outline" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <IconArrowLeft className="h-4 w-4 mr-1.5" />
           Go Back
         </Button>
       </div>
@@ -45,23 +48,25 @@ export function EditTimeEntryPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center gap-4">
+    <div className="space-y-6 max-w-2xl mx-auto">
+      <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <IconArrowLeft className="h-4 w-4 mr-1.5" />
           Back
         </Button>
-        <h1 className="text-2xl font-bold">Edit Time Entry</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Edit Time Entry</h1>
       </div>
 
-      <div className="bg-card rounded-2xl border p-6 shadow-sm">
-        <TimeEntryForm
-          timeEntry={timeEntry}
-          onSubmit={handleUpdate}
-          onCancel={() => navigate(-1)}
-          isLoading={updateMutation.isPending}
-        />
-      </div>
+      <Card>
+        <CardContent className="p-6">
+          <TimeEntryForm
+            timeEntry={timeEntry}
+            onSubmit={handleUpdate}
+            onCancel={() => navigate(-1)}
+            isLoading={updateMutation.isPending}
+          />
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -1,15 +1,24 @@
 import { useState, useCallback } from 'react'
 import {
-  ListTodo,
-  Plus,
-  AlertCircle,
-  Bell,
-  BellOff,
-  CheckCircle2,
-  Clock,
-  BarChart3,
-} from 'lucide-react'
+  IconChecklist,
+  IconPlus,
+  IconAlertCircle,
+  IconBell,
+  IconBellOff,
+  IconCircleCheck,
+  IconClock,
+  IconCalendarMonth,
+} from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { PageHeader } from '@/components/ui/page-header'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { TaskPlannerCalendar } from '../components/task-planner-calendar'
 import { TaskList } from '../components/task-list'
 import { TaskDialog } from '../components/task-dialog'
@@ -126,139 +135,144 @@ export function TasksPage() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 pb-24 sm:pb-12 animate-in fade-in duration-700">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 px-1">
-        <div className="space-y-1 text-left">
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-foreground flex items-center gap-2 sm:gap-3">
-            <ListTodo className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-            Task Planner
-          </h1>
-          <p className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-60">
-            Plan, schedule, and track your tasks
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className={`h-8 px-2 sm:px-3 text-xs font-bold rounded-lg transition-all ${
-              notificationEnabled
-                ? 'border-primary/30 text-primary bg-primary/5'
-                : 'text-muted-foreground'
-            }`}
-            onClick={handleNotificationToggle}
-          >
-            {notificationEnabled ? (
-              <Bell className="h-3.5 w-3.5 sm:mr-1" />
-            ) : (
-              <BellOff className="h-3.5 w-3.5 sm:mr-1" />
-            )}
-            <span className="hidden sm:inline">{notificationEnabled ? 'On' : 'Off'}</span>
-          </Button>
-          <Button
-            size="sm"
-            className="h-8 sm:h-9 px-3 sm:px-4 text-xs font-bold rounded-lg"
-            onClick={() => handleAddTask(new Date())}
-          >
-            <Plus className="h-3.5 w-3.5 sm:mr-1.5" />
-            <span className="hidden sm:inline">New Task</span>
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Tasks"
+        description="Plan, schedule, and track your action items."
+        actions={
+          <div className="flex items-center gap-2">
+            <Button
+              variant={notificationEnabled ? 'tertiary' : 'outline'}
+              size="sm"
+              onClick={handleNotificationToggle}
+            >
+              {notificationEnabled ? (
+                <IconBell className="h-4 w-4 sm:mr-1.5" />
+              ) : (
+                <IconBellOff className="h-4 w-4 sm:mr-1.5" />
+              )}
+              <span className="hidden sm:inline">
+                {notificationEnabled ? 'Alerts On' : 'Alerts Off'}
+              </span>
+            </Button>
+            <Button size="sm" onClick={() => handleAddTask(new Date())}>
+              <IconPlus className="h-4 w-4 sm:mr-1.5" />
+              <span>New Task</span>
+            </Button>
+          </div>
+        }
+      />
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 px-1">
-        <div className="bg-card border rounded-xl p-3 sm:p-4 shadow-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <Card className="p-4 text-left">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">
-              Total
-            </span>
-            <ListTodo className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground/40" />
+            <span className="text-xs font-medium text-muted-foreground">Total Tasks</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+              <IconChecklist className="h-4 w-4" stroke={1.75} />
+            </div>
           </div>
-          <p className="text-xl sm:text-2xl font-black mt-1">{statusCounts.total}</p>
-        </div>
-        <div className="bg-card border rounded-xl p-3 sm:p-4 shadow-sm">
+          <p className="text-2xl font-semibold tabular-nums mt-2 text-foreground">
+            {statusCounts.total}
+          </p>
+        </Card>
+
+        <Card className="p-4 text-left">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">
-              Active
-            </span>
-            <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-400" />
+            <span className="text-xs font-medium text-muted-foreground">In Progress</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <IconClock className="h-4 w-4" stroke={1.75} />
+            </div>
           </div>
-          <p className="text-xl sm:text-2xl font-black mt-1 text-blue-500">{statusCounts.active}</p>
-        </div>
-        <div className="bg-card border rounded-xl p-3 sm:p-4 shadow-sm">
+          <p className="text-2xl font-semibold tabular-nums mt-2 text-primary">
+            {statusCounts.active}
+          </p>
+        </Card>
+
+        <Card className="p-4 text-left">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">
-              Done
-            </span>
-            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-400" />
+            <span className="text-xs font-medium text-muted-foreground">Completed</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-tertiary text-tertiary-foreground">
+              <IconCircleCheck className="h-4 w-4" stroke={1.75} />
+            </div>
           </div>
-          <p className="text-xl sm:text-2xl font-black mt-1 text-green-500">
+          <p className="text-2xl font-semibold tabular-nums mt-2 text-foreground">
             {statusCounts.completed}
           </p>
-        </div>
-        <div className="bg-card border rounded-xl p-3 sm:p-4 shadow-sm">
+        </Card>
+
+        <Card className="p-4 text-left">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider">
-              Overdue
-            </span>
-            <AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive" />
+            <span className="text-xs font-medium text-muted-foreground">Overdue</span>
+            <div
+              className={`flex h-7 w-7 items-center justify-center rounded-md ${
+                statusCounts.overdue > 0
+                  ? 'bg-destructive/10 text-destructive'
+                  : 'bg-secondary text-muted-foreground'
+              }`}
+            >
+              <IconAlertCircle className="h-4 w-4" stroke={1.75} />
+            </div>
           </div>
           <p
-            className={`text-xl sm:text-2xl font-black mt-1 ${overdueTasks.length > 0 ? 'text-destructive' : 'text-muted-foreground'}`}
+            className={`text-2xl font-semibold tabular-nums mt-2 ${
+              statusCounts.overdue > 0 ? 'text-destructive' : 'text-muted-foreground'
+            }`}
           >
             {statusCounts.overdue}
           </p>
-        </div>
+        </Card>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-1">
-        <div className="flex bg-muted/50 p-1 rounded-xl border shadow-inner overflow-hidden">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="inline-flex bg-secondary/70 p-0.5 rounded-lg border border-border">
           <Button
             variant={view === 'calendar' ? 'default' : 'ghost'}
             size="sm"
-            className={`h-7 sm:h-8 px-2 sm:px-4 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
-              view === 'calendar' ? 'shadow-md' : 'text-muted-foreground hover:bg-muted'
-            }`}
+            className="h-7 px-3 rounded-md text-xs"
             onClick={() => setView('calendar')}
           >
-            <BarChart3 className="h-3.5 w-3.5 sm:mr-1.5" />
-            <span className="hidden sm:inline">Calendar</span>
+            <IconCalendarMonth className="h-3.5 w-3.5 mr-1.5" />
+            Calendar
           </Button>
           <Button
             variant={view === 'list' ? 'default' : 'ghost'}
             size="sm"
-            className={`h-7 sm:h-8 px-2 sm:px-4 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
-              view === 'list' ? 'shadow-md' : 'text-muted-foreground hover:bg-muted'
-            }`}
+            className="h-7 px-3 rounded-md text-xs"
             onClick={() => setView('list')}
           >
-            <ListTodo className="h-3.5 w-3.5 sm:mr-1.5" />
-            <span className="hidden sm:inline">List</span>
+            <IconChecklist className="h-3.5 w-3.5 mr-1.5" />
+            List
           </Button>
         </div>
 
         {view === 'list' && (
           <div className="flex items-center gap-2">
-            <select
+            <Select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'completed')}
-              className="h-8 rounded-lg border bg-background px-2 text-xs font-medium text-muted-foreground outline-none"
+              onValueChange={(v) => setStatusFilter(v as 'all' | 'active' | 'completed')}
             >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="completed">Completed</option>
-            </select>
-            <select
-              value={priorityFilter}
-              onChange={(e) => setPriorityFilter(e.target.value)}
-              className="h-8 rounded-lg border bg-background px-2 text-xs font-medium text-muted-foreground outline-none"
-            >
-              <option value="all">All Priority</option>
-              <option value="urgent">Urgent</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
+              <SelectTrigger className="h-8 w-32 text-xs">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+              <SelectTrigger className="h-8 w-36 text-xs">
+                <SelectValue placeholder="Priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Priority</SelectItem>
+                <SelectItem value="urgent">Urgent</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         )}
       </div>
@@ -272,14 +286,14 @@ export function TasksPage() {
           onDeleteTask={handleDeleteTask}
         />
       ) : (
-        <div className="bg-card border rounded-2xl shadow-sm p-3 sm:p-4">
+        <Card className="p-4">
           <TaskList
             tasks={filteredTasks}
             onToggleStatus={handleToggleTask}
             onEdit={handleEditTask}
             onDelete={handleDeleteTask}
           />
-        </div>
+        </Card>
       )}
 
       <TaskDialog

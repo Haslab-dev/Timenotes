@@ -1,7 +1,16 @@
-import { Plus, Clock, Download, LayoutList, Calendar as CalendarIcon } from 'lucide-react'
+import {
+  IconPlus,
+  IconClock,
+  IconDownload,
+  IconLayoutList,
+  IconCalendarMonth,
+} from '@tabler/icons-react'
 import { useState, useMemo, useEffect } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
+import { PageHeader } from '@/components/ui/page-header'
 import {
   Dialog,
   DialogContent,
@@ -31,7 +40,6 @@ export function TimesheetList() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [view, setView] = useState<'list' | 'calendar'>('list')
 
-  // Handle "Start New Timer" from Dashboard
   useEffect(() => {
     if (location.state?.openTimer) {
       if (isMobile) {
@@ -45,31 +53,26 @@ export function TimesheetList() {
   const { data: timeEntries = [], isLoading } = useTimeEntries()
   const { data: projects = [] } = useProjects()
 
-  // Handle URL params for editing a specific entry
   useEffect(() => {
     const timeEntryId = searchParams.get('timeEntryId')
     if (timeEntryId && isMobile) {
-      // If on mobile, redirect to edit page
       navigate(`/timesheet/${timeEntryId}/edit`)
     }
   }, [searchParams, isMobile, navigate])
+
   const createMutation = useCreateTimeEntry()
   const deleteMutation = useDeleteTimeEntry()
 
-  // Apply filters
   const { filters, filteredData, updateFilters, clearFilters, hasActiveFilters } =
     useTimesheetFilters(timeEntries)
 
-  // Apply pagination (25 items per page for compact view)
   const {
     data: paginatedTimeEntries,
     pagination,
     goToPage,
-
     setPageSize,
   } = usePagination(filteredData, 25)
 
-  // Get unique tags from all time entries for filter options
   const availableTags = useMemo(() => {
     if (!timeEntries) return []
     const tags = new Set<string>()
@@ -105,80 +108,78 @@ export function TimesheetList() {
   }
 
   if (isLoading) {
-    return <div className="text-center py-8 text-muted-foreground">Loading timesheet...</div>
+    return (
+      <div className="text-center py-12 text-sm text-muted-foreground">Loading timesheet...</div>
+    )
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="space-y-3 sm:space-y-4">
-        <h2 className="text-xl sm:text-2xl font-bold px-0.5 text-left">Timesheet</h2>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <div className="flex bg-muted p-1 rounded-lg self-start border shadow-sm">
+    <div className="space-y-6">
+      <PageHeader
+        title="Timesheet"
+        description="Review, filter, and manage your logged time entries."
+        badge={<Badge variant="secondary">{timeEntries.length}</Badge>}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex bg-secondary/70 p-0.5 rounded-lg border border-border">
+              <Button
+                variant={view === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 px-3 rounded-md text-xs"
+                onClick={() => setView('list')}
+              >
+                <IconLayoutList className="h-3.5 w-3.5 mr-1.5" />
+                List
+              </Button>
+              <Button
+                variant={view === 'calendar' ? 'default' : 'ghost'}
+                size="sm"
+                className="h-7 px-3 rounded-md text-xs"
+                onClick={() => setView('calendar')}
+              >
+                <IconCalendarMonth className="h-3.5 w-3.5 mr-1.5" />
+                Calendar
+              </Button>
+            </div>
+
             <Button
-              variant={view === 'list' ? 'default' : 'ghost'}
+              variant="outline"
               size="sm"
-              className={[
-                'h-8 px-4 rounded-md text-xs font-bold transition-all duration-200 cursor-pointer',
-                view === 'list' ? 'shadow-sm' : 'hover:bg-muted-foreground/10',
-              ].join(' ')}
-              onClick={() => setView('list')}
+              onClick={handleExportCsv}
+              disabled={filteredData.length === 0}
             >
-              <LayoutList className="h-3.5 w-3.5 mr-1.5" />
-              List
+              <IconDownload className="h-4 w-4 mr-1.5" />
+              Export CSV
             </Button>
-            <Button
-              variant={view === 'calendar' ? 'default' : 'ghost'}
-              size="sm"
-              className={[
-                'h-8 px-4 rounded-md text-xs font-bold transition-all duration-200 cursor-pointer',
-                view === 'calendar' ? 'shadow-sm' : 'hover:bg-muted-foreground/10',
-              ].join(' ')}
-              onClick={() => setView('calendar')}
-            >
-              <CalendarIcon className="h-3.5 w-3.5 mr-1.5" />
-              Calendar
-            </Button>
+
+            {isMobile ? (
+              <Button size="sm" onClick={() => navigate('/timesheet/new')}>
+                <IconPlus className="h-4 w-4 mr-1.5" />
+                Add Entry
+              </Button>
+            ) : (
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm">
+                    <IconPlus className="h-4 w-4 mr-1.5" />
+                    Add Entry
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Add Time Entry</DialogTitle>
+                  </DialogHeader>
+                  <TimeEntryForm
+                    onSubmit={handleCreateTimeEntry}
+                    onCancel={() => setIsCreateDialogOpen(false)}
+                    isLoading={createMutation.isPending}
+                  />
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
-
-          <div className="flex-1" />
-
-          {isMobile ? (
-            <Button className="w-full h-10 shadow-sm" onClick={() => navigate('/timesheet/new')}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Time Entry
-            </Button>
-          ) : (
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto h-10">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Time Entry
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Add Time Entry</DialogTitle>
-                </DialogHeader>
-                <TimeEntryForm
-                  onSubmit={handleCreateTimeEntry}
-                  onCancel={() => setIsCreateDialogOpen(false)}
-                  isLoading={createMutation.isPending}
-                />
-              </DialogContent>
-            </Dialog>
-          )}
-          <Button
-            variant="outline"
-            size="default"
-            onClick={handleExportCsv}
-            disabled={filteredData.length === 0}
-            className="w-full sm:w-auto h-10 text-xs sm:text-sm"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Filters */}
       <TimesheetFiltersComponent
@@ -191,36 +192,39 @@ export function TimesheetList() {
 
       {/* Results Summary */}
       {filteredData.length !== timeEntries.length && (
-        <div className="text-sm text-muted-foreground">
-          Showing {filteredData.length} of {timeEntries.length} time entries
-          {hasActiveFilters && (
-            <span className="ml-2 font-medium">
-              ({pagination.total} results match current filters)
-            </span>
-          )}
+        <div className="text-xs text-muted-foreground text-left">
+          Showing <strong className="font-medium text-foreground">{filteredData.length}</strong> of{' '}
+          <strong className="font-medium text-foreground">{timeEntries.length}</strong> time entries
         </div>
       )}
 
       {timeEntries.length === 0 ? (
-        <div className="text-center py-12">
-          <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground mb-4">No time entries yet</p>
+        <Card className="p-12 text-center">
+          <IconClock className="h-10 w-10 mx-auto text-muted-foreground/40 mb-3" />
+          <p className="text-sm font-medium text-foreground mb-1">No time entries yet</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            Start a focus session or log a manual entry to track your work.
+          </p>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button>Add your first time entry</Button>
+              <Button size="sm">
+                <IconPlus className="h-4 w-4 mr-1.5" />
+                Add your first time entry
+              </Button>
             </DialogTrigger>
           </Dialog>
-        </div>
+        </Card>
       ) : filteredData.length === 0 ? (
-        <div className="text-center py-12">
+        <Card className="p-12 text-center">
           <div className="text-muted-foreground">
-            <div className="text-lg mb-2">No time entries match your filters</div>
-            <div className="text-sm">Try adjusting your search criteria</div>
+            <div className="text-sm font-medium text-foreground mb-1">
+              No time entries match your filters
+            </div>
+            <div className="text-xs">Try adjusting your search criteria</div>
           </div>
-        </div>
+        </Card>
       ) : view === 'list' ? (
         <div className="space-y-4">
-          {/* Compact Table */}
           <CompactTimesheetTable
             timeEntries={paginatedTimeEntries}
             onEdit={(entry) => {
@@ -233,7 +237,6 @@ export function TimesheetList() {
             onDelete={handleDeleteTimeEntry}
           />
 
-          {/* Pagination */}
           {filteredData.length > 0 && (
             <Pagination
               page={pagination.page}

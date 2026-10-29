@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Search, Filter, X, Tags } from 'lucide-react'
+import { IconSearch, IconFilter, IconX, IconTags } from '@tabler/icons-react'
 import { useProjects } from '@/features/projects/hooks/use-projects'
 import type { NotesFilters } from '@/lib/hooks/use-filters'
 
@@ -41,10 +41,9 @@ export function NotesFiltersComponent({
 
   return (
     <div className="space-y-4">
-      {/* Search and Toggle */}
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <IconSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search notes by title, content, or tags..."
             value={filters.search}
@@ -58,10 +57,10 @@ export function NotesFiltersComponent({
           onClick={() => setShowFilters(!showFilters)}
           className="flex items-center gap-2"
         >
-          <Filter className="h-4 w-4" />
+          <IconFilter className="h-4 w-4" />
           Filters
           {hasActiveFilters && (
-            <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
+            <Badge variant="tertiary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
               {
                 [filters.tags.length > 0 && 'Tags', filters.projectId && 'Project'].filter(Boolean)
                   .length
@@ -72,18 +71,15 @@ export function NotesFiltersComponent({
 
         {hasActiveFilters && (
           <Button variant="ghost" size="sm" onClick={onClearFilters}>
-            <X className="h-4 w-4 mr-1" />
+            <IconX className="h-4 w-4 mr-1" />
             Clear
           </Button>
         )}
       </div>
 
-      {/* Expanded Filters */}
       {showFilters && (
-        <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
-          {/* Project and Tags - Stack on mobile */}
+        <div className="space-y-4 p-4 border rounded-lg bg-secondary/30">
           <div className="grid gap-4 sm:grid-cols-2">
-            {/* Project Filter */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">Project</Label>
               <Select
@@ -112,10 +108,9 @@ export function NotesFiltersComponent({
               </Select>
             </div>
 
-            {/* Tags Filter */}
             <div className="space-y-2">
               <Label className="text-sm font-medium flex items-center gap-2">
-                <Tags className="h-4 w-4" />
+                <IconTags className="h-4 w-4" />
                 Tags
               </Label>
               <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[36px] bg-background">
@@ -139,13 +134,12 @@ export function NotesFiltersComponent({
         </div>
       )}
 
-      {/* Active Filters Display */}
       {hasActiveFilters && (
         <div className="flex flex-wrap gap-2">
           {filters.projectId && (
             <Badge variant="secondary" className="gap-1">
               Project: {projects?.find((p) => p.id === filters.projectId)?.name}
-              <X
+              <IconX
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => onFiltersChange({ projectId: undefined })}
               />
@@ -154,7 +148,7 @@ export function NotesFiltersComponent({
           {filters.tags.map((tag) => (
             <Badge key={tag} variant="secondary" className="gap-1">
               Tag: {tag}
-              <X className="h-3 w-3 cursor-pointer" onClick={() => handleTagToggle(tag)} />
+              <IconX className="h-3 w-3 cursor-pointer" onClick={() => handleTagToggle(tag)} />
             </Badge>
           ))}
         </div>
